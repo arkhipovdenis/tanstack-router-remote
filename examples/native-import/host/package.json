@@ -1,0 +1,23 @@
+{
+  "name": "@tanstack-router-remote/example-native-import-host",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "preview": "rsbuild preview",
+    "build": "rsbuild build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack-router-remote/example-native-import-remote": "file:../remote",
+    "@tanstack-router-remote/route-tree-adapter": "file:../../../packages/route-tree-adapter",
+    "@tanstack/react-router": "1.170.18",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "2.1.9",
+    "@rsbuild/plugin-react": "2.1.0"
+  }
+}

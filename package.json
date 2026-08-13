@@ -1,0 +1,50 @@
+{
+  "name": "tanstack-router-remote",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*/*"
+  ],
+  "scripts": {
+    "build": "npm run build:packages && npm run build:example",
+    "build:packages": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build --workspace=@tanstack-router-remote/rspack-plugin",
+    "build:example": "npm run build:example:module-federation && npm run build:example:native-import && npm run build:example:file-routing",
+    "build:example:module-federation": "npm run build --workspace=@tanstack-router-remote/example-invoices && npm run build --workspace=@tanstack-router-remote/example-remote && npm run build --workspace=@tanstack-router-remote/example-host",
+    "build:example:native-import": "npm run build --workspace=@tanstack-router-remote/example-native-import-remote && npm run build --workspace=@tanstack-router-remote/example-native-import-host",
+    "build:example:file-routing": "npm run build --workspace=@tanstack-router-remote/example-file-routing-manual && npm run build --workspace=@tanstack-router-remote/example-file-routing-plugin",
+    "dev:examples": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build --workspace=@tanstack-router-remote/example-native-import-remote && concurrently --kill-others-on-fail --names invoices,orders,host,native,file-manual,file-plugin --prefix-colors magenta,cyan,green,blue,yellow,red \"npm run dev --workspace=@tanstack-router-remote/example-invoices\" \"npm run dev --workspace=@tanstack-router-remote/example-remote\" \"npm run dev --workspace=@tanstack-router-remote/example-host\" \"npm run dev --workspace=@tanstack-router-remote/example-native-import-host\" \"npm run dev --workspace=@tanstack-router-remote/example-file-routing-manual\" \"npm run dev --workspace=@tanstack-router-remote/example-file-routing-plugin\"",
+    "dev:example:host": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run dev --workspace=@tanstack-router-remote/example-host",
+    "dev:example:remote": "npm run dev --workspace=@tanstack-router-remote/example-remote",
+    "dev:example:invoices": "npm run dev --workspace=@tanstack-router-remote/example-invoices",
+    "dev:example:module-federation": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && concurrently --kill-others-on-fail --names invoices,orders,host --prefix-colors magenta,cyan,green \"npm run dev --workspace=@tanstack-router-remote/example-invoices\" \"npm run dev --workspace=@tanstack-router-remote/example-remote\" \"npm run dev --workspace=@tanstack-router-remote/example-host\"",
+    "dev:example:native-import": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build:incremental --workspace=@tanstack-router-remote/example-native-import-remote && npm run dev --workspace=@tanstack-router-remote/example-native-import-host",
+    "dev:example:file-routing": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build --workspace=@tanstack-router-remote/example-native-import-remote && concurrently --kill-others-on-fail --names manual,plugin --prefix-colors yellow,red \"npm run dev --workspace=@tanstack-router-remote/example-file-routing-manual\" \"npm run dev --workspace=@tanstack-router-remote/example-file-routing-plugin\"",
+    "dev:example:file-routing:manual": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build:incremental --workspace=@tanstack-router-remote/example-native-import-remote && npm run dev --workspace=@tanstack-router-remote/example-file-routing-manual",
+    "dev:example:file-routing:plugin": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build:incremental --workspace=@tanstack-router-remote/example-native-import-remote && npm run dev --workspace=@tanstack-router-remote/example-file-routing-plugin",
+    "preview:examples": "npm run build && concurrently --kill-others-on-fail --names invoices,orders,host,native,file-manual,file-plugin --prefix-colors magenta,cyan,green,blue,yellow,red \"npm run preview --workspace=@tanstack-router-remote/example-invoices\" \"npm run preview --workspace=@tanstack-router-remote/example-remote\" \"npm run preview --workspace=@tanstack-router-remote/example-host\" \"npm run preview --workspace=@tanstack-router-remote/example-native-import-host\" \"npm run preview --workspace=@tanstack-router-remote/example-file-routing-manual\" \"npm run preview --workspace=@tanstack-router-remote/example-file-routing-plugin\"",
+    "preview:example:host": "npm run preview --workspace=@tanstack-router-remote/example-host",
+    "preview:example:remote": "npm run preview --workspace=@tanstack-router-remote/example-remote",
+    "preview:example:invoices": "npm run preview --workspace=@tanstack-router-remote/example-invoices",
+    "preview:example:module-federation": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build:example:module-federation && concurrently --kill-others-on-fail --names invoices,orders,host --prefix-colors magenta,cyan,green \"npm run preview --workspace=@tanstack-router-remote/example-invoices\" \"npm run preview --workspace=@tanstack-router-remote/example-remote\" \"npm run preview --workspace=@tanstack-router-remote/example-host\"",
+    "preview:example:native-import": "npm run build --workspace=@tanstack-router-remote/route-tree-adapter && npm run build:example:native-import && npm run preview --workspace=@tanstack-router-remote/example-native-import-host",
+    "preview:example:file-routing": "npm run build && concurrently --kill-others-on-fail --names manual,plugin --prefix-colors yellow,red \"npm run preview --workspace=@tanstack-router-remote/example-file-routing-manual\" \"npm run preview --workspace=@tanstack-router-remote/example-file-routing-plugin\"",
+    "preview:example:file-routing:manual": "npm run build:example:file-routing && npm run preview --workspace=@tanstack-router-remote/example-file-routing-manual",
+    "preview:example:file-routing:plugin": "npm run build:example:file-routing && npm run preview --workspace=@tanstack-router-remote/example-file-routing-plugin",
+    "typecheck": "tsc --noEmit && npm run typecheck --workspace=@tanstack-router-remote/route-tree-adapter && npm run typecheck --workspace=@tanstack-router-remote/rspack-plugin && npm run typecheck --workspace=@tanstack-router-remote/example-host && npm run typecheck --workspace=@tanstack-router-remote/example-remote && npm run typecheck --workspace=@tanstack-router-remote/example-invoices && npm run typecheck --workspace=@tanstack-router-remote/example-native-import-remote && npm run build --workspace=@tanstack-router-remote/example-native-import-remote && npm run typecheck --workspace=@tanstack-router-remote/example-native-import-host && npm run typecheck --workspace=@tanstack-router-remote/example-file-routing-manual && npm run typecheck --workspace=@tanstack-router-remote/example-file-routing-plugin",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm test && npm run build && npm run smoke --workspace=@tanstack-router-remote/rspack-plugin"
+  },
+  "devDependencies": {
+    "@tanstack/react-router": "1.170.18",
+    "@tanstack/router-plugin": "1.168.18",
+    "@types/node": "22.15.30",
+    "@types/react": "19.2.4",
+    "@types/react-dom": "19.2.3",
+    "concurrently": "^10.0.4",
+    "jsdom": "^26.1.0",
+    "typescript": "5.8.3",
+    "vitest": "3.2.7"
+  }
+}

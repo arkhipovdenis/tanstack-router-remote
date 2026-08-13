@@ -1,0 +1,36 @@
+{
+  "name": "@tanstack-router-remote/route-tree-adapter",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Route-tree attachment bridge for TanStack React Router microfrontends.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@tanstack/react-router": ">=1.168.18",
+    "react": ">=18 <20",
+    "react-dom": ">=18 <20"
+  },
+  "devDependencies": {
+    "@tanstack/react-router": "1.170.18",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@tanstack-router-remote/rspack-plugin",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "TanStack Router Remote adapter for Rspack file routes.",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "smoke": "node ./scripts/smoke.mjs",
+    "test:smoke": "npm run build && npm run smoke"
+  },
+  "dependencies": {
+    "typescript": "5.8.3"
+  },
+  "peerDependencies": {
+    "@rspack/core": ">=1.0.0 <3.0.0",
+    "@tanstack-router-remote/route-tree-adapter": ">=0.1.0-alpha.0"
+  },
+  "devDependencies": {
+    "@rspack/core": "2.1.8"
+  }
+}

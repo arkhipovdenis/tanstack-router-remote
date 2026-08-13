@@ -1,0 +1,184 @@
+:root {
+  color: #edf0ff;
+  background: #18152d;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: #cbbcff;
+}
+
+code,
+output {
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: #e0d8ff;
+  background: rgb(0 0 0 / 24%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.invoices-root {
+  display: grid;
+  gap: 16px;
+  width: min(100% - 32px, 950px);
+  margin: 28px auto;
+  padding: 22px;
+  border: 1px solid #6a58a3;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #28204c, #1e1a35 55%, #25213c);
+}
+
+.header,
+.route-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.header h2,
+.header h3,
+.route-heading h3,
+p {
+  margin-top: 0;
+}
+
+.eyebrow {
+  margin-bottom: 5px;
+  color: #c3b9e5;
+  font-size: 0.74rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.lede,
+.hint,
+.runtime-check span {
+  color: #cbc7dc;
+}
+
+.root-lifecycle {
+  margin: 0;
+  color: #bff1ca;
+}
+
+.nav,
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.nav a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #7461ab;
+  border-radius: 7px;
+  background: rgb(14 8 37 / 38%);
+  text-decoration: none;
+}
+
+.compact {
+  margin-bottom: 10px;
+}
+
+.runtime-panel,
+.state-lab,
+.route-card {
+  padding: 16px;
+  border: 1px solid rgb(169 151 228 / 42%);
+  border-radius: 10px;
+  background: rgb(9 6 29 / 32%);
+}
+
+.runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 9px;
+  margin: 12px 0;
+}
+
+.runtime-check {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgb(192 178 240 / 22%);
+  border-radius: 7px;
+  background: rgb(0 0 0 / 14%);
+  font-size: 0.87rem;
+}
+
+.pass {
+  color: #b6f3c5;
+}
+
+.waiting {
+  color: #d3ccdf;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  width: fit-content;
+  padding: 4px 9px;
+  border: 1px solid #826cc0;
+  border-radius: 999px;
+  color: #e3d9ff;
+  background: rgb(75 52 139 / 45%);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.state-lab {
+  display: grid;
+  gap: 10px;
+}
+
+.route-card {
+  display: grid;
+  gap: 11px;
+  border-color: #8274b5;
+}
+
+.controls button {
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid #9b85db;
+  border-radius: 7px;
+  color: #f2edff;
+  background: #57428d;
+}
+
+@media (max-width: 680px) {
+  .invoices-root {
+    width: min(100% - 20px, 950px);
+    margin-top: 10px;
+    padding: 14px;
+  }
+
+  .header,
+  .route-heading {
+    flex-direction: column;
+  }
+}
