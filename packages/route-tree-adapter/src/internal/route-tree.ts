@@ -54,6 +54,11 @@ export function cloneHostRootForUpdate(routeTree: AnyRootRoute) {
  * Reparents generated remote children below a pathless root bridge. The
  * original remote __root__ remains outside the host tree; the bridge owns the
  * compatible root options and renders its component.
+ *
+ * Returns an `undo()` that restores the mount and the remote children to their
+ * pre-graft shape. The caller owns it for as long as the surrounding
+ * transaction can still fail — `router.update()` runs after the graft and
+ * mutating the host tree without a way back would strand the remote tree.
  */
 export function graftRemoteRouteTree({
   hostDefaultNotFoundComponent,
@@ -79,6 +84,7 @@ export function graftRemoteRouteTree({
   }
 
   const hostChildren = childRoutesOf(mountRoute)
+  const mountNotFoundComponent = mountRoute.options.notFoundComponent
   const remoteRootBridge = createRemoteRootBridge({
     mountRoute,
     remoteTree,
@@ -87,6 +93,16 @@ export function graftRemoteRouteTree({
     route,
     getParentRoute: route.options.getParentRoute,
   }))
+  const undo = () => {
+    mountRoute.addChildren(hostChildren as never)
+    mountRoute.update({
+      notFoundComponent: mountNotFoundComponent,
+    } as never)
+
+    for (const { route, getParentRoute } of previousParents) {
+      route.update({ getParentRoute } as never)
+    }
+  }
 
   try {
     for (const route of remoteChildren) {
@@ -105,12 +121,10 @@ export function graftRemoteRouteTree({
       remoteRootBridge,
     })
   } catch (error) {
-    mountRoute.addChildren(hostChildren as never)
-
-    for (const { route, getParentRoute } of previousParents) {
-      route.update({ getParentRoute } as never)
-    }
+    undo()
 
     throw error
   }
+
+  return { undo }
 }

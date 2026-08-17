@@ -1,20 +1,20 @@
 import { Link, Outlet, createRootRoute } from '@tanstack/react-router'
 
 export const Route = createRootRoute({
-  component: FilePluginShell,
+  component: FileRoutingShell,
 })
 
-function FilePluginShell() {
+function FileRoutingShell() {
   return (
     <main className="file-example-shell">
       <header className="file-example-header">
         <div>
           <p className="file-example-eyebrow">TanStack file routing</p>
-          <h1>Plugin-decorated remote mount</h1>
+          <h1>File-route remote mount</h1>
         </div>
-        <span className="file-example-badge">plugin mode</span>
+        <span className="file-example-badge">file routes</span>
       </header>
-      <nav className="file-example-nav" aria-label="File-route plugin navigation">
+      <nav className="file-example-nav" aria-label="File-route navigation">
         <Link to="/">Host home</Link>
         <Link to="/catalog" preload={false}>
           Load catalog remote
@@ -27,9 +27,9 @@ function FilePluginShell() {
         </Link>
       </nav>
       <p className="file-example-note">
-        The file route below uses a normal generated TanStack route tree. Its
-        <code> *.remote.tsx </code> source contains no decorator call: the
-        companion Rspack plugin appends it during compilation.
+        This host uses TanStack&apos;s generated route tree. The file route
+        wraps its declaration in <code>createRemoteRoute(...)</code>, which the
+        generator reads through; no build-time transform is involved.
       </p>
       <Outlet />
     </main>

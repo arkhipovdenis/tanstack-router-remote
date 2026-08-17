@@ -1,0 +1,91 @@
+name: Canary (TanStack latest)
+
+# The adapter builds on TanStack Router internals and declares an open peer
+# range (`>=1.168.18`), so a release inside that range can break the bridge
+# without any change landing here. This job runs the normal verification
+# against the latest published router instead of the pinned one.
+#
+# It is deliberately NOT a required check: it fails when upstream moves, which
+# is information, not a broken pull request.
+
+on:
+  schedule:
+    # Mondays, 06:00 UTC.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dist-tag:
+        description: 'npm dist-tag to test against'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Repoint TanStack pins at ${{ inputs.dist-tag || 'latest' }}
+        id: pins
+        run: node scripts/pin-tanstack-canary.mjs "${{ inputs.dist-tag || 'latest' }}"
+
+      # No lockfile entry for the canary versions, so `npm ci` cannot be used.
+      - run: npm install --no-audit --no-fund
+
+      - run: npm run check
+
+      - name: Report
+        if: always()
+        run: echo "Checked against ${{ steps.pins.outputs.versions }}" >> "$GITHUB_STEP_SUMMARY"
+
+      # A scheduled run has no PR to turn red, so a failure has to be filed
+      # somewhere a human will see it. One open issue is reused across runs.
+      - name: File or update the drift issue
+        if: failure() && github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        env:
+          VERSIONS: ${{ steps.pins.outputs.versions }}
+        with:
+          script: |
+            const title = 'Canary: TanStack Router latest breaks the bridge'
+            const body = [
+              `\`npm run check\` failed against ${process.env.VERSIONS || 'the latest release'}.`,
+              '',
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              '',
+              'The peer range is open (`>=1.168.18`), so this affects fresh installs.',
+              'Triage: confirm whether the adapter itself broke or only the test probes,',
+              'then either fix the bridge or document an upper bound.',
+            ].join('\n')
+
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'canary',
+            })
+            const open = existing.find((issue) => issue.title === title)
+
+            if (open) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: open.number,
+                body,
+              })
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['canary'],
+              })
+            }

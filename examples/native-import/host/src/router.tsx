@@ -66,7 +66,6 @@ const catalogMountRoute = createRemoteRoute({
   getParentRoute: () => rootRoute,
   path: '/catalog',
   component: NativeCatalogMount,
-  notFoundComponent: NativeCatalogMount,
 })
 
 const routeTree = rootRoute.addChildren([homeRoute, catalogMountRoute])

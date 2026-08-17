@@ -12,7 +12,7 @@ import './styles.css'
 const rootElement = document.getElementById('root')
 
 if (!rootElement) {
-  throw new Error('File-routing plugin host root element was not found')
+  throw new Error('File-routing host root element was not found')
 }
 
 const routeTreeAdapter = new RouteTreeUpdateAdapter(() => router)

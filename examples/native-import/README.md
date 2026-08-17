@@ -63,7 +63,7 @@ npm run dev --workspace=@tanstack-router-remote/example-native-import-remote
 ## What the UI demonstrates
 
 `/native/catalog` mounts a static, initially childless host route. While the
-native `import()` resolves, its local `notFoundComponent` displays the loading
+native `import()` resolves, the mount's own component displays the loading
 state; if import or attachment fails, it displays the error state. The adapter
 then grafts the package's generated `routeTree` and asks the same host router
 to rematch the current URL.

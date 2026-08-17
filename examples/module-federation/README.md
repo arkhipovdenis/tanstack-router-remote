@@ -108,8 +108,8 @@ identities unsafe.
 
 The demo intentionally uses code routes to keep the repository focused on the
 adapter, using `createRemoteRoute({ ... })` for every static mount. A file-route
-host keeps its normal generator-visible `Route = createFileRoute(...)`; the
-optional Rspack companion plugin injects its in-place remote-mount decoration
-before `createRouter({ routeTree })`. It then uses the same
-`RemoteRouteMount` as both the normal component and the local
-`notFoundComponent`.
+host instead wraps its generated declaration —
+`createRemoteRoute(createFileRoute('/orders')({ ... }))` — before
+`createRouter({ routeTree })`. It then renders `RemoteRouteMount` from the
+mount's normal component, which also covers the fuzzy 404 a direct deep link
+produces.

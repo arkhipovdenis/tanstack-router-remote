@@ -13,7 +13,7 @@ src/
   internal/
     prepare-mount.ts   childless-mount invariant
     attachment-store.ts observable immutable snapshots
-    serial-task-queue.ts serialized route-tree mutations
+    batching-task-queue.ts serialized, batch-collapsing route-tree mutations
     attach-remote-route-tree.ts TanStack attach/update/rematch transaction
     route-tree.ts      mutable tree grafting and host-root replacement
     remote-root.tsx    remote-root bridge
@@ -54,6 +54,14 @@ the attach/update/rematch transaction, mutable route-tree operations, the
 pathless root bridge, navigation scoping, and the single-mount ownership
 check. These modules are deliberately not package exports, so consumers do not
 depend on implementation details that may change with TanStack Router.
+
+`BatchingTaskQueue` owns the scheduling half of that serialization. Mounts that
+attach concurrently are collected into one run, so the expensive shared steps —
+`cloneHostRootForUpdate()`, `router.update()`, `router.load()` — are paid once
+per batch rather than once per mount. The transaction reports one result per
+member, which is what keeps a single broken remote from failing the mounts
+beside it. `attach()` and `prepare()` use separate queues: a preparation must
+never be pulled into the client `router.load()` that an attachment owns.
 
 The package has no Module Federation dependency. `loadRouteTree` is supplied by
 the host, keeping Module Federation, native ESM `import()`, import maps, and

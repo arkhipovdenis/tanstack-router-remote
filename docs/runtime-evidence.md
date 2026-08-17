@@ -7,9 +7,7 @@ route objects alone. The suite has two complementary levels of evidence.
 The same suite has been run successfully against TanStack Router `1.168.18`
 and the current repository baseline `1.170.18`. The published adapter peer
 range is `>=1.168.18`; the repository intentionally keeps one reproducible
-baseline instead of a permanent CI job for every TanStack patch release. The
-file-route compiler plugin follows its own release cadence and is verified
-separately by its Rspack smoke test.
+baseline instead of a permanent CI job for every TanStack patch release.
 
 ## Deterministic router runtime
 
@@ -80,12 +78,12 @@ same attach contract without Module Federation: the host resolves a plain ESM
 workspace package using native `import()`, then attaches its root, pathless,
 index and parameterized routes below `/native/catalog`.
 
-[`examples/file-routing`](../examples/file-routing/README.md) adds two actual
-TanStack file-route hosts built with `@tanstack/router-plugin`: one explicitly
-calls `createRemoteRoute(Route)` and the other proves the Rspack companion
-plugin injects the same call without changing the generator-visible file-route
-declaration. Both build a generated `routeTree.gen.ts` and attach the same ESM
-remote on direct deep links.
+[`examples/file-routing`](../examples/file-routing/README.md) adds an actual
+TanStack file-route host built with `@tanstack/router-plugin`, whose mount is
+declared as `createRemoteRoute(createFileRoute('/catalog')({ ... }))`. It proves
+the generator accepts that wrapped form — emitting `/catalog` into the generated
+`routeTree.gen.ts` and leaving the source untouched — and that the host attaches
+the same ESM remote on direct deep links.
 
 ## Evidence boundary and research backlog
 

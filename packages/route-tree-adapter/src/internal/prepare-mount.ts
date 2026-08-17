@@ -10,7 +10,8 @@ export function prepareRouteTreeMount<TRoute extends AnyRoute>(mountRoute: TRout
   if (childRoutesOf(mountRoute).length) {
     throw new Error(
       'A route-tree mount must not have static children before the first attach. ' +
-        'Use a local notFoundComponent as the loading boundary instead.',
+        "Render the loading boundary from the mount's own component instead: a " +
+        'deep link below an unattached mount fuzzy-matches the mount itself.',
     )
   }
 

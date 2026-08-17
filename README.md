@@ -43,7 +43,7 @@ version is `1.168.18`; the repository's reproducible build baseline is
 require a new package release or a dedicated CI matrix.
 
 TanStack Router's compiler plugin has an intentionally independent release
-number. The file-route labs use the compatible current pair
+number. The file-route example uses the compatible current pair
 `@tanstack/router-plugin` `1.168.18` + `@tanstack/react-router` `1.170.18`;
 that is not a second runtime version.
 
@@ -52,11 +52,10 @@ that has not yet been researched (`?`). A `?` is neither an incompatibility
 claim nor a decision not to support the capability; it simply has no validated
 contract yet. The CSR result above remains production-ready on its own.
 
-The bridge is covered by **55 automated tests** across TanStack Router runtime,
+The bridge is covered by **64 automated tests** across TanStack Router runtime,
 browser-like React integration, route-tree mutation, deep links, nested
-remotes, native cache, lifecycle hooks, navigation APIs, 404 boundaries, and
-the Rspack transform. `npm run check` also builds every runnable transport
-example and runs the transform smoke test.
+remotes, native cache, lifecycle hooks, navigation APIs, and 404 boundaries.
+`npm run check` also builds every runnable transport example.
 
 The package API remains `0.x` because remote-tree attachment is not yet an
 official TanStack Router composition API. That versioning reflects API
@@ -89,7 +88,7 @@ For a direct deep link such as `/orders/42`:
 
 ```text
 1. A static, childless host /orders route receives a fuzzy local 404 match.
-2. Its local notFoundComponent renders a loading state.
+2. That match renders the mount's own component, which shows a loading state.
 3. RemoteRouteMount loads the remote routeTree.
 4. The adapter grafts remote children below a pathless root bridge.
 5. The adapter calls router.update({ routeTree }) and router.load().
@@ -106,8 +105,9 @@ fresh tree for each mount.
 There are three required pieces:
 
 1. Create a static, initially childless host mount before `createRouter()`.
-2. Render the same `RemoteRouteMount` from its normal component and local
-   `notFoundComponent`.
+2. Render `RemoteRouteMount` from the mount's component. A fuzzy 404 below an
+   unattached mount is an ordinary match on that mount, so this one component
+   covers both `/orders` and a direct `/orders/42`.
 3. Create one adapter for the host router and provide it above `RouterProvider`.
 
 The direct deep-link handoff requires TanStack Router's default
@@ -141,7 +141,6 @@ const ordersMountRoute = createRemoteRoute({
   getParentRoute: () => rootRoute,
   path: '/orders',
   component: OrdersMount,
-  notFoundComponent: OrdersMount,
 })
 
 function OrdersMount() {
@@ -304,7 +303,10 @@ example, `to="/"` in an Orders remote mounted at `/orders` goes to
 For an unknown direct remote URL, the adapter preserves native fuzzy matching
 and its 404 status:
 
-- Before attachment, the mount's local `notFoundComponent` shows loading.
+- Before attachment, the fuzzy match renders the mount's component, which shows
+  loading. The mount needs no local `notFoundComponent` for this: a fuzzy 404
+  does not throw into the mount, it matches the mount. Declare one only to catch
+  a `notFound()` thrown by the mount's own `beforeLoad`/`loader`.
 - If the mount itself owns the structural 404 after attachment, its visible
   boundary delegates to the remote root's `notFoundComponent` in the remote
   scope.
@@ -320,54 +322,31 @@ TanStack route ranking and can hide partial parameter branches or nested remote
 deep links. A dynamic route whose resource is absent should still
 `throw notFound()` from `beforeLoad` or its loader.
 
-## File routes: plugin optional
+## File routes
 
 The core adapter works with code routes, Module Federation, native imports, or
-another remote-module transport. The Rspack plugin is optional and only removes
-one manual line from a TanStack **file-route** module.
-
-Keep the generator-visible declaration unchanged:
+another remote-module transport. For a TanStack **file-route** module, wrap the
+generated declaration so the decoration is the exported value:
 
 ```tsx
-export const Route = createFileRoute('/orders')({
-  component: OrdersMount,
-  notFoundComponent: OrdersMount,
-})
+export const Route = createRemoteRoute(
+  createFileRoute('/orders')({
+    component: OrdersMount,
+  }),
+)
 ```
 
-Without the plugin, decorate the same instance before `createRouter()`:
+No build-time transform is involved. TanStack's generator reads the inner
+`createFileRoute('/orders')({...})` call, emits `/orders` into
+`routeTree.gen.ts`, and leaves the source file untouched.
 
-```tsx
-createRemoteRoute(Route)
-```
+Wrapping is the point. A mount that is never passed to `createRemoteRoute`
+still serves `/orders`, but a direct deep link to `/orders/42` silently fails:
+the mount has no children to fuzzy-match into, so nothing starts the attach.
+As the exported initializer, the call cannot be forgotten in one file and
+present in another.
 
-With Rspack, add the official TanStack generator first and this companion
-plugin after it:
-
-```ts
-import { tanstackRouter } from '@tanstack/router-plugin/rspack'
-import { tanstackRouterRemoteAdapter } from '@tanstack-router-remote/rspack-plugin'
-
-export default defineConfig({
-  tools: {
-    rspack: {
-      plugins: [
-        tanstackRouter({
-          target: 'react',
-          routeToken: /(?:route|remote)/,
-        }),
-        tanstackRouterRemoteAdapter(),
-      ],
-    },
-  },
-})
-```
-
-The plugin injects `createRemoteRoute(Route)` after the declaration without
-wrapping its exported initializer, so TanStack's generator still sees its
-supported `createFileRoute(...)({...})` shape. It is Rspack-only and does not
-make remote attachment HMR-safe. See the runnable [manual and plugin
-file-route labs](examples/file-routing/README.md).
+See the runnable [file-route example](examples/file-routing/README.md).
 
 ## Run the examples
 
@@ -377,8 +356,7 @@ npm run check
 ```
 
 CI runs on Node 20 and 22. `npm run check` type-checks the workspaces, runs all
-55 automated tests, builds packages and examples, and runs the Rspack transform
-smoke test.
+64 automated tests, and builds packages and examples.
 
 Run all labs:
 
@@ -390,14 +368,13 @@ npm run dev:examples
 | --- | --- | --- | --- |
 | Module Federation | `npm run dev:example:module-federation` | `http://localhost:3100/platform/` | Host → Orders → Invoices, including a nested remote tree |
 | Native ESM import | `npm run dev:example:native-import` | `http://localhost:3200/native/catalog` | The adapter has no Module Federation runtime dependency |
-| File routes, manual | `npm run dev:example:file-routing:manual` | `http://localhost:3210/file-manual/` | Generator-compatible explicit decoration |
-| File routes, plugin | `npm run dev:example:file-routing:plugin` | `http://localhost:3211/file-plugin/` | The optional Rspack transform injects decoration |
+| File routes | `npm run dev:example:file-routing` | `http://localhost:3210/file-routing/` | The generator accepts a `createRemoteRoute`-wrapped file route |
 
 Use `npm run preview:examples`, or the corresponding
 `preview:example:*` command, for production artifacts. More detailed exercises
 are available in the [Module Federation lab](examples/module-federation/README.md),
 [native ESM-import lab](examples/native-import/README.md), and [file-route
-labs](examples/file-routing/README.md).
+lab](examples/file-routing/README.md).
 
 ## Current API constraints and research backlog
 

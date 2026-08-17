@@ -4,7 +4,7 @@ import { routeTree } from './routeTree.gen'
 
 export const router = createRouter({
   routeTree,
-  basepath: '/file-plugin',
+  basepath: '/file-routing',
   defaultPreload: false,
 })
 

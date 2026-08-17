@@ -49,14 +49,21 @@ request and matching client bootstrap.
 
 Create code mounts with `createRemoteRoute({ ... })` before creating the host
 router. It has the same options and inferred type as TanStack `createRoute`,
-but prepares the mount internally. For a standard file route, keep the normal
-generator-visible `Route = createFileRoute(...)`, then call
-`createRemoteRoute(Route)` after that declaration. The optional
-`@tanstack-router-remote/rspack-plugin` can inject the same in-place call for
-`*.remote.tsx` files. See the runnable [manual and plugin file-route
-examples](../../examples/file-routing/README.md) for both forms. Render the
-same mount component from the route's normal component and local
-`notFoundComponent`; see the repository README for the full contract and
+but prepares the mount internally. For a standard file route, wrap the
+generated declaration so the decoration is the exported value:
+
+```tsx
+export const Route = createRemoteRoute(
+  createFileRoute('/catalog')({ component: CatalogMount }),
+)
+```
+
+TanStack's generator reads the inner `createFileRoute` call, so no build-time
+transform is needed. See the runnable [file-route
+example](../../examples/file-routing/README.md). Render `RemoteRouteMount` from
+the route's normal component: a deep link below an unattached mount
+fuzzy-matches the mount itself, so that one component also covers the
+direct-link case. See the repository README for the full contract and
 limitations.
 
 For SSR/hydration, call `adapter.prepare(...)` with fresh host and remote trees

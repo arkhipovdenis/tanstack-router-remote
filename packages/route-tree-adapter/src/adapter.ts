@@ -10,9 +10,14 @@ import type {
 import { AttachmentStore } from './internal/attachment-store.js'
 import {
   TanStackRouteTreeAttachmentTransaction,
+  type RouteTreeAttachmentRequest,
   type RouteTreeAttachmentTransaction,
+  type RouteTreeBatchMemberResult,
 } from './internal/attach-remote-route-tree.js'
-import { SerialTaskQueue } from './internal/serial-task-queue.js'
+import {
+  BatchingTaskQueue,
+  type BatchMemberResult,
+} from './internal/batching-task-queue.js'
 
 /**
  * Attach-only adapter around one existing host router. It coordinates mount
@@ -34,13 +39,29 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
     'attach' | 'prepare'
   >()
   private readonly attachmentStore = new AttachmentStore()
-  private readonly mutationQueue = new SerialTaskQueue()
   private readonly transaction: RouteTreeAttachmentTransaction
+  // `prepare()` hands routing to an explicit SSR/hydration boundary while
+  // `attach()` owns a client load, so the two never share a batch. Separate
+  // queues keep each kind collapsible without interleaving the other.
+  private readonly attachQueue: BatchingTaskQueue<
+    RouteTreeAttachmentRequest,
+    void
+  >
+  private readonly prepareQueue: BatchingTaskQueue<
+    RouteTreeAttachmentRequest,
+    void
+  >
 
   constructor(getRouter: RouterGetter<TRouter>) {
     this.transaction = new TanStackRouteTreeAttachmentTransaction(
       getRouter,
     )
+
+    const runBatch = (requests: readonly RouteTreeAttachmentRequest[]) =>
+      this.runBatch(requests)
+
+    this.attachQueue = new BatchingTaskQueue(runBatch)
+    this.prepareQueue = new BatchingTaskQueue(runBatch)
   }
 
   subscribe(listener: () => void) {
@@ -116,9 +137,13 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
       )
     }
 
-    const request = this.mutationQueue.enqueue(() =>
-      this.attachInQueue(options, operation),
-    )
+    const queue = operation === 'prepare' ? this.prepareQueue : this.attachQueue
+    const request = queue.enqueue({
+      options,
+      operation,
+      alreadyPrepared: this.preparedMounts.has(mountRoute),
+    })
+
     this.pendingByMount.set(mountRoute, request)
     this.pendingOperationByMount.set(mountRoute, operation)
     void request.then(
@@ -133,47 +158,39 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
     return request
   }
 
-  private async attachInQueue(
-    options: AttachRemoteRouteTreeOptions,
-    operation: 'attach' | 'prepare',
-  ): Promise<void> {
-    const { mountRoute } = options
+  /**
+   * Applies one collapsed batch and publishes each member's own outcome, so a
+   * mount whose remote is unavailable never fails the mounts beside it.
+   */
+  private async runBatch(
+    requests: readonly RouteTreeAttachmentRequest[],
+  ): Promise<readonly BatchMemberResult<void>[]> {
+    const results = await this.transaction.executeBatch(requests)
 
-    if (operation === 'prepare') {
-      const result = await this.transaction.prepare(options)
+    return requests.map((request, index) =>
+      this.publishMemberResult(request, results[index]),
+    )
+  }
 
-      if (result.kind === 'prepared') {
-        this.preparedMounts.add(mountRoute)
-        this.attachmentStore.setSnapshot(mountRoute, { state: 'prepared' })
-        return
-      }
+  private publishMemberResult(
+    request: RouteTreeAttachmentRequest,
+    result: RouteTreeBatchMemberResult,
+  ): BatchMemberResult<void> {
+    const { mountRoute } = request.options
 
-      this.publishFailure(mountRoute, result)
-      throw result.error
+    if (result.kind === 'prepared') {
+      this.preparedMounts.add(mountRoute)
+      this.attachmentStore.setSnapshot(mountRoute, { state: 'prepared' })
+      return { status: 'fulfilled', value: undefined }
     }
-
-    const result = this.preparedMounts.has(mountRoute)
-      ? await this.transaction.loadPrepared()
-      : await this.transaction.execute(options)
 
     if (result.kind === 'attached') {
       this.preparedMounts.delete(mountRoute)
       this.attachedMounts.add(mountRoute)
       this.attachmentStore.setSnapshot(mountRoute, { state: 'attached' })
-      return
+      return { status: 'fulfilled', value: undefined }
     }
 
-    this.publishFailure(mountRoute, result)
-    throw result.error
-  }
-
-  private publishFailure(
-    mountRoute: AnyRoute,
-    result: Extract<
-      Awaited<ReturnType<RouteTreeAttachmentTransaction['execute']>>,
-      { kind: 'failed' }
-    >,
-  ) {
     if (result.hostTreeWasMutated) {
       this.preparedMounts.delete(mountRoute)
       this.poisonedMounts.add(mountRoute)
@@ -183,6 +200,8 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
       state: 'error',
       error: result.error,
     })
+
+    return { status: 'rejected', reason: result.error }
   }
 
   private clearPending(mountRoute: AnyRoute, request: Promise<void>) {

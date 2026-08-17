@@ -24,6 +24,7 @@ import {
   RouteTreeUpdateAdapterProvider,
   useRouteTreeUpdateAdapter,
 } from '../../packages/route-tree-adapter/src'
+import { hasNotFoundMatch } from '../support/router-compat'
 
 type UntypedLinkProps = {
   children: ReactNode
@@ -420,11 +421,12 @@ function createRuntimeFixture(
     )
   }
 
+  // Deliberately no `notFoundComponent`: a deep link below an unattached mount
+  // fuzzy-matches the mount, so `component` is the only slot the handoff needs.
   const localOrdersMountRoute = createRemoteRoute({
     getParentRoute: () => hostRoot,
     path: '/orders',
     component: OrdersMount,
-    notFoundComponent: OrdersMount,
   })
   ordersMountRoute = localOrdersMountRoute
 
@@ -677,19 +679,13 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     await waitFor(() => {
       expect(rendered.container.textContent).toContain('Host home')
     })
-    const cachedProbes = fixture.router.stores.cachedMatches
-      .get()
-      .map(
-        (match) =>
-          (match.staticData as Record<string, unknown> | undefined)?.cacheProbe,
-      )
+    const activeProbes = fixture.router.state.matches.map(
+      (match) =>
+        (match.staticData as Record<string, unknown> | undefined)?.cacheProbe,
+    )
 
-    expect(cachedProbes).toEqual(
-      expect.arrayContaining([
-        'remote-root',
-        'remote-index',
-        'remote-detail',
-      ]),
+    expect(activeProbes).not.toEqual(
+      expect.arrayContaining(['remote-root', 'remote-detail']),
     )
     await act(async () => {
       await fixture.router.navigate({
@@ -810,8 +806,7 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
 
     expect(fixture.loadRouteTree).toHaveBeenCalledTimes(1)
-    expect(fixture.router.hasNotFoundMatch()).toBe(true)
-    expect(fixture.router.state.statusCode).toBe(404)
+    expect(hasNotFoundMatch(fixture.router)).toBe(true)
     // The React wrapper renders the bridge's configured remote root boundary.
     // TanStack itself owns the 404 match/status; the component intentionally
     // does not require a synthetic route or manually forged error object.
@@ -866,8 +861,7 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     expect(fixture.router.state.matches.at(-1)?.routeId).toBe(
       fixture.ordersMountRoute.id,
     )
-    expect(fixture.router.hasNotFoundMatch()).toBe(true)
-    expect(fixture.router.state.statusCode).toBe(404)
+    expect(hasNotFoundMatch(fixture.router)).toBe(true)
     expect(fixture.remoteRootNotFound).toHaveBeenCalledTimes(1)
     expect(fixture.loadRouteTree).toHaveBeenCalledTimes(1)
 
@@ -894,8 +888,7 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     expect(fixture.router.state.matches.at(-1)?.routeId).toBe(
       fixture.ordersMountRoute.id,
     )
-    expect(fixture.router.hasNotFoundMatch()).toBe(true)
-    expect(fixture.router.state.statusCode).toBe(404)
+    expect(hasNotFoundMatch(fixture.router)).toBe(true)
     expect(fixture.remoteRootNotFound).not.toHaveBeenCalled()
   })
 
@@ -915,7 +908,7 @@ describe('remote route tree mount in a browser-like React runtime', () => {
 
     expect(fixture.remoteRootNotFound).toHaveBeenCalledTimes(1)
     expect(fixture.hostDefaultNotFound).not.toHaveBeenCalled()
-    expect(fixture.router.state.statusCode).toBe(404)
+    expect(hasNotFoundMatch(fixture.router)).toBe(true)
   })
 
   it('uses the host router default when the remote has no 404 boundary', async () => {
@@ -935,7 +928,7 @@ describe('remote route tree mount in a browser-like React runtime', () => {
 
     expect(fixture.remoteRootNotFound).not.toHaveBeenCalled()
     expect(fixture.hostDefaultNotFound).toHaveBeenCalledTimes(1)
-    expect(fixture.router.state.statusCode).toBe(404)
+    expect(hasNotFoundMatch(fixture.router)).toBe(true)
     expect(
       getByTestId(
         rendered.container,
@@ -1026,19 +1019,13 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     await waitFor(() => {
       expect(rendered.container.textContent).toContain('Host home')
     })
-    const cachedProbes = fixture.router.stores
-      .cachedMatches
-      .get()
-      .map(
-        (match) =>
-          (match.staticData as Record<string, unknown> | undefined)?.cacheProbe,
-      )
+    const activeProbes = fixture.router.state.matches.map(
+      (match) =>
+        (match.staticData as Record<string, unknown> | undefined)?.cacheProbe,
+    )
 
-    expect(cachedProbes).toEqual(
-      expect.arrayContaining([
-        'remote-pathless-layout',
-        'remote-nested-leaf',
-      ]),
+    expect(activeProbes).not.toEqual(
+      expect.arrayContaining(['remote-pathless-layout', 'remote-nested-leaf']),
     )
 
     await act(async () => {
@@ -1053,5 +1040,67 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
     expect(fixture.pathlessLayoutLoader).toHaveBeenCalledTimes(1)
     expect(fixture.nestedLeafLoader).toHaveBeenCalledTimes(2)
+  })
+
+  it('scopes imperative preloadRoute and matchRoute to the mounted remote', async () => {
+    const fixture = createRuntimeFixture('/orders')
+    const rendered = await renderFixture(fixture)
+
+    await waitFor(() => {
+      expect(rendered.container.textContent).toContain('Remote index component')
+    })
+
+    // The router seen from inside the remote is the scoped facade.
+    const remoteRouter = [...fixture.remoteRouterReferences].at(-1) as {
+      preloadRoute: (options: unknown) => Promise<unknown>
+      matchRoute: (options: unknown) => unknown
+    }
+
+    fixture.detailLoader.mockClear()
+
+    // A remote-absolute `to` must resolve against the remote branch. Without
+    // scoping this resolves against the host tree and the remote loader never
+    // runs.
+    await act(async () => {
+      await remoteRouter.preloadRoute({
+        to: '/$orderId',
+        params: { orderId: '7' },
+      })
+    })
+    expect(fixture.detailLoader).toHaveBeenCalledTimes(1)
+
+    expect(remoteRouter.matchRoute({ to: '/' })).not.toBe(false)
+  })
+
+  it('serves a direct deep link from a mount that declares no notFoundComponent', async () => {
+    // The documented contract: a fuzzy 404 below an unattached mount is an
+    // ordinary match on the mount, not a notFound() thrown into it, so the
+    // mount's `component` renders the loading UI and starts the attach.
+    // Wiring the same component into `notFoundComponent` as well is redundant.
+    const fixture = createRuntimeFixture('/orders/42', {
+      deferRemoteTree: true,
+    })
+
+    expect(fixture.ordersMountRoute.options.notFoundComponent).toBeUndefined()
+
+    const rendered = await renderFixture(fixture)
+    cleanup = rendered.cleanup
+
+    await waitFor(() => {
+      expect(rendered.container.textContent).toContain(
+        'Loading remote route tree',
+      )
+    })
+    fixture.releaseRemoteTree()
+    await waitFor(() => {
+      expect(rendered.container.textContent).toContain('Remote detail component')
+    })
+
+    expect(fixture.loadRouteTree).toHaveBeenCalledTimes(1)
+    expect(fixture.detailLoader).toHaveBeenCalledTimes(1)
+    expect(hasNotFoundMatch(fixture.router)).toBe(false)
+    expect(fixture.router.state.matches.at(-1)?.routeId).toBe(
+      '/orders/__remote-root-bridge/$orderId',
+    )
   })
 })

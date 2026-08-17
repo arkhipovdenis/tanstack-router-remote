@@ -71,8 +71,10 @@ export type RemoteRouteMountProps = {
 }
 
 /**
- * React adapter for a mount route and its notFoundComponent. It begins the
- * attach in an effect only after TanStack committed the fuzzy local match;
+ * React adapter for a mount route. Render it from the mount's component: a
+ * fuzzy 404 below an unattached mount matches the mount rather than throwing
+ * into it, so one component covers both the exact path and a direct deep link.
+ * It begins the attach in an effect only after TanStack committed that match;
  * invoking router.load() during a route lifecycle would recurse into the
  * navigation that is currently pending.
  */

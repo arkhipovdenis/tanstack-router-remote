@@ -1035,7 +1035,6 @@ const invoicesMountRoute = createRemoteRoute({
   getParentRoute: () => workspaceRoute,
   path: '/invoices',
   component: InvoicesMount,
-  notFoundComponent: InvoicesMount,
   staticData: {
     demoRoute: 'invoices-mount',
   },

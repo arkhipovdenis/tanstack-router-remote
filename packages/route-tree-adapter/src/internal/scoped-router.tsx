@@ -22,12 +22,10 @@ function normalizedMountPath(mountPath: string) {
   return mountPath === '/' ? '/' : mountPath.replace(/\/+$/, '')
 }
 
-function isAlreadyScoped(mountPath: string, value: string) {
-  const normalized = normalizedMountPath(mountPath)
-
+function isAlreadyScoped(normalizedMount: string, value: string) {
   return (
-    normalized !== '/' &&
-    (value === normalized || value.startsWith(normalized + '/'))
+    normalizedMount !== '/' &&
+    (value === normalizedMount || value.startsWith(normalizedMount + '/'))
   )
 }
 
@@ -36,7 +34,11 @@ function isAlreadyScoped(mountPath: string, value: string) {
  * idempotence check is essential for route-bound APIs: TanStack can pass an
  * already-expanded `from`/`to`, such as `/orders/$orderId`, to the facade.
  */
-function rebaseRoutePath(mountPath: string, value: unknown) {
+function rebaseRoutePath(
+  mountPath: string,
+  normalizedMount: string,
+  value: unknown,
+) {
   if (typeof value !== 'string') {
     return value
   }
@@ -44,27 +46,44 @@ function rebaseRoutePath(mountPath: string, value: unknown) {
   if (
     isAbsoluteBrowserUrl(value) ||
     !value.startsWith('/') ||
-    isAlreadyScoped(mountPath, value)
+    isAlreadyScoped(normalizedMount, value)
   ) {
     return value
   }
 
   if (value === '/') {
-    return normalizedMountPath(mountPath)
+    return normalizedMount
   }
 
   return joinPaths([mountPath, value])
+}
+
+/**
+ * `buildLocation` runs on every `<Link>` render, so the mount path is
+ * normalized once per facade and threaded through instead of being recomputed
+ * (and reallocated) for each `from`/`to` on every call.
+ */
+function scopeLocationOptionsWith<T extends LocationOptions>(
+  mountPath: string,
+  normalizedMount: string,
+  options: T,
+): T {
+  return {
+    ...options,
+    from: rebaseRoutePath(mountPath, normalizedMount, options.from),
+    to: rebaseRoutePath(mountPath, normalizedMount, options.to),
+  }
 }
 
 export function scopeLocationOptions<T extends LocationOptions>(
   mountPath: string,
   options: T,
 ): T {
-  return {
-    ...options,
-    from: rebaseRoutePath(mountPath, options.from),
-    to: rebaseRoutePath(mountPath, options.to),
-  }
+  return scopeLocationOptionsWith(
+    mountPath,
+    normalizedMountPath(mountPath),
+    options,
+  )
 }
 
 function createScopedRouter<TRouter extends AnyRouter>(
@@ -79,13 +98,28 @@ function createScopedRouter<TRouter extends AnyRouter>(
   // facade delegates to the previous contextual facade, so prefixes compose
   // until the original host router receives the navigation.
   const scopedRouter = Object.create(router) as TRouter
+  const normalizedMount = normalizedMountPath(mountPath)
+  const scope = <T extends LocationOptions>(options: T) =>
+    scopeLocationOptionsWith(mountPath, normalizedMount, options)
 
   scopedRouter.navigate = ((options: LocationOptions) =>
-    router.navigate(scopeLocationOptions(mountPath, options) as never)) as TRouter['navigate']
+    router.navigate(scope(options) as never)) as TRouter['navigate']
   scopedRouter.buildLocation = ((options: LocationOptions) =>
-    router.buildLocation(
-      scopeLocationOptions(mountPath, options) as never,
-    )) as TRouter['buildLocation']
+    router.buildLocation(scope(options) as never)) as TRouter['buildLocation']
+
+  // `<Link>` resolves its own target through the scoped `buildLocation` above
+  // and hands `preloadRoute` a `_builtLocation`, so hover preloading is already
+  // scoped. An imperative `preloadRoute({ to })` has no such prebuilt location
+  // and would otherwise resolve the remote path against the host tree, quietly
+  // preloading a same-named host route. `matchRoute` resolves `to` itself and
+  // would likewise never match the mounted remote.
+  scopedRouter.preloadRoute = ((options: LocationOptions = {}) =>
+    router.preloadRoute(scope(options) as never)) as TRouter['preloadRoute']
+  scopedRouter.matchRoute = ((options: LocationOptions, matchOptions?: unknown) =>
+    router.matchRoute(
+      scope(options) as never,
+      matchOptions as never,
+    )) as TRouter['matchRoute']
 
   return scopedRouter
 }

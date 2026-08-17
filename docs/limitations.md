@@ -50,12 +50,18 @@ instances.
    create an adapter inside an individual mount route.
 2. Create a code mount with `createRemoteRoute({ ... })` before
    `createRouter()` receives the host route tree. For a standard file route,
-   keep the generator-visible `Route = createFileRoute(...)`, then either call
-   `createRemoteRoute(Route)` yourself or let the optional Rspack companion
-   plugin inject that same call before router creation. The mount must
+   wrap the declaration — `export const Route = createRemoteRoute(
+   createFileRoute('/catalog')({ ... }))` — so the decoration is the exported
+   value and cannot be omitted; TanStack's generator reads the inner
+   `createFileRoute` call and needs no build-time transform. The mount must
    initially have no children.
-3. Render the same `RemoteRouteMount` from the normal mount component and
-   its local `notFoundComponent` so direct deep links show loading UI.
+3. Render `RemoteRouteMount` from the mount component. A direct deep link below
+   an unattached mount produces a fuzzy 404 that *matches the mount* rather than
+   throwing into it, so that same component renders the loading UI and starts
+   the attach. A local `notFoundComponent` on the mount is **not** required for
+   this and is redundant if it only re-renders the mount; declare one to catch a
+   `notFound()` thrown by the mount's own `beforeLoad`/`loader`, which is the
+   case TanStack routes it to.
    After attachment, a structural miss stays a native fuzzy 404 on that mount
    and renders the remote root's `notFoundComponent` in a scoped context. If
    that boundary is absent, it safely uses the host default or TanStack's
@@ -71,10 +77,33 @@ instances.
 4. A generated route tree object is mutable and may be attached only once per
    document. To mount one remote in two places, expose
    `createRouteTree(): AnyRoute`, not a singleton `routeTree`.
-5. Attachments are serialized per host router. The current public API exposes
-   no detach or remote-replacement operation; those lifecycle operations have
-   not yet been researched. Reload the host document to recover from a failed
-   mid-mutation attach.
+5. Route-tree mutations are serialized per host router, and mounts that attach
+   concurrently are collapsed into one batch. Their remote trees load in
+   parallel, their grafts apply in order, and the batch pays a single
+   `router.update()` plus a single `router.load()` instead of one pair per
+   mount — `router.update()` rebuilds the whole route index, so N mounts
+   previously cost N reindexes and N rematches. `attach()` (CSR) and `prepare()`
+   (SSR/hydration bootstrap) never share a batch, because only the former owns a
+   client load. Batching is an internal scheduling detail: each mount still gets
+   its own promise and its own published state.
+   The current public API exposes no detach or remote-replacement operation;
+   those lifecycle operations have not yet been researched. Reload the host
+   document to recover from a failed mid-mutation attach.
+   A failure before `router.load()` — including a `router.update()` throw after
+   the graft — rolls the mount back to its pre-graft shape and releases the
+   remote tree's single-mount claim, so a host memoizing that tree instance
+   (typically an SSR module scope) can still serve the next request from a fresh
+   router. That mount is nevertheless poisoned for the current document: a
+   subsequent `attach()` on it rejects rather than retrying against a router
+   that may have consumed a half-built tree. A failure in the later `load()`
+   step leaves the remote tree attached and claimed, because the host router is
+   already indexing its routes.
+   Failure is per member wherever it can be: a mount whose transport fails, or
+   whose tree is already claimed, is rejected on its own and leaves its healthy
+   batch siblings attached. The shared steps are the exception — an `update()`
+   throw rolls back and poisons every mount in that batch, and a `load()` throw
+   poisons every mount that grafted into it, because at that point the host
+   router has already consumed one tree built from all of them.
 6. By default the adapter replaces host children under the mount. A bootstrap
    splat fallback would otherwise overlap remote dynamic routes. Set
    `preserveMountChildren` only for non-overlapping static children.
@@ -90,6 +119,21 @@ Do not assume it covers every route-core entry point. In particular,
 `redirect({ to: '/' })` thrown in remote lifecycle code is handled by the real
 host router and is **not** rebased. Cross-host navigation should use an explicit
 host navigation API supplied through context or a platform exposure.
+
+The facade scopes `navigate`, `buildLocation`, `preloadRoute`, and `matchRoute`.
+`<Link>` resolves its target through the scoped `buildLocation` and passes the
+result to `preloadRoute` as a prebuilt location, so hover/viewport preloading is
+scoped through that path regardless. The `preloadRoute` and `matchRoute`
+wrappers cover the imperative calls, which carry no prebuilt location: without
+them a remote `preloadRoute({ to: '/slow' })` resolves against the host tree and
+silently preloads a same-named host route instead of the remote one.
+
+`useRouter()` inside a remote returns the facade, which is an `Object.create`
+descendant of the host router and therefore **not** `===` the host router
+instance. Remote code that compares router identity or keys a
+`WeakMap<Router, …>` by it will not see the host instance. This is deliberate —
+a narrow prototype facade preserves RouterCore accessor receivers where a
+generic Proxy does not — but it is a real constraint on remote code.
 
 Nested scoped facades delegate navigation to their parent facade, so route
 prefixes compose back to the host router. The route-tree adapter itself does
@@ -107,3 +151,43 @@ not use that TanStack router context: it is supplied once through
 - Consumer test: `npm pack` followed by a typecheck and production build in a
   fresh host application.
 - CI matrix for the explicitly supported TanStack Router minor versions.
+
+## Upstream version drift
+
+The peer range is open (`>=1.168.18`) while the repository pins an exact
+version, so a fresh install can resolve a router this project has never been
+tested against. The `Canary (TanStack latest)` workflow runs `npm run check`
+against the latest published release on a schedule to surface that gap; it is
+informational and not a required check.
+
+Known drift above the pinned `@tanstack/react-router@1.170.18`
+(`@tanstack/router-core@1.171.15`):
+
+- **Removed introspection APIs, by `1.170.27` (`router-core@1.171.22`).**
+  `router.stores.cachedMatches`, `router.clearExpiredCache()`,
+  `router.hasNotFoundMatch()`, `state.statusCode` and `match.globalNotFound`
+  are gone. `clearExpiredCache()` maps to `clearCache()`, and `globalNotFound`
+  to `match._notFound` — note that `status` stays `'success'` on a not-found
+  match, so `status === 'notFound'` is not a substitute. The cached-match list
+  has no public replacement: match caching moved to a private `router._cache`.
+  Assert loader caching by counting loader runs instead of reading the cache.
+
+Adapter sources (`packages/*/src`) use none of these APIs — the breakage was
+confined to test probes, which now use the version-neutral helpers in
+`tests/support/router-compat.ts`. Do not widen the peer range's upper end, or
+repin, without re-running the canary.
+
+### Router loading paths differ between environments
+
+`@tanstack/router-core` ships separate server and client builds selected by
+export conditions: the `node` condition resolves the server build
+(`isServer === true`), and a browser-like environment resolves the client one.
+Only the client path keeps matches cached across navigations — the server path
+has no cross-navigation match cache by design.
+
+This matters when reading test results. The default Vitest environment is
+`node`, so a "loader cache" assertion run there exercises the server path.
+A plain-Node probe that navigates away and back will re-run the loader on any
+version, which looks exactly like a caching regression but is not one. Verify
+caching claims in a `jsdom` environment before concluding that upstream broke
+something.

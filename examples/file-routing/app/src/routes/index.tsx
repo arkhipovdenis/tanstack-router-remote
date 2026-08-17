@@ -1,20 +1,20 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: ManualHome,
+  component: FileRoutingHome,
 })
 
-function ManualHome() {
+function FileRoutingHome() {
   return (
     <section className="file-example-card">
       <p className="file-example-eyebrow">Generated index route</p>
-      <h2>Manual file-route decoration</h2>
+      <h2>File-route remote mount</h2>
       <p>
         This example proves the library works with standard TanStack
-        file-based routing without the Rspack companion plugin.
+        file-based routing, with no build-time transform involved.
       </p>
       <pre>
-        <code>{`export const Route = createFileRoute('/catalog')({ ... })\ncreateRemoteRoute(Route)`}</code>
+        <code>{`export const Route = createRemoteRoute(\n  createFileRoute('/catalog')({ ... }),\n)`}</code>
       </pre>
       <Link to="/catalog" preload={false}>
         Load catalog remote

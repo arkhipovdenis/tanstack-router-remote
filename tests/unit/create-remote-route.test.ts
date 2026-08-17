@@ -76,6 +76,32 @@ describe('createRemoteRoute', () => {
     expectTypeOf(mount.fullPath).toEqualTypeOf<'/orders/$orderId'>()
   })
 
+  it('returns the exact same route type when decorating an instance', () => {
+    const root = createRootRoute({ component: Null })
+    const plain = createRoute({
+      getParentRoute: () => root,
+      path: '/orders/$orderId',
+      component: Null,
+      validateSearch: () => ({ tab: 'overview' }),
+    })
+
+    // The instance overload must be identity-preserving, not a widening pass
+    // through AnyRoute: `fullPath` stays a literal and the inferred types
+    // survive.
+    const decorated = createRemoteRoute(plain)
+
+    expectTypeOf(decorated).toEqualTypeOf(plain)
+    expectTypeOf(decorated.fullPath).toEqualTypeOf<'/orders/$orderId'>()
+    const decoratedParams: { orderId: string } =
+      null as never as typeof decorated['types']['params']
+
+    expectTypeOf(decoratedParams).toEqualTypeOf<{ orderId: string }>()
+    expectTypeOf<typeof decorated['types']['searchSchema']>().toEqualTypeOf<{
+      tab: string
+    }>()
+    expect(decorated).toBe(plain)
+  })
+
   it('keeps preparation idempotent for a childless route', () => {
     const root = createRootRoute({ component: Null })
     const mount = createRoute({

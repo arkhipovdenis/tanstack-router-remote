@@ -71,7 +71,6 @@ const ordersMountRoute = createRemoteRoute({
   getParentRoute: () => rootRoute,
   path: '/orders',
   component: OrdersMount,
-  notFoundComponent: OrdersMount,
 })
 
 const routeTree = rootRoute.addChildren([homeRoute, ordersMountRoute])

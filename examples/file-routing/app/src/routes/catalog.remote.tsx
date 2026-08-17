@@ -20,14 +20,14 @@ const loadCatalogRouteTree = async () => {
   return remote.routeTree
 }
 
-// Keep this declaration directly generator-visible, then decorate the same
-// Route instance before createRouter() receives the generated route tree.
-export const Route = createFileRoute('/catalog')({
-  component: CatalogMount,
-  notFoundComponent: CatalogMount,
-})
-
-createRemoteRoute(Route)
+// The decoration IS the exported value, so a remote mount cannot be declared
+// without it. The TanStack generator reads the inner createFileRoute call and
+// leaves this file alone.
+export const Route = createRemoteRoute(
+  createFileRoute('/catalog')({
+    component: CatalogMount,
+  }),
+)
 
 function CatalogMount() {
   return (
@@ -35,9 +35,9 @@ function CatalogMount() {
       mountRoute={Route}
       loadRouteTree={loadCatalogRouteTree}
       loading={
-        <section className="file-example-card" data-testid="file-manual-loading">
+        <section className="file-example-card" data-testid="file-routing-loading">
           <p className="file-example-eyebrow">Local file-route boundary</p>
-          <h2>Manually decorated mount is loading…</h2>
+          <h2>Catalog mount is loading…</h2>
           <p>
             The current URL fuzzy-matched <code>/catalog</code>. The adapter is
             importing the remote route tree, then it will update and rematch

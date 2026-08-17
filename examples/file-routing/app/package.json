@@ -1,5 +1,5 @@
 {
-  "name": "@tanstack-router-remote/example-file-routing-plugin",
+  "name": "@tanstack-router-remote/example-file-routing",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -19,7 +19,6 @@
   "devDependencies": {
     "@rsbuild/core": "2.1.9",
     "@rsbuild/plugin-react": "2.1.0",
-    "@tanstack-router-remote/rspack-plugin": "file:../../../packages/rspack-plugin",
     "@tanstack/router-plugin": "1.168.18"
   }
 }
