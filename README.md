@@ -52,7 +52,7 @@ that has not yet been researched (`?`). A `?` is neither an incompatibility
 claim nor a decision not to support the capability; it simply has no validated
 contract yet. The CSR result above remains production-ready on its own.
 
-The bridge is covered by **64 automated tests** across TanStack Router runtime,
+The bridge is covered by **70 automated tests** across TanStack Router runtime,
 browser-like React integration, route-tree mutation, deep links, nested
 remotes, native cache, lifecycle hooks, navigation APIs, and 404 boundaries.
 `npm run check` also builds every runnable transport example.
@@ -346,7 +346,15 @@ the mount has no children to fuzzy-match into, so nothing starts the attach.
 As the exported initializer, the call cannot be forgotten in one file and
 present in another.
 
-See the runnable [file-route example](examples/file-routing/README.md).
+Both generator modes are supported and covered: physical routing, where
+filenames decide URLs, and virtual routing, where `virtualRouteConfig` assigns
+every path in a config file. See the runnable [file-route
+examples](examples/file-routing/README.md).
+
+One trade-off is worth knowing: in physical routing the generator auto-corrects
+a route file whose `createFileRoute()` path disagrees with its location, but
+only when that call is the direct export initializer. Wrapped, the file is left
+alone and a wrong path stays wrong.
 
 ## Run the examples
 
@@ -356,7 +364,7 @@ npm run check
 ```
 
 CI runs on Node 20 and 22. `npm run check` type-checks the workspaces, runs all
-64 automated tests, and builds packages and examples.
+70 automated tests, and builds packages and examples.
 
 Run all labs:
 
@@ -368,13 +376,14 @@ npm run dev:examples
 | --- | --- | --- | --- |
 | Module Federation | `npm run dev:example:module-federation` | `http://localhost:3100/platform/` | Host → Orders → Invoices, including a nested remote tree |
 | Native ESM import | `npm run dev:example:native-import` | `http://localhost:3200/native/catalog` | The adapter has no Module Federation runtime dependency |
-| File routes | `npm run dev:example:file-routing` | `http://localhost:3210/file-routing/` | The generator accepts a `createRemoteRoute`-wrapped file route |
+| File routes, physical | `npm run dev:example:file-routing:physical` | `http://localhost:3210/file-routing/` | The generator accepts a `createRemoteRoute`-wrapped file route |
+| File routes, virtual | `npm run dev:example:file-routing:virtual` | `http://localhost:3211/file-routing-virtual/` | The same wrapper under `virtualRouteConfig`, below a pathless layout |
 
 Use `npm run preview:examples`, or the corresponding
 `preview:example:*` command, for production artifacts. More detailed exercises
 are available in the [Module Federation lab](examples/module-federation/README.md),
 [native ESM-import lab](examples/native-import/README.md), and [file-route
-lab](examples/file-routing/README.md).
+labs](examples/file-routing/README.md).
 
 ## Current API constraints and research backlog
 

@@ -53,8 +53,13 @@ instances.
    wrap the declaration — `export const Route = createRemoteRoute(
    createFileRoute('/catalog')({ ... }))` — so the decoration is the exported
    value and cannot be omitted; TanStack's generator reads the inner
-   `createFileRoute` call and needs no build-time transform. The mount must
-   initially have no children.
+   `createFileRoute` call and needs no build-time transform. This holds in both
+   generator modes: physical routing, where the filename decides the URL, and
+   virtual routing, where `virtualRouteConfig` assigns it. One trade-off comes
+   with the wrapper — the generator auto-corrects a mismatched
+   `createFileRoute()` path only when that call is the direct export
+   initializer, so a wrapped file keeps a wrong path instead of having it
+   silently fixed. The mount must initially have no children.
 3. Render `RemoteRouteMount` from the mount component. A direct deep link below
    an unattached mount produces a fuzzy 404 that *matches the mount* rather than
    throwing into it, so that same component renders the loading UI and starts

@@ -78,12 +78,25 @@ same attach contract without Module Federation: the host resolves a plain ESM
 workspace package using native `import()`, then attaches its root, pathless,
 index and parameterized routes below `/native/catalog`.
 
-[`examples/file-routing`](../examples/file-routing/README.md) adds an actual
-TanStack file-route host built with `@tanstack/router-plugin`, whose mount is
-declared as `createRemoteRoute(createFileRoute('/catalog')({ ... }))`. It proves
-the generator accepts that wrapped form — emitting `/catalog` into the generated
-`routeTree.gen.ts` and leaving the source untouched — and that the host attaches
-the same ESM remote on direct deep links.
+[`examples/file-routing`](../examples/file-routing/README.md) adds two actual
+TanStack file-route hosts built with `@tanstack/router-plugin`, whose mount is
+declared as `createRemoteRoute(createFileRoute('/catalog')({ ... }))`. The
+physical host derives `/catalog` from the filename; the virtual host assigns
+every path in `src/routes.ts` and mounts the same file — named
+`catalog-mount.tsx` — at `/catalog` below a pathless layout. Both attach the
+same ESM remote on direct deep links.
+
+[`tests/unit/virtual-file-routes.test.ts`](../tests/unit/virtual-file-routes.test.ts)
+runs the real generator over scratch route directories rather than imitating it,
+since the claim is a compatibility one. It proves:
+
+| Area | Evidence |
+| --- | --- |
+| Virtual config | A wrapped mount whose URL comes from `routes.ts`, not its filename, is emitted into the generated tree |
+| Virtual layouts | The same mount composes below a pathless `layout(...)`, keeping its own URL |
+| Physical config | The identical wrapped form works with no virtual config, so a regression is attributable to one mode |
+| Source integrity | The generator leaves the wrapped file byte-identical and does not rewrite it |
+| Documented trade-off | Wrapping opts the file out of the generator's path auto-correction: an unwrapped `'/WRONG'` is rewritten to `'/catalog'`, a wrapped one is not |
 
 ## Evidence boundary and research backlog
 
