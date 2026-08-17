@@ -24,7 +24,9 @@ src/
 ## Public surface
 
 `types.ts`, `adapter.ts`, `create-remote-route.ts`, and `react.tsx` make up the
-supported alpha surface and are re-exported from `index.ts`.
+supported public surface and are re-exported from `index.ts`. It stays `0.x`
+because attachment is not yet an official TanStack Router API — an API-evolution
+risk, not a limit on the production scope documented in the README.
 
 - `RouteTreeUpdateAdapter` coordinates attachment lifecycle and idempotency.
   It accepts a lazy `getRouter()` callback, pinned on the first attachment
@@ -35,9 +37,12 @@ supported alpha surface and are re-exported from `index.ts`.
 - `RouteTreeUpdateAdapterProvider` is the host-level ownership boundary. It
   receives one pre-created adapter and makes it available to every mount via
   React context.
-- `createRemoteRoute` has the same signature as TanStack `createRoute` and
-  declares the static, initially childless host mount internally. It can also
-  enhance a generator-created file-route instance in place.
+- `createRemoteRoute` declares the static, initially childless host mount and
+  has two overloads. Given TanStack `createRoute` options it mirrors that
+  signature and its inferred route type; given an existing route instance it
+  returns the same instance, prepared in place, with its type unchanged. The
+  second form is what a file route wraps:
+  `createRemoteRoute(createFileRoute('/catalog')({ ... }))`.
 - `RemoteRouteMount` and its hooks are optional React bindings. The
   imperative adapter remains usable without them.
 
@@ -65,9 +70,10 @@ never be pulled into the client `router.load()` that an attachment owns.
 
 The package has no Module Federation dependency. `loadRouteTree` is supplied by
 the host, keeping Module Federation, native ESM `import()`, import maps, and
-registry clients at the consumer boundary. The two runnable example families
-exercise the same adapter contract with Module Federation and a plain built
-workspace package respectively.
+registry clients at the consumer boundary. Three runnable example families
+exercise the same adapter contract: Module Federation, a plain built workspace
+package loaded with native `import()`, and TanStack file routing in both its
+physical and virtual generator modes.
 
 Keep future code near the boundary it serves. Add a shared module only when a
 real reuse case appears, and do not add subpath exports without a consumer need.
