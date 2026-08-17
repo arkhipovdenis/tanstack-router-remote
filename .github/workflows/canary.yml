@@ -39,6 +39,22 @@ jobs:
       # No lockfile entry for the canary versions, so `npm ci` cannot be used.
       - run: npm install --no-audit --no-fund
 
+      # Installing without the lockfile lets a transitive React range float, and
+      # a root React that differs from the workspace pins gives the adapter its
+      # own nested copy. Two React instances in one process surface as
+      # `Invalid hook call` across ~24 unrelated tests, which reads like an
+      # upstream break rather than a resolution problem. Fail on the real cause.
+      - name: Assert a single React instance
+        run: |
+          copies=$(find . -type d -path '*node_modules/react' | sort)
+          count=$(printf '%s\n' "$copies" | grep -c . || true)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected exactly 1 React copy, found $count:"
+            printf '%s\n' "$copies"
+            exit 1
+          fi
+          echo "Single React instance: $(node -p "require('./node_modules/react/package.json').version")"
+
       - run: npm run check
 
       - name: Report
