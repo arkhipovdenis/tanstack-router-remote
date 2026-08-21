@@ -4,12 +4,12 @@ import type {
   NotFoundRouteComponent,
 } from '@tanstack/react-router'
 
-import type { AttachRemoteRouteTreeOptions, RouterGetter } from '../types.js'
+import type { AttachRemoteRouteTreeOptions, RouterGetter } from '../types'
 import {
   claimRemoteRouteTreeMount,
   releaseRemoteRouteTreeMount,
-} from './ownership.js'
-import { cloneHostRootForUpdate, graftRemoteRouteTree } from './route-tree.js'
+} from './ownership'
+import { cloneHostRootForUpdate, graftRemoteRouteTree } from './route-tree'
 
 export type RouteTreeAttachmentResult =
   | { readonly kind: 'attached' }

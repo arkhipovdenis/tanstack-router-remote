@@ -1,6 +1,6 @@
 import type { AnyRoute } from '@tanstack/react-router'
 
-import { childRoutesOf } from './route-tree.js'
+import { childRoutesOf } from './route-tree'
 
 /**
  * Internal invariant for a static remote mount. The public code-route factory

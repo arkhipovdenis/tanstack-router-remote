@@ -6,18 +6,18 @@ import type {
   RouteTreeAttachment,
   RouteTreeAttachmentController,
   RouteTreePreparationController,
-} from './types.js'
-import { AttachmentStore } from './internal/attachment-store.js'
+} from './types'
+import { AttachmentStore } from './internal/attachment-store'
 import {
   TanStackRouteTreeAttachmentTransaction,
   type RouteTreeAttachmentRequest,
   type RouteTreeAttachmentTransaction,
   type RouteTreeBatchMemberResult,
-} from './internal/attach-remote-route-tree.js'
+} from './internal/attach-remote-route-tree'
 import {
   BatchingTaskQueue,
   type BatchMemberResult,
-} from './internal/batching-task-queue.js'
+} from './internal/batching-task-queue'
 
 /**
  * Attach-only adapter around one existing host router. It coordinates mount

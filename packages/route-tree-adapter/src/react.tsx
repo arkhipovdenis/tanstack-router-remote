@@ -12,7 +12,7 @@ import type {
   RouteTreeAttachment,
   RouteTreeAttachmentController,
   RouteTreeAttachmentSource,
-} from './types.js'
+} from './types'
 
 const routeTreeUpdateAdapterContext =
   createContext<RouteTreeAttachmentController | null>(null)

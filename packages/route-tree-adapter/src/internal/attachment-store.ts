@@ -1,9 +1,6 @@
 import type { AnyRoute } from '@tanstack/react-router'
 
-import type {
-  RouteTreeAttachment,
-  RouteTreeAttachmentSource,
-} from '../types.js'
+import type { RouteTreeAttachment, RouteTreeAttachmentSource } from '../types'
 
 const idleAttachment: RouteTreeAttachment = Object.freeze({ state: 'idle' })
 

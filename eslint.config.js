@@ -2,6 +2,7 @@
 
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
+import importX from 'eslint-plugin-import-x'
 import unusedImports from 'eslint-plugin-unused-imports'
 import globals from 'globals'
 
@@ -50,6 +51,19 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unsafe-function-type': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+
+  {
+    // rslib resolves relative specifiers and writes the extension into dist/,
+    // so a `.js` suffix on a `.ts` file is redundant - and it reads as a bug,
+    // since the file it names does not exist in src/. Keep it out.
+    files: ['packages/**/src/**/*.ts', 'packages/**/src/**/*.tsx'],
+    plugins: {
+      'import-x': importX,
+    },
+    rules: {
+      'import-x/extensions': ['error', 'never'],
     },
   },
 

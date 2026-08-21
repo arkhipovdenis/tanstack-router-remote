@@ -9,7 +9,7 @@ import {
 import {
   provideScopedNotFoundRouter,
   provideScopedRouter,
-} from './scoped-router.js'
+} from './scoped-router'
 
 type RouteOptionsBag = Record<string, unknown>
 
