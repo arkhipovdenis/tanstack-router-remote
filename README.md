@@ -62,19 +62,19 @@ official TanStack Router composition API. That versioning reflects API
 evolution risk, not a recommendation against production use in the supported
 scope.
 
-| Capability | Current result |
-| --- | --- |
-| One host router, history, stores and native route cache | `+` Supported and regression-tested |
-| Remote index, nested routes, params, search, loaders and boundaries | `+` Supported and regression-tested |
-| Remote root component and compatible root options | `±` Supported through a documented pathless bridge |
-| Original remote `__root__` identity and RootRoute APIs | `−` Not part of the host tree |
-| Non-streaming SSR | `±` A custom pre-attach bootstrap, remote rendering and TanStack data dehydration are regression-tested; fresh per-request trees are required |
-| Hydration | `±` Fresh-tree hydration restores remote loader data without rerunning initial loaders; matching remote version must be available before hydrate |
-| Deferred / streaming SSR | `?` Not yet researched |
-| TanStack Start/default request handler and remote-transport integration | `?` Not yet researched; the validated path currently uses a custom async bootstrap before the first `router.load()` |
-| Detach | `?` Not yet researched; the current public API has no detach operation |
-| Remote replacement | `?` Not yet researched; the current public API has no replacement operation |
-| Route-level HMR | `?` Not yet researched as a controlled remote-tree replacement lifecycle |
+| Capability                                                              | Current result                                                                                                                                   |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| One host router, history, stores and native route cache                 | `+` Supported and regression-tested                                                                                                              |
+| Remote index, nested routes, params, search, loaders and boundaries     | `+` Supported and regression-tested                                                                                                              |
+| Remote root component and compatible root options                       | `±` Supported through a documented pathless bridge                                                                                               |
+| Original remote `__root__` identity and RootRoute APIs                  | `−` Not part of the host tree                                                                                                                    |
+| Non-streaming SSR                                                       | `±` A custom pre-attach bootstrap, remote rendering and TanStack data dehydration are regression-tested; fresh per-request trees are required    |
+| Hydration                                                               | `±` Fresh-tree hydration restores remote loader data without rerunning initial loaders; matching remote version must be available before hydrate |
+| Deferred / streaming SSR                                                | `?` Not yet researched                                                                                                                           |
+| TanStack Start/default request handler and remote-transport integration | `?` Not yet researched; the validated path currently uses a custom async bootstrap before the first `router.load()`                              |
+| Detach                                                                  | `?` Not yet researched; the current public API has no detach operation                                                                           |
+| Remote replacement                                                      | `?` Not yet researched; the current public API has no replacement operation                                                                      |
+| Route-level HMR                                                         | `?` Not yet researched as a controlled remote-tree replacement lifecycle                                                                         |
 
 Read the [limitations](docs/limitations.md) before adopting this bridge. The
 [runtime evidence matrix](docs/runtime-evidence.md) maps each supported claim
@@ -128,9 +128,7 @@ type RemoteRouteTreeModule = { routeTree: AnyRoute }
 
 // CSR only: a singleton tree may be attached once in this browser document.
 const loadOrdersRouteTree = async () => {
-  const remote = await loadRemote<RemoteRouteTreeModule>(
-    'someRemote/routeTree',
-  )
+  const remote = await loadRemote<RemoteRouteTreeModule>('someRemote/routeTree')
 
   return remote.routeTree
 }
@@ -231,9 +229,7 @@ import {
   renderRouterToString,
 } from '@tanstack/react-router/ssr/server'
 import { hydrate } from '@tanstack/react-router/ssr/client'
-import {
-  RouteTreeUpdateAdapterProvider,
-} from '@tanstack-router-remote/route-tree-adapter'
+import { RouteTreeUpdateAdapterProvider } from '@tanstack-router-remote/route-tree-adapter'
 
 // Server request: create fresh host route instances/router/history and an
 // adapter for this request. Do this before its first router.load().
@@ -372,12 +368,12 @@ Run all labs:
 npm run dev:examples
 ```
 
-| Lab | Command | Local URL | What it proves |
-| --- | --- | --- | --- |
-| Module Federation | `npm run dev:example:module-federation` | `http://localhost:3100/platform/` | Host → Orders → Invoices, including a nested remote tree |
-| Native ESM import | `npm run dev:example:native-import` | `http://localhost:3200/native/catalog` | The adapter has no Module Federation runtime dependency |
-| File routes, physical | `npm run dev:example:file-routing:physical` | `http://localhost:3210/file-routing/` | The generator accepts a `createRemoteRoute`-wrapped file route |
-| File routes, virtual | `npm run dev:example:file-routing:virtual` | `http://localhost:3211/file-routing-virtual/` | The same wrapper under `virtualRouteConfig`, below a pathless layout |
+| Lab                   | Command                                     | Local URL                                     | What it proves                                                       |
+| --------------------- | ------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| Module Federation     | `npm run dev:example:module-federation`     | `http://localhost:3100/platform/`             | Host → Orders → Invoices, including a nested remote tree             |
+| Native ESM import     | `npm run dev:example:native-import`         | `http://localhost:3200/native/catalog`        | The adapter has no Module Federation runtime dependency              |
+| File routes, physical | `npm run dev:example:file-routing:physical` | `http://localhost:3210/file-routing/`         | The generator accepts a `createRemoteRoute`-wrapped file route       |
+| File routes, virtual  | `npm run dev:example:file-routing:virtual`  | `http://localhost:3211/file-routing-virtual/` | The same wrapper under `virtualRouteConfig`, below a pathless layout |
 
 Use `npm run preview:examples`, or the corresponding
 `preview:example:*` command, for production artifacts. More detailed exercises

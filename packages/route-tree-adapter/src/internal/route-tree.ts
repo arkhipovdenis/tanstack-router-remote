@@ -74,9 +74,7 @@ export function graftRemoteRouteTree({
   const remoteChildren = childRoutesOf(remoteTree)
 
   if ((remoteTree as { isRoot?: boolean }).isRoot !== true) {
-    throw new Error(
-      'Remote routeTree must be the generated root route.',
-    )
+    throw new Error('Remote routeTree must be the generated root route.')
   }
 
   if (!remoteChildren.length) {

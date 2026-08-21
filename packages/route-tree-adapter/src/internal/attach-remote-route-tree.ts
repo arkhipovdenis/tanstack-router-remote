@@ -4,18 +4,12 @@ import type {
   NotFoundRouteComponent,
 } from '@tanstack/react-router'
 
-import type {
-  AttachRemoteRouteTreeOptions,
-  RouterGetter,
-} from '../types.js'
+import type { AttachRemoteRouteTreeOptions, RouterGetter } from '../types.js'
 import {
   claimRemoteRouteTreeMount,
   releaseRemoteRouteTreeMount,
 } from './ownership.js'
-import {
-  cloneHostRootForUpdate,
-  graftRemoteRouteTree,
-} from './route-tree.js'
+import { cloneHostRootForUpdate, graftRemoteRouteTree } from './route-tree.js'
 
 export type RouteTreeAttachmentResult =
   | { readonly kind: 'attached' }
@@ -137,7 +131,12 @@ export class TanStackRouteTreeAttachmentTransaction<
         // Already grafted by a previous prepare(): it joins the batch only for
         // the shared load, and it must not release its ownership claim — the
         // router already indexes its routes.
-        grafted.push({ index, request, remoteTree: undefined, undoGraft: undefined })
+        grafted.push({
+          index,
+          request,
+          remoteTree: undefined,
+          undoGraft: undefined,
+        })
         return
       }
 
@@ -150,7 +149,10 @@ export class TanStackRouteTreeAttachmentTransaction<
         // state. Resolution failure is per member: it mutated nothing.
         router ??= this.getRouter()
 
-        claimRemoteRouteTreeMount({ remoteTree, mountRoute: request.options.mountRoute })
+        claimRemoteRouteTreeMount({
+          remoteTree,
+          mountRoute: request.options.mountRoute,
+        })
         claimed = true
 
         const { undo } = graftRemoteRouteTree({

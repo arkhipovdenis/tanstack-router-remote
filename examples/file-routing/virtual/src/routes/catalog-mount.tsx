@@ -9,9 +9,8 @@ type NativeRouteTreeModule = {
 }
 
 const loadCatalogRouteTree = async () => {
-  const remote = (await import(
-    '@tanstack-router-remote/example-native-import-remote/routeTree'
-  )) as NativeRouteTreeModule
+  const remote =
+    (await import('@tanstack-router-remote/example-native-import-remote/routeTree')) as NativeRouteTreeModule
 
   if (!remote.routeTree) {
     throw new Error('The native ESM remote did not export routeTree.')
@@ -37,7 +36,10 @@ function CatalogMount() {
       mountRoute={Route}
       loadRouteTree={loadCatalogRouteTree}
       loading={
-        <section className="file-example-card" data-testid="file-routing-virtual-loading">
+        <section
+          className="file-example-card"
+          data-testid="file-routing-virtual-loading"
+        >
           <p className="file-example-eyebrow">Local file-route boundary</p>
           <h2>Catalog mount is loading…</h2>
           <p>

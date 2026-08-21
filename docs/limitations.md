@@ -51,7 +51,7 @@ instances.
 2. Create a code mount with `createRemoteRoute({ ... })` before
    `createRouter()` receives the host route tree. For a standard file route,
    wrap the declaration — `export const Route = createRemoteRoute(
-   createFileRoute('/catalog')({ ... }))` — so the decoration is the exported
+createFileRoute('/catalog')({ ... }))` — so the decoration is the exported
    value and cannot be omitted; TanStack's generator reads the inner
    `createFileRoute` call and needs no build-time transform. This holds in both
    generator modes: physical routing, where the filename decides the URL, and
@@ -61,7 +61,7 @@ instances.
    initializer, so a wrapped file keeps a wrong path instead of having it
    silently fixed. The mount must initially have no children.
 3. Render `RemoteRouteMount` from the mount component. A direct deep link below
-   an unattached mount produces a fuzzy 404 that *matches the mount* rather than
+   an unattached mount produces a fuzzy 404 that _matches the mount_ rather than
    throwing into it, so that same component renders the loading UI and starts
    the attach. A local `notFoundComponent` on the mount is **not** required for
    this and is redundant if it only re-renders the mount; declare one to catch a

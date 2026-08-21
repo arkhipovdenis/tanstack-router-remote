@@ -7,12 +7,8 @@ export type {
   RouteTreePreparationController,
   RouterGetter,
 } from './types.js'
-export {
-  RouteTreeUpdateAdapter,
-} from './adapter.js'
-export {
-  createRemoteRoute,
-} from './create-remote-route.js'
+export { RouteTreeUpdateAdapter } from './adapter.js'
+export { createRemoteRoute } from './create-remote-route.js'
 export {
   RemoteRouteMount,
   RouteTreeUpdateAdapterProvider,

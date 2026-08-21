@@ -4,12 +4,30 @@
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; }
-button, input { font: inherit; }
-a { color: #99d5ff; }
-code { padding: 2px 5px; border-radius: 4px; background: rgb(0 0 0 / 25%); }
-pre { overflow-x: auto; padding: 12px; border-radius: 8px; background: rgb(0 0 0 / 24%); }
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+a {
+  color: #99d5ff;
+}
+code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 25%);
+}
+pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgb(0 0 0 / 24%);
+}
 
 .file-example-shell {
   display: grid;
@@ -22,7 +40,8 @@ pre { overflow-x: auto; padding: 12px; border-radius: 8px; background: rgb(0 0 0
   background: linear-gradient(145deg, #132e43, #17233b 54%, #182e3f);
 }
 
-.file-example-header, .file-example-nav {
+.file-example-header,
+.file-example-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -33,16 +52,44 @@ pre { overflow-x: auto; padding: 12px; border-radius: 8px; background: rgb(0 0 0
 .file-example-eyebrow {
   margin: 0 0 6px;
   color: #a6cbec;
-  font-size: .74rem;
-  letter-spacing: .09em;
+  font-size: 0.74rem;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
-.file-example-header h1, .file-example-card h2 { margin: 0; }
-.file-example-badge { padding: 5px 10px; border: 1px solid #72c5ee; border-radius: 99px; color: #d9f5ff; }
-.file-example-nav { justify-content: flex-start; }
-.file-example-nav a, .file-example-card > a { padding: 7px 10px; border: 1px solid #5792bd; border-radius: 7px; text-decoration: none; }
-.file-example-note { margin: 0; color: #c7d8e7; }
-.file-example-card { padding: 20px; border: 1px solid rgb(137 193 230 / 58%); border-radius: 12px; background: rgb(4 17 30 / 38%); }
-.file-example-card p { color: #d2e0ec; }
-.file-example-error { border-color: #e493aa; }
+.file-example-header h1,
+.file-example-card h2 {
+  margin: 0;
+}
+.file-example-badge {
+  padding: 5px 10px;
+  border: 1px solid #72c5ee;
+  border-radius: 99px;
+  color: #d9f5ff;
+}
+.file-example-nav {
+  justify-content: flex-start;
+}
+.file-example-nav a,
+.file-example-card > a {
+  padding: 7px 10px;
+  border: 1px solid #5792bd;
+  border-radius: 7px;
+  text-decoration: none;
+}
+.file-example-note {
+  margin: 0;
+  color: #c7d8e7;
+}
+.file-example-card {
+  padding: 20px;
+  border: 1px solid rgb(137 193 230 / 58%);
+  border-radius: 12px;
+  background: rgb(4 17 30 / 38%);
+}
+.file-example-card p {
+  color: #d2e0ec;
+}
+.file-example-error {
+  border-color: #e493aa;
+}

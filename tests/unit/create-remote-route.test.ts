@@ -6,9 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import {
-  createRemoteRoute,
-} from '../../packages/route-tree-adapter/src'
+import { createRemoteRoute } from '../../packages/route-tree-adapter/src'
 
 const Null = () => null
 
@@ -43,9 +41,10 @@ describe('createRemoteRoute', () => {
       component: Null,
       notFoundComponent: Null,
       validateSearch: (search) => ({
-        tab: typeof (search as { tab?: unknown }).tab === 'string'
-          ? (search as { tab: string }).tab
-          : 'overview',
+        tab:
+          typeof (search as { tab?: unknown }).tab === 'string'
+            ? (search as { tab: string }).tab
+            : 'overview',
       }),
       loaderDeps: ({ search }) => ({ tab: search.tab }),
       loader: ({ deps, params }) => ({
@@ -55,8 +54,8 @@ describe('createRemoteRoute', () => {
     })
 
     const acceptsInferredParams: { orderId: string } =
-      null as never as typeof mount['types']['params']
-    const acceptsExpectedParams: typeof mount['types']['params'] = {
+      null as never as (typeof mount)['types']['params']
+    const acceptsExpectedParams: (typeof mount)['types']['params'] = {
       orderId: '42',
     }
 
@@ -66,10 +65,10 @@ describe('createRemoteRoute', () => {
     expectTypeOf(acceptsExpectedParams).toMatchTypeOf<{
       orderId: string
     }>()
-    expectTypeOf<typeof mount['types']['searchSchema']>().toEqualTypeOf<{
+    expectTypeOf<(typeof mount)['types']['searchSchema']>().toEqualTypeOf<{
       tab: string
     }>()
-    expectTypeOf<typeof mount['types']['loaderData']>().toEqualTypeOf<{
+    expectTypeOf<(typeof mount)['types']['loaderData']>().toEqualTypeOf<{
       orderId: string
       tab: string
     }>()
@@ -93,10 +92,10 @@ describe('createRemoteRoute', () => {
     expectTypeOf(decorated).toEqualTypeOf(plain)
     expectTypeOf(decorated.fullPath).toEqualTypeOf<'/orders/$orderId'>()
     const decoratedParams: { orderId: string } =
-      null as never as typeof decorated['types']['params']
+      null as never as (typeof decorated)['types']['params']
 
     expectTypeOf(decoratedParams).toEqualTypeOf<{ orderId: string }>()
-    expectTypeOf<typeof decorated['types']['searchSchema']>().toEqualTypeOf<{
+    expectTypeOf<(typeof decorated)['types']['searchSchema']>().toEqualTypeOf<{
       tab: string
     }>()
     expect(decorated).toBe(plain)

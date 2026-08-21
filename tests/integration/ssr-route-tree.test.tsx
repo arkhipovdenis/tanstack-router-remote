@@ -42,9 +42,11 @@ type SsrFixture = ReturnType<typeof createSsrFixture>
 
 function createSsrFixture(initialEntry: string) {
   const rootBeforeLoad = vi.fn(() => ({ requestScope: 'remote-request' }))
-  const rootLoader = vi.fn(({ context }: { context: { requestScope: string } }) => ({
-    source: `root-loader:${context.requestScope}`,
-  }))
+  const rootLoader = vi.fn(
+    ({ context }: { context: { requestScope: string } }) => ({
+      source: `root-loader:${context.requestScope}`,
+    }),
+  )
   const indexLoader = vi.fn(() => ({ source: 'index-loader' }))
   const detailLoader = vi.fn(({ params }: { params: { orderId: string } }) => ({
     source: `detail-loader:${params.orderId}`,
@@ -144,9 +146,11 @@ function createSsrFixture(initialEntry: string) {
 
 function createClientFixture(initialEntry: string) {
   const rootBeforeLoad = vi.fn(() => ({ requestScope: 'remote-request' }))
-  const rootLoader = vi.fn(({ context }: { context: { requestScope: string } }) => ({
-    source: `root-loader:${context.requestScope}`,
-  }))
+  const rootLoader = vi.fn(
+    ({ context }: { context: { requestScope: string } }) => ({
+      source: `root-loader:${context.requestScope}`,
+    }),
+  )
   const detailLoader = vi.fn(({ params }: { params: { orderId: string } }) => ({
     source: `detail-loader:${params.orderId}`,
   }))
@@ -313,7 +317,9 @@ describe('SSR route-tree attachment', () => {
       value: vi.fn(),
       writable: true,
     })
-    ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+    ;(
+      globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true
 
     const serverFixture = createSsrFixture('/orders/42')
     const response = await renderRequest(serverFixture)
@@ -359,7 +365,9 @@ describe('SSR route-tree attachment', () => {
       )
     })
 
-    expect(appRoot.textContent).toContain('remote-root:root-loader:remote-request')
+    expect(appRoot.textContent).toContain(
+      'remote-root:root-loader:remote-request',
+    )
     expect(appRoot.textContent).toContain('remote-detail:42:detail-loader:42')
     expect(recoverableErrors).toEqual([])
     expect(clientFixture.loadRouteTree).toHaveBeenCalledTimes(1)

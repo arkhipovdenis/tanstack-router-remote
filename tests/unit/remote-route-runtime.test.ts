@@ -37,11 +37,7 @@ function createRootBoundaryRemote() {
 
   function Pending() {
     pendingRenders += 1
-    return createElement(
-      'p',
-      { 'data-root-pending': 'true' },
-      'root-pending',
-    )
+    return createElement('p', { 'data-root-pending': 'true' }, 'root-pending')
   }
 
   function ErrorBoundary({ error }: { error: Error }) {
@@ -168,7 +164,9 @@ describe('attached remote runtime', () => {
     expect(markup).toContain('data-remote-root="remote-root-loader"')
     expect(markup).toContain('data-remote-detail="remote-detail-loader"')
     expect(markup).toContain('data-detail-order-id="42"')
-    expect(markup).toContain('data-remote-line-items="remote-line-items-loader"')
+    expect(markup).toContain(
+      'data-remote-line-items="remote-line-items-loader"',
+    )
     expect(markup).toContain('data-line-items-order-id="42"')
     expect(remote.lifecycle.rootLoader).toBe(1)
     expect(remote.lifecycle.detailLoader).toBe(1)
@@ -210,9 +208,13 @@ describe('attached remote runtime', () => {
 
     expect(host.router.state.location.pathname).toBe('/orders')
     expect(host.router.routeTree).toBe(attachedTree)
-    expect(renderRouter(host.router)).toContain('data-remote-index="remote-index-loader"')
+    expect(renderRouter(host.router)).toContain(
+      'data-remote-index="remote-index-loader"',
+    )
 
-    const indexRootRouter = remote.lifecycle.rootRouters.at(-1) as typeof host.router
+    const indexRootRouter = remote.lifecycle.rootRouters.at(
+      -1,
+    ) as typeof host.router
     const indexRouter = remote.lifecycle.indexRouters.at(-1)
 
     expect(indexRootRouter).toBe(indexRouter)
@@ -239,12 +241,16 @@ describe('attached remote runtime', () => {
 
     expect(renderRouter(host.router)).toContain('data-detail-order-id="42"')
 
-    const scopedRouter = remote.lifecycle.rootRouters.at(-1) as typeof host.router
+    const scopedRouter = remote.lifecycle.rootRouters.at(
+      -1,
+    ) as typeof host.router
 
     await scopedRouter.navigate({ to: '/' } as never)
 
     expect(host.router.history.location.pathname).toBe('/platform/orders')
-    expect(renderRouter(host.router)).toContain('data-remote-index="remote-index-loader"')
+    expect(renderRouter(host.router)).toContain(
+      'data-remote-index="remote-index-loader"',
+    )
   })
 
   it('attaches nested remote trees through one host adapter and composes scoped navigation', async () => {
@@ -351,9 +357,15 @@ describe('attached remote runtime', () => {
 
     const bridge = remote.index.parentRoute as AnyRoute
 
-    expect(bridge.options.pendingComponent).toBe(remote.root.options.pendingComponent)
-    expect(bridge.options.errorComponent).toBe(remote.root.options.errorComponent)
-    expect(bridge.options.notFoundComponent).toBe(remote.root.options.notFoundComponent)
+    expect(bridge.options.pendingComponent).toBe(
+      remote.root.options.pendingComponent,
+    )
+    expect(bridge.options.errorComponent).toBe(
+      remote.root.options.errorComponent,
+    )
+    expect(bridge.options.notFoundComponent).toBe(
+      remote.root.options.notFoundComponent,
+    )
 
     remote.setMode('error')
     await host.router.invalidate({ forcePending: true })

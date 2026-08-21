@@ -9,7 +9,10 @@ const shared = {
   'react-dom': { singleton: true, requiredVersion: false as const },
   'react-dom/': { singleton: true, requiredVersion: false as const },
   'react-dom/client': { singleton: true, requiredVersion: false as const },
-  '@tanstack/react-router': { singleton: true, requiredVersion: false as const },
+  '@tanstack/react-router': {
+    singleton: true,
+    requiredVersion: false as const,
+  },
   '@tanstack/router-core': { singleton: true, requiredVersion: false as const },
   '@tanstack/history': { singleton: true, requiredVersion: false as const },
   '@tanstack-router-remote/route-tree-adapter': {

@@ -22,7 +22,11 @@ const repoRoot = fileURLToPath(new URL('../', import.meta.url))
 const resolved = new Map(
   await Promise.all(
     PACKAGES.map(async (name) => {
-      const { stdout } = await run('npm', ['view', `${name}@${distTag}`, 'version'])
+      const { stdout } = await run('npm', [
+        'view',
+        `${name}@${distTag}`,
+        'version',
+      ])
       const version = stdout.trim()
 
       if (!version) {

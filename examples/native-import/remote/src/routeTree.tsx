@@ -113,9 +113,9 @@ function NativeImportRoot() {
           <p className="native-eyebrow">Plain ESM remote</p>
           <h2>Native-import route tree</h2>
           <p className="native-lede">
-            This tree came from a TypeScript-built workspace package, not
-            Module Federation. Its original root component is rendered through
-            the adapter&apos;s pathless root bridge.
+            This tree came from a TypeScript-built workspace package, not Module
+            Federation. Its original root component is rendered through the
+            adapter&apos;s pathless root bridge.
           </p>
         </div>
         <span className="native-badge">routeTree attached</span>
@@ -155,12 +155,15 @@ function NativeImportRoot() {
           <p className="native-eyebrow">Remote root local state</p>
           <h3>React state belongs to the imported root layout</h3>
           <p>
-            Change these values, then move between index and detail. The
-            bridge remains matched, so this root stays mounted.
+            Change these values, then move between index and detail. The bridge
+            remains matched, so this root stays mounted.
           </p>
         </div>
         <div className="native-controls">
-          <button type="button" onClick={() => setRootClicks((value) => value + 1)}>
+          <button
+            type="button"
+            onClick={() => setRootClicks((value) => value + 1)}
+          >
             Root state +1
           </button>
           <output data-testid="native-root-state-value">{rootClicks}</output>
@@ -183,7 +186,10 @@ function NativeImportRoot() {
 
 function NativeImportNotFound() {
   return (
-    <section className="native-route-card" data-testid="native-remote-not-found">
+    <section
+      className="native-route-card"
+      data-testid="native-remote-not-found"
+    >
       <p className="native-eyebrow">Remote structural 404</p>
       <h3>Catalog route was not found</h3>
       <p>
@@ -209,8 +215,8 @@ function CatalogWorkspace() {
           <p className="native-eyebrow">Actual pathless route</p>
           <h3>Catalog workspace layout</h3>
           <p>
-            This route has no URL segment. It stays mounted while its index
-            and parameterized descendants change.
+            This route has no URL segment. It stays mounted while its index and
+            parameterized descendants change.
           </p>
         </div>
         <LoaderBadge data={loaderData} />
@@ -247,10 +253,13 @@ function CatalogIndex() {
         <LoaderBadge data={loaderData} />
       </div>
       <p>
-        Validated search: <code>{JSON.stringify(search)}</code>. Each view is
-        a separate native TanStack loader cache key.
+        Validated search: <code>{JSON.stringify(search)}</code>. Each view is a
+        separate native TanStack loader cache key.
       </p>
-      <nav className="native-nav native-nav-compact" aria-label="Catalog index actions">
+      <nav
+        className="native-nav native-nav-compact"
+        aria-label="Catalog index actions"
+      >
         <Link to="/" search={{ view: nextView } as never}>
           Change search to {nextView}
         </Link>
@@ -259,7 +268,10 @@ function CatalogIndex() {
         </Link>
       </nav>
       <div className="native-controls">
-        <button type="button" onClick={() => setIndexClicks((value) => value + 1)}>
+        <button
+          type="button"
+          onClick={() => setIndexClicks((value) => value + 1)}
+        >
           Index state +1
         </button>
         <output data-testid="native-index-state-value">{indexClicks}</output>
@@ -297,7 +309,10 @@ function ProductDetail() {
         and normalizes the visible id. Validated search is{' '}
         <code>{JSON.stringify(search)}</code>.
       </p>
-      <nav className="native-nav native-nav-compact" aria-label="Product detail actions">
+      <nav
+        className="native-nav native-nav-compact"
+        aria-label="Product detail actions"
+      >
         <Link
           to="/$productId"
           params={{ productId: nextProductId } as never}
@@ -390,9 +405,7 @@ const productDetailRoute = createRoute({
     tab: (search as ProductSearch).tab,
   }),
   loader: async ({ params, deps }) =>
-    nextLoaderEvidence(
-      `native-product:${params.productId}:tab=${deps.tab}`,
-    ),
+    nextLoaderEvidence(`native-product:${params.productId}:tab=${deps.tab}`),
   component: ProductDetail,
   ...cachePolicy,
 })

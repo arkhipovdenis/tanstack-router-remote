@@ -88,8 +88,7 @@ function InvoicesRoot() {
   const adapter = useRouteTreeUpdateAdapter()
   const rootLoaderData = useRootLoaderEvidence()
   const runtimeContext = router.options.context as
-    | { readonly demoRuntimeProbe?: DemoRuntimeProbe }
-    | undefined
+    { readonly demoRuntimeProbe?: DemoRuntimeProbe } | undefined
   const hostRuntime = runtimeContext?.demoRuntimeProbe
   const hostRouter = hostRuntime?.rawRouter
   const isHosted = Boolean(hostRouter)
@@ -197,7 +196,10 @@ function InvoicesRoot() {
           </p>
         </div>
         <div className="controls">
-          <button type="button" onClick={() => setRootClicks((value) => value + 1)}>
+          <button
+            type="button"
+            onClick={() => setRootClicks((value) => value + 1)}
+          >
             Nested root state +1
           </button>
           <output data-testid="nested-root-state-value">{rootClicks}</output>
@@ -252,7 +254,10 @@ function InvoicesWorkspace() {
   const loaderData = invoicesWorkspaceRoute.useLoaderData() as LoaderEvidence
 
   return (
-    <section className="workspace-layout" data-testid="nested-invoices-workspace">
+    <section
+      className="workspace-layout"
+      data-testid="nested-invoices-workspace"
+    >
       <div className="route-heading">
         <div>
           <p className="eyebrow">Actual pathless nested route</p>
@@ -261,8 +266,8 @@ function InvoicesWorkspace() {
         <LoaderBadge data={loaderData} />
       </div>
       <p>
-        This <code>id: 'invoices-workspace'</code> route has no URL segment.
-        It remains mounted while its index and detail children change.
+        This <code>id: 'invoices-workspace'</code> route has no URL segment. It
+        remains mounted while its index and detail children change.
       </p>
       <div className="controls">
         <button type="button" onClick={() => setClicks((value) => value + 1)}>
@@ -277,7 +282,9 @@ function InvoicesWorkspace() {
 
 function InvoiceDetail() {
   const [clicks, setClicks] = useState(0)
-  const params = invoiceDetailRoute.useParams() as { readonly invoiceId: string }
+  const params = invoiceDetailRoute.useParams() as {
+    readonly invoiceId: string
+  }
   const loaderData = invoiceDetailRoute.useLoaderData() as LoaderEvidence
   const nextInvoiceId = params.invoiceId === 'INV-42' ? 'INV-77' : 'INV-42'
 
@@ -293,8 +300,8 @@ function InvoiceDetail() {
         <LoaderBadge data={loaderData} />
       </div>
       <p>
-        The nested remote receives params and runs its loader through the
-        shared host router. Changing the invoice id has a different cache key.
+        The nested remote receives params and runs its loader through the shared
+        host router. Changing the invoice id has a different cache key.
       </p>
       <nav className="nav compact" aria-label="Invoice detail actions">
         <Link to="/$invoiceId" params={{ invoiceId: nextInvoiceId }}>

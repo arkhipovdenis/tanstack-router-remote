@@ -5,10 +5,10 @@ native-ESM `Catalog` remote as the other examples. They show how a static
 `/catalog` mount is declared before `createRouter()` receives the generated
 `routeTree`, in each of the generator's two modes.
 
-| Example | Command | URL | Route paths come from |
-| --- | --- | --- | --- |
-| Physical | `npm run dev:example:file-routing:physical` | [localhost:3210/file-routing/](http://localhost:3210/file-routing/) | filenames under `src/routes/` |
-| Virtual | `npm run dev:example:file-routing:virtual` | [localhost:3211/file-routing-virtual/](http://localhost:3211/file-routing-virtual/) | `src/routes.ts` |
+| Example  | Command                                     | URL                                                                                 | Route paths come from         |
+| -------- | ------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------- |
+| Physical | `npm run dev:example:file-routing:physical` | [localhost:3210/file-routing/](http://localhost:3210/file-routing/)                 | filenames under `src/routes/` |
+| Virtual  | `npm run dev:example:file-routing:virtual`  | [localhost:3211/file-routing-virtual/](http://localhost:3211/file-routing-virtual/) | `src/routes.ts`               |
 
 Run both together with `npm run dev:example:file-routing`. For production
 artifacts use `npm run preview:example:file-routing`. Both share the existing
@@ -18,7 +18,7 @@ Module Federation.
 ## How the mount is declared
 
 Identical in both modes — `createRemoteRoute` wraps the generated file route, so
-the decoration *is* the exported value:
+the decoration _is_ the exported value:
 
 ```tsx
 export const Route = createRemoteRoute(

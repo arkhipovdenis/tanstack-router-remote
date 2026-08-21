@@ -5,7 +5,14 @@
 // and needs no build-time transform — so imitating the generator would prove
 // nothing. These tests invoke it and read the file it emits.
 
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { join } from 'node:path'
 
 import { Generator, getConfig } from '@tanstack/router-generator'
@@ -45,7 +52,13 @@ function CatalogMount() {
 // Kept inside the repository rather than the OS temp dir: routes.ts imports
 // `@tanstack/virtual-file-routes`, which the generator resolves from the
 // scratch project's own location.
-const SCRATCH_PARENT = join(import.meta.dirname, '..', '..', 'node_modules', '.tmp')
+const SCRATCH_PARENT = join(
+  import.meta.dirname,
+  '..',
+  '..',
+  'node_modules',
+  '.tmp',
+)
 
 function createScratchProject(files: Record<string, string>) {
   mkdirSync(SCRATCH_PARENT, { recursive: true })
@@ -201,7 +214,9 @@ export const routes = rootRoute('__root.tsx', [
     // a type error rather than a silent mismatch.
     expect(routeTree).toContain("'/_shell/catalog': {")
     expect(routeTree).toMatch(/'\/_shell\/catalog': \{[^}]*path: '\/catalog'/)
-    expect(routeTree).toMatch(/'\/_shell\/catalog': \{[^}]*fullPath: '\/catalog'/)
+    expect(routeTree).toMatch(
+      /'\/_shell\/catalog': \{[^}]*fullPath: '\/catalog'/,
+    )
   })
 
   it('accepts the same wrapped mount without any virtual config', async () => {

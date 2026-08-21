@@ -10,8 +10,8 @@ function FileRoutingHome() {
       <p className="file-example-eyebrow">Generated index route</p>
       <h2>File-route remote mount</h2>
       <p>
-        This example proves the library works with standard TanStack
-        file-based routing, with no build-time transform involved.
+        This example proves the library works with standard TanStack file-based
+        routing, with no build-time transform involved.
       </p>
       <pre>
         <code>{`export const Route = createRemoteRoute(\n  createFileRoute('/catalog')({ ... }),\n)`}</code>

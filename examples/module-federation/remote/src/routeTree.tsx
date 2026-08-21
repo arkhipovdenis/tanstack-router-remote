@@ -80,9 +80,8 @@ const cachePolicy = {
 const executionByRoute = new Map<string, number>()
 
 const loadInvoicesRouteTree = async () => {
-  const remote = await loadRemote<NestedRemoteRouteTreeModule>(
-    'invoices/routeTree',
-  )
+  const remote =
+    await loadRemote<NestedRemoteRouteTreeModule>('invoices/routeTree')
 
   if (!remote?.routeTree) {
     throw new Error('invoices/routeTree did not expose routeTree')
@@ -185,8 +184,8 @@ function OrdersRoot() {
           <p className="eyebrow">Federated remote · interactive evidence</p>
           <h2>Orders route tree</h2>
           <p className="lede">
-            This is the original remote root component, rendered below the
-            host mount through the pathless root bridge.
+            This is the original remote root component, rendered below the host
+            mount through the pathless root bridge.
           </p>
         </div>
         <span className="badge badge-pass" data-testid="remote-root-rendered">
@@ -202,7 +201,11 @@ function OrdersRoot() {
         <Link to="/$orderId" params={{ orderId: '42' }}>
           Order 42
         </Link>
-        <Link to="/$orderId" params={{ orderId: '77' }} search={{ tab: 'history' }}>
+        <Link
+          to="/$orderId"
+          params={{ orderId: '77' }}
+          search={{ tab: 'history' }}
+        >
           Order 77 + search
         </Link>
         <Link to="/$orderId/activity" params={{ orderId: '42' }}>
@@ -233,7 +236,10 @@ function OrdersRoot() {
           </p>
         </div>
         <div className="state-controls">
-          <button type="button" onClick={() => setRootClicks((value) => value + 1)}>
+          <button
+            type="button"
+            onClick={() => setRootClicks((value) => value + 1)}
+          >
             Root clicks +1
           </button>
           <output data-testid="remote-root-state-value">{rootClicks}</output>
@@ -325,9 +331,7 @@ function EvidenceMatrix({
             <EvidenceRow
               testId="evidence-index"
               capability="Index + validated search + loader deps"
-              result={
-                activeRoutes.has('index') ? '✓ active' : '— choose Index'
-              }
+              result={activeRoutes.has('index') ? '✓ active' : '— choose Index'}
               positive={activeRoutes.has('index')}
               detail="Switch summary → audit → summary to observe native cache reuse."
             />
@@ -362,9 +366,9 @@ function EvidenceMatrix({
         </table>
       </div>
       <p className="hint">
-        The root loader data is read from the bridge match. The generated
-        remote <code>__root__</code> still has no host-tree identity, so this
-        example deliberately does not call <code>rootRoute.useLoaderData()</code>.
+        The root loader data is read from the bridge match. The generated remote{' '}
+        <code>__root__</code> still has no host-tree identity, so this example
+        deliberately does not call <code>rootRoute.useLoaderData()</code>.
       </p>
     </section>
   )
@@ -403,8 +407,7 @@ function RuntimeIdentityPanel() {
   )
   const [isInvalidating, setIsInvalidating] = useState(false)
   const context = router.options.context as
-    | { demoRuntimeProbe?: DemoRuntimeProbe }
-    | undefined
+    { demoRuntimeProbe?: DemoRuntimeProbe } | undefined
   const hostRuntime = context?.demoRuntimeProbe
   const hostRouter = hostRuntime?.rawRouter
   const isHosted = Boolean(hostRouter)
@@ -513,8 +516,8 @@ function RuntimeIdentityPanel() {
         {cacheOutcome}
       </output>
       <p className="hint">
-        This calls TanStack Router’s native <code>router.invalidate()</code>.
-        It does not use a custom MFE cache. After it finishes, active loader
+        This calls TanStack Router’s native <code>router.invalidate()</code>. It
+        does not use a custom MFE cache. After it finishes, active loader
         execution numbers increase; normal navigation reuses the entries while
         they remain fresh.
       </p>
@@ -616,7 +619,10 @@ function OrderLayout() {
   const nextTab = search.tab === 'overview' ? 'history' : 'overview'
 
   return (
-    <section className="route-card order-layout" data-testid="remote-detail-component">
+    <section
+      className="route-card order-layout"
+      data-testid="remote-detail-component"
+    >
       <div className="panel-heading">
         <div>
           <p className="eyebrow">Detail parent route</p>
@@ -656,18 +662,19 @@ function OrderLayout() {
       <section className="route-api-lab" data-testid="detail-route-api-lab">
         <div>
           <p className="eyebrow">Route-bound navigation APIs</p>
-          <h4>Actual <code>orderRoute.Link</code> and <code>orderRoute.useNavigate()</code></h4>
+          <h4>
+            Actual <code>orderRoute.Link</code> and{' '}
+            <code>orderRoute.useNavigate()</code>
+          </h4>
           <p>
             These controls are bound to this remote route object, not to the
-            generic <code>Link</code> above. Both still resolve <code>to="/"</code>
+            generic <code>Link</code> above. Both still resolve{' '}
+            <code>to="/"</code>
             inside the Orders mount through the scoped host router.
           </p>
         </div>
         <div className="route-api-controls">
-          <orderRoute.Link
-            data-testid="detail-route-link-to-index"
-            to="/"
-          >
+          <orderRoute.Link data-testid="detail-route-link-to-index" to="/">
             Route.Link → remote Index
           </orderRoute.Link>
           <button
@@ -703,12 +710,15 @@ function OrderOverview() {
   const [overviewClicks, setOverviewClicks] = useState(0)
 
   return (
-    <section className="nested-card" data-testid="remote-detail-index-component">
+    <section
+      className="nested-card"
+      data-testid="remote-detail-index-component"
+    >
       <p className="eyebrow">Detail index child</p>
       <h4>Order overview</h4>
       <p>
-        This is the index child of <code>/$orderId</code>; it proves the
-        remote tree can render an index below a parameterized parent.
+        This is the index child of <code>/$orderId</code>; it proves the remote
+        tree can render an index below a parameterized parent.
       </p>
       <div className="compact-state">
         <button
@@ -763,8 +773,8 @@ function OrderActivity() {
         </button>
         <output data-testid="activity-state-value">{activityClicks}</output>
         <span>
-          A parameter update uses the same Activity route component. Leaving
-          for overview replaces this leaf and resets its state as expected.
+          A parameter update uses the same Activity route component. Leaving for
+          overview replaces this leaf and resets its state as expected.
         </span>
       </div>
     </section>
@@ -780,8 +790,8 @@ function SlowRoute() {
       <h3>Slow loader completed</h3>
       <LoaderRun data={loaderData} testId="slow-loader-run" />
       <p>
-        The route deliberately waited before rendering. Visit it again while
-        the cache is fresh to reuse its loader result.
+        The route deliberately waited before rendering. Visit it again while the
+        cache is fresh to reuse its loader result.
       </p>
     </section>
   )
@@ -789,7 +799,10 @@ function SlowRoute() {
 
 function SlowRoutePending() {
   return (
-    <section className="route-card boundary-card" data-testid="remote-pending-boundary">
+    <section
+      className="route-card boundary-card"
+      data-testid="remote-pending-boundary"
+    >
       <p className="eyebrow">Route pending boundary</p>
       <h3>Loading remote slow route…</h3>
       <p>This is the remote route’s native TanStack pendingComponent.</p>
@@ -801,7 +814,10 @@ function IntentionalFailureBoundary({ error }: { error: unknown }) {
   const message = error instanceof Error ? error.message : String(error)
 
   return (
-    <section className="route-card boundary-card" data-testid="remote-error-boundary">
+    <section
+      className="route-card boundary-card"
+      data-testid="remote-error-boundary"
+    >
       <p className="eyebrow">Route error boundary</p>
       <h3>Remote failure was contained</h3>
       <p>
@@ -814,12 +830,15 @@ function IntentionalFailureBoundary({ error }: { error: unknown }) {
 
 function RemoteNotFoundBoundary() {
   return (
-    <section className="route-card boundary-card" data-testid="remote-not-found-boundary">
+    <section
+      className="route-card boundary-card"
+      data-testid="remote-not-found-boundary"
+    >
       <p className="eyebrow">Route not-found boundary</p>
       <h3>Remote route was not found</h3>
       <p>
-        This boundary belongs to the remote tree/bridge; the host global 404
-        did not take over.
+        This boundary belongs to the remote tree/bridge; the host global 404 did
+        not take over.
       </p>
       <Link to="/">Recover to remote Index</Link>
     </section>
@@ -836,13 +855,16 @@ function InvoicesMount() {
           <p className="eyebrow">Nested Module Federation mount</p>
           <h3>Loading invoices route tree…</h3>
           <p>
-            Orders is resolving <code>invoices/routeTree</code> and attaching
-            it with the host-owned adapter from React context.
+            Orders is resolving <code>invoices/routeTree</code> and attaching it
+            with the host-owned adapter from React context.
           </p>
         </section>
       }
       error={(error) => (
-        <section className="route-card boundary-card" data-testid="invoices-error">
+        <section
+          className="route-card boundary-card"
+          data-testid="invoices-error"
+        >
           <p className="eyebrow">Nested remote failed to load</p>
           <h3>Invoices route tree could not attach</h3>
           <p>
@@ -896,13 +918,7 @@ function LeafStateLab({
   )
 }
 
-function LoaderRun({
-  data,
-  testId,
-}: {
-  data: LoaderEvidence
-  testId: string
-}) {
+function LoaderRun({ data, testId }: { data: LoaderEvidence; testId: string }) {
   return (
     <span className="badge badge-pass" data-testid={testId}>
       loader #{data.execution} · {data.cacheKey}

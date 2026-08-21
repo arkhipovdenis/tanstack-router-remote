@@ -56,9 +56,9 @@ const homeRoute = createRoute({
       <h2>Host home</h2>
       <p>
         Open the remote with a native TanStack Link. The remote screen is an
-        interactive evidence lab: root, pathless layout, index, params,
-        search, loaders, boundaries, React state, native route cache, and
-        shared router stores.
+        interactive evidence lab: root, pathless layout, index, params, search,
+        loaders, boundaries, React state, native route cache, and shared router
+        stores.
       </p>
       <p className="runtime-note" data-testid="host-runtime-id">
         Host runtime identity: <code>{demoRuntimeProbe.hostRouterId}</code>
@@ -108,8 +108,8 @@ function HostShell() {
         </Link>
       </nav>
       <p className="runtime-note">
-        One host router is retained for the complete browser session. The
-        remote receives a scoped navigation facade over that runtime.
+        One host router is retained for the complete browser session. The remote
+        receives a scoped navigation facade over that runtime.
       </p>
       <Outlet />
     </main>

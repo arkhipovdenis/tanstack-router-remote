@@ -17,10 +17,7 @@ import {
   RouteTreeUpdateAdapter,
 } from '../../packages/route-tree-adapter/src'
 import { scopeLocationOptions } from '../../packages/route-tree-adapter/src/internal/scoped-router'
-import {
-  clearRouterCache,
-  isNotFoundMatch,
-} from '../support/router-compat'
+import { clearRouterCache, isNotFoundMatch } from '../support/router-compat'
 
 const Null = () => null
 
@@ -135,9 +132,11 @@ describe('route-tree update adapter', () => {
 
     expect(adapter.getSnapshot(local.mounts[0])).toEqual({ state: 'prepared' })
     expect(router.state.matches.map((match) => match.routeId)).toEqual([])
-    expect((router.routesById as Record<string, unknown>)[
-      routeId('/orders', '/$orderId')
-    ]).toBe(remote.detail)
+    expect(
+      (router.routesById as Record<string, unknown>)[
+        routeId('/orders', '/$orderId')
+      ],
+    ).toBe(remote.detail)
 
     await router.load()
 
@@ -344,7 +343,9 @@ describe('route-tree update adapter', () => {
     )
     expect(router.state.matches.at(-1)?.params).toMatchObject({ orderId: '42' })
     expect(isNotFoundMatch(router.state.matches.at(-1))).toBe(false)
-    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(remote.detail)
+    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
+      remote.detail,
+    )
     expect(bridge.parentRoute).toBe(local.mounts[0])
     expect(bridge.options.loader).toBe(remote.rootLoader)
     expect(bridge.options.staticData).toMatchObject({
@@ -407,7 +408,8 @@ describe('route-tree update adapter', () => {
 
     expect(
       router.state.matches.some((match) => {
-        const staticData = match.staticData as Record<string, unknown> | undefined
+        const staticData = match.staticData as
+          Record<string, unknown> | undefined
 
         return staticData?.cacheProbe === 'remote-detail'
       }),
@@ -461,7 +463,9 @@ describe('route-tree update adapter', () => {
     await Promise.all([ordersAttachment, paymentsAttachment])
 
     expect(calls).toEqual(['orders:start', 'orders:end', 'payments'])
-    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(orders.detail)
+    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
+      orders.detail,
+    )
     expect(router.routesById[routeId('/payments', '/$orderId')]).toBe(
       payments.detail,
     )
@@ -514,9 +518,7 @@ describe('route-tree update adapter', () => {
     for (const [index, mount] of local.mounts.entries()) {
       expect(adapter.getSnapshot(mount)).toEqual({ state: 'attached' })
       expect(
-        router.routesById[
-          routeId(mount.fullPath as string, '/$orderId')
-        ],
+        router.routesById[routeId(mount.fullPath as string, '/$orderId')],
       ).toBe(remotes[index].detail)
     }
 
@@ -561,7 +563,9 @@ describe('route-tree update adapter', () => {
       'fulfilled',
     ])
     expect(update).toHaveBeenCalledTimes(1)
-    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(orders.detail)
+    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
+      orders.detail,
+    )
     expect(router.routesById[routeId('/payments', '/$orderId')]).toBeUndefined()
     expect(router.routesById[routeId('/invoices', '/$orderId')]).toBe(
       invoices.detail,
@@ -728,7 +732,10 @@ describe('route-tree update adapter', () => {
       states.push(adapter.getSnapshot(local.mounts[0]).state)
     })
     adapter.subscribe(() => {
-      if (!reentered && adapter.getSnapshot(local.mounts[0]).state === 'loading') {
+      if (
+        !reentered &&
+        adapter.getSnapshot(local.mounts[0]).state === 'loading'
+      ) {
         reentered = true
         reentrantRequest = adapter.attach({
           mountRoute: local.mounts[0],
@@ -797,7 +804,9 @@ describe('route-tree update adapter', () => {
       }),
     ).rejects.toThrow('already mounted at /orders')
 
-    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(remote.detail)
+    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
+      remote.detail,
+    )
     expect(router.routesById[routeId('/payments', '/$orderId')]).toBeUndefined()
     expect(adapter.getSnapshot(local.mounts[1]).state).toBe('error')
   })
@@ -850,7 +859,9 @@ describe('route-tree update adapter', () => {
       }),
     ).rejects.toThrow('rematch failed')
 
-    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(remote.detail)
+    expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
+      remote.detail,
+    )
     await expect(
       adapter.attach({
         mountRoute: local.mounts[0],

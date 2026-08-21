@@ -130,7 +130,10 @@ describe('BatchingTaskQueue', () => {
 
       return items.map((item) =>
         item === 'boom'
-          ? { status: 'rejected' as const, reason: new Error('expected failure') }
+          ? {
+              status: 'rejected' as const,
+              reason: new Error('expected failure'),
+            }
           : fulfilled(undefined),
       )
     })

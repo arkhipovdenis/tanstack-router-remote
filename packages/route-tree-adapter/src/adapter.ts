@@ -53,9 +53,7 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
   >
 
   constructor(getRouter: RouterGetter<TRouter>) {
-    this.transaction = new TanStackRouteTreeAttachmentTransaction(
-      getRouter,
-    )
+    this.transaction = new TanStackRouteTreeAttachmentTransaction(getRouter)
 
     const runBatch = (requests: readonly RouteTreeAttachmentRequest[]) =>
       this.runBatch(requests)

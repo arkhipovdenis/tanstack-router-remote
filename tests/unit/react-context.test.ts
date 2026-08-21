@@ -30,18 +30,15 @@ describe('RouteTreeUpdateAdapterProvider', () => {
     }
 
     renderToStaticMarkup(
-      createElement(
-        RouteTreeUpdateAdapterProvider,
-        {
-          adapter,
-          children: createElement(
-            Fragment,
-            null,
-            createElement(Probe),
-            createElement(Probe),
-          ),
-        },
-      ),
+      createElement(RouteTreeUpdateAdapterProvider, {
+        adapter,
+        children: createElement(
+          Fragment,
+          null,
+          createElement(Probe),
+          createElement(Probe),
+        ),
+      }),
     )
 
     expect(received).toEqual([adapter, adapter])
@@ -103,7 +100,9 @@ describe('RouteTreeUpdateAdapterProvider', () => {
     )
 
     expect(receivedRouter).not.toBe(hostRouter)
-    expect((receivedRouter as typeof hostRouter).history).toBe(hostRouter.history)
+    expect((receivedRouter as typeof hostRouter).history).toBe(
+      hostRouter.history,
+    )
     expect((receivedRouter as typeof hostRouter).stores).toBe(hostRouter.stores)
     expect(receivedAdapter).toBe(adapter)
 

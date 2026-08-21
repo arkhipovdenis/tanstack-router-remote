@@ -25,8 +25,7 @@ export interface RouteTreeAttachmentSource {
 }
 
 /** Full attachment capability, kept separate from read-only consumers. */
-export interface RouteTreeAttachmentController
-  extends RouteTreeAttachmentSource {
+export interface RouteTreeAttachmentController extends RouteTreeAttachmentSource {
   attach(options: AttachRemoteRouteTreeOptions): Promise<void>
 }
 
@@ -36,8 +35,7 @@ export interface RouteTreeAttachmentController
  * The caller deliberately owns the first server `router.load()` or client
  * `hydrate(router)`, before React renders the mount.
  */
-export interface RouteTreePreparationController
-  extends RouteTreeAttachmentSource {
+export interface RouteTreePreparationController extends RouteTreeAttachmentSource {
   prepare(options: AttachRemoteRouteTreeOptions): Promise<void>
 }
 

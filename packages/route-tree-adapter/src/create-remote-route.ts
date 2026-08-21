@@ -32,7 +32,9 @@ import { prepareRouteTreeMount } from './internal/prepare-mount.js'
  * The generator reads the inner `createFileRoute` call and is satisfied by it,
  * so no build-time transform is involved.
  */
-export function createRemoteRoute<TRoute extends AnyRoute>(route: TRoute): TRoute
+export function createRemoteRoute<TRoute extends AnyRoute>(
+  route: TRoute,
+): TRoute
 /**
  * The generic list mirrors `createRoute` because inference is positional:
  * expressing this as `Parameters<typeof createRoute>` collapses `fullPath`,

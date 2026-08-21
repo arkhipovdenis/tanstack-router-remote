@@ -17,37 +17,37 @@ the federation and native-import labs are wanted together.
 
 ## Routes to try
 
-| URL | What it demonstrates |
-| --- | --- |
-| `/platform/orders` | Remote root `beforeLoad → loader` context, actual pathless layout, index route, validated search and index loader. |
-| `/platform/orders?view=audit&query=cache-demo` | Search validation and an index loader dependency/cache key. |
-| `/platform/orders/42?tab=overview` | Parameterized detail parent plus its index child. |
-| `/platform/orders/42/activity` | A nested remote child that inherits the parent parameter. |
-| `/platform/orders/slow` | Remote `pendingComponent`; the loader waits for 700 ms on a cold entry. |
-| `/platform/orders/failure` | Remote route `errorComponent`. |
-| `/platform/orders/not-found` | Remote route `notFoundComponent`. |
-| `/platform/orders/42/not-a-real-child` | A natural nested not-found path caught by the remote detail boundary. |
-| `/platform/orders/no/such/path` | A native fuzzy 404 whose visible boundary is delegated to the remote root after the tree attaches. |
-| `/platform/orders/invoices` | A real second Module Federation attachment: Orders loads `invoices/routeTree` using the same host-owned adapter. |
-| `/platform/orders/invoices/INV-42` | Deep link through two fuzzy mounts, nested remote root/pathless/index/detail routes, params, native cache and two scoped navigation facades. |
-| `http://localhost:3101/42` | Same remote tree rendered standalone, without a host runtime probe. |
-| `http://localhost:3102/INV-42` | Invoices tree rendered standalone with its own adapter provider. |
+| URL                                            | What it demonstrates                                                                                                                         |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/platform/orders`                             | Remote root `beforeLoad → loader` context, actual pathless layout, index route, validated search and index loader.                           |
+| `/platform/orders?view=audit&query=cache-demo` | Search validation and an index loader dependency/cache key.                                                                                  |
+| `/platform/orders/42?tab=overview`             | Parameterized detail parent plus its index child.                                                                                            |
+| `/platform/orders/42/activity`                 | A nested remote child that inherits the parent parameter.                                                                                    |
+| `/platform/orders/slow`                        | Remote `pendingComponent`; the loader waits for 700 ms on a cold entry.                                                                      |
+| `/platform/orders/failure`                     | Remote route `errorComponent`.                                                                                                               |
+| `/platform/orders/not-found`                   | Remote route `notFoundComponent`.                                                                                                            |
+| `/platform/orders/42/not-a-real-child`         | A natural nested not-found path caught by the remote detail boundary.                                                                        |
+| `/platform/orders/no/such/path`                | A native fuzzy 404 whose visible boundary is delegated to the remote root after the tree attaches.                                           |
+| `/platform/orders/invoices`                    | A real second Module Federation attachment: Orders loads `invoices/routeTree` using the same host-owned adapter.                             |
+| `/platform/orders/invoices/INV-42`             | Deep link through two fuzzy mounts, nested remote root/pathless/index/detail routes, params, native cache and two scoped navigation facades. |
+| `http://localhost:3101/42`                     | Same remote tree rendered standalone, without a host runtime probe.                                                                          |
+| `http://localhost:3102/INV-42`                 | Invoices tree rendered standalone with its own adapter provider.                                                                             |
 
 ## Reading the screen
 
 The top table uses an explicit result convention:
 
-| Mark | Meaning |
-| --- | --- |
-| `✓` | The matching route/layout is mounted and its shown capability has executed. |
-| `…` | A loader or mount is still resolving. |
-| `—` | That route is not active; use the adjacent navigation action to make it active. |
-| `✕` | A runtime identity check unexpectedly differs. This should not happen in the hosted example. |
+| Mark | Meaning                                                                                      |
+| ---- | -------------------------------------------------------------------------------------------- |
+| `✓`  | The matching route/layout is mounted and its shown capability has executed.                  |
+| `…`  | A loader or mount is still resolving.                                                        |
+| `—`  | That route is not active; use the adjacent navigation action to make it active.              |
+| `✕`  | A runtime identity check unexpectedly differs. This should not happen in the hosted example. |
 
 The **Runtime identity** panel distinguishes the scoped navigation facade from
 the router runtime. The remote intentionally sees a different router object
 (a scoped facade), while `history`, `stores` (including the native route
-cache), `routesById`, and current location are the *same objects* as the host
+cache), `routesById`, and current location are the _same objects_ as the host
 router. The probe is example-only context; it is not required by the package.
 
 ## State and native cache experiments

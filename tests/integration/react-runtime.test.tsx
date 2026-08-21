@@ -115,22 +115,23 @@ function createRuntimeFixture(
   const rootBeforeLoad = vi.fn(() => ({ remoteScope: 'remote-root' }))
   const indexLoader = vi.fn(async () => ({ source: 'remote-index-loader' }))
   const indexBeforeLoad = vi.fn(() => ({ indexScope: 'remote-index' }))
-  const detailLoader = vi.fn(async ({ params }: { params: { orderId: string } }) => ({
-    source: `remote-detail-loader:${params.orderId}`,
-  }))
+  const detailLoader = vi.fn(
+    async ({ params }: { params: { orderId: string } }) => ({
+      source: `remote-detail-loader:${params.orderId}`,
+    }),
+  )
   const detailBeforeLoad = vi.fn(() => ({ detailScope: 'remote-detail' }))
   const brokenLoader = vi.fn(async () => {
     throw new Error('remote broken loader')
   })
   const remoteRootNotFound = vi.fn(() => (
-      <section data-testid="remote-root-not-found">
-        <p>Remote root structural 404</p>
-        <RouterLink data-testid="remote-root-not-found-recovery" to="/">
-          Return to remote index
-        </RouterLink>
-      </section>
-    ),
-  )
+    <section data-testid="remote-root-not-found">
+      <p>Remote root structural 404</p>
+      <RouterLink data-testid="remote-root-not-found-recovery" to="/">
+        Return to remote index
+      </RouterLink>
+    </section>
+  ))
   const hostDefaultNotFound = vi.fn(() => (
     <section data-testid="host-default-not-found">
       <p>Host default structural 404</p>
@@ -301,7 +302,9 @@ function createRuntimeFixture(
   }
 
   function RemoteRootError({ error }: { error: Error }) {
-    return <p data-testid="remote-root-error">Remote root error:{error.message}</p>
+    return (
+      <p data-testid="remote-root-error">Remote root error:{error.message}</p>
+    )
   }
 
   const remoteRoot = createRootRoute({
@@ -500,7 +503,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
   let cleanup: (() => Promise<void>) | undefined
 
   beforeEach(() => {
-    ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+    ;(
+      globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true
     Object.defineProperty(window, 'scrollTo', {
       configurable: true,
       value: vi.fn(),
@@ -522,7 +527,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     cleanup = rendered.cleanup
 
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Loading remote route tree')
+      expect(rendered.container.textContent).toContain(
+        'Loading remote route tree',
+      )
     })
     fixture.releaseRemoteTree()
     await waitFor(() => {
@@ -536,7 +543,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     expect(fixture.rootLoader).toHaveBeenCalledTimes(1)
     expect(fixture.indexLoader).toHaveBeenCalledTimes(1)
     expect(fixture.indexBeforeLoad).toHaveBeenCalledTimes(1)
-    expect(fixture.router.state.location.search).toMatchObject({ tab: 'overview' })
+    expect(fixture.router.state.location.search).toMatchObject({
+      tab: 'overview',
+    })
     expect(fixture.router.state.matches.at(-1)?.search).toMatchObject({
       tab: 'overview',
     })
@@ -573,9 +582,11 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       await new Promise((resolve) => setTimeout(resolve, 0))
     })
     expect(fixture.loadRouteTree).toHaveBeenCalledTimes(1)
-    expect(fixture.adapter.getSnapshot(fixture.ordersMountRoute)).toMatchObject({
-      state: 'error',
-    })
+    expect(fixture.adapter.getSnapshot(fixture.ordersMountRoute)).toMatchObject(
+      {
+        state: 'error',
+      },
+    )
   })
 
   it('keeps native router state, cache, and scoped navigation semantics across remote routes', async () => {
@@ -584,12 +595,14 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     cleanup = rendered.cleanup
 
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
 
-    const firstScopedRouter = [
-      ...fixture.remoteRouterReferences,
-    ].at(-1) as typeof fixture.router
+    const firstScopedRouter = [...fixture.remoteRouterReferences].at(
+      -1,
+    ) as typeof fixture.router
 
     expect(firstScopedRouter).not.toBe(fixture.router)
     expect(firstScopedRouter.history).toBe(fixture.router.history)
@@ -600,12 +613,12 @@ describe('remote route tree mount in a browser-like React runtime', () => {
 
     await click(getByTestId(rendered.container, 'remote-root-increment'))
     await click(getByTestId(rendered.container, 'remote-detail-increment'))
-    expect(getByTestId(rendered.container, 'remote-root-state').textContent).toContain(
-      'root-state:1',
-    )
-    expect(getByTestId(rendered.container, 'remote-detail-state').textContent).toContain(
-      'detail-state:1',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-root-state').textContent,
+    ).toContain('root-state:1')
+    expect(
+      getByTestId(rendered.container, 'remote-detail-state').textContent,
+    ).toContain('detail-state:1')
 
     await act(async () => {
       await fixture.router.navigate({
@@ -616,19 +629,21 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
     await waitFor(() => {
       expect(fixture.router.state.location.pathname).toBe('/orders/43')
-      expect(fixture.router.state.location.search).toMatchObject({ tab: 'second' })
+      expect(fixture.router.state.location.search).toMatchObject({
+        tab: 'second',
+      })
     })
-    expect(getByTestId(rendered.container, 'remote-router-path').textContent).toContain(
-      'router-path:/orders/43',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-router-path').textContent,
+    ).toContain('router-path:/orders/43')
 
     // A leaf match remains mounted while only its params/search change.
-    expect(getByTestId(rendered.container, 'remote-root-state').textContent).toContain(
-      'root-state:1',
-    )
-    expect(getByTestId(rendered.container, 'remote-detail-state').textContent).toContain(
-      'detail-state:1',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-root-state').textContent,
+    ).toContain('root-state:1')
+    expect(
+      getByTestId(rendered.container, 'remote-detail-state').textContent,
+    ).toContain('detail-state:1')
 
     await click(getByTestId(rendered.container, 'remote-index-link'))
     await waitFor(() => {
@@ -637,12 +652,12 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
 
     // The layout/root match remains mounted across descendants.
-    expect(getByTestId(rendered.container, 'remote-root-state').textContent).toContain(
-      'root-state:1',
-    )
-    expect(getByTestId(rendered.container, 'remote-index-state').textContent).toContain(
-      'index-state:0',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-root-state').textContent,
+    ).toContain('root-state:1')
+    expect(
+      getByTestId(rendered.container, 'remote-index-state').textContent,
+    ).toContain('index-state:0')
 
     await click(getByTestId(rendered.container, 'remote-index-increment'))
     await act(async () => {
@@ -656,21 +671,23 @@ describe('remote route tree mount in a browser-like React runtime', () => {
         tab: 'same-index',
       })
     })
-    expect(getByTestId(rendered.container, 'remote-index-state').textContent).toContain(
-      'index-state:1',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-index-state').textContent,
+    ).toContain('index-state:1')
     expect(fixture.indexLoader).toHaveBeenCalledTimes(2)
 
     await click(getByTestId(rendered.container, 'remote-detail-link'))
     await waitFor(() => {
       expect(fixture.router.state.location.pathname).toBe('/orders/42')
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
     // The leaf was unmatched on the index route, so its React-local state is
     // intentionally reset when it is mounted again.
-    expect(getByTestId(rendered.container, 'remote-detail-state').textContent).toContain(
-      'detail-state:0',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-detail-state').textContent,
+    ).toContain('detail-state:0')
 
     await act(async () => {
       await fixture.router.navigate({ to: '/home' } as never)
@@ -694,7 +711,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       } as never)
     })
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
 
     // Native TanStack cache belongs to the unchanged host router and is reused.
@@ -717,11 +736,15 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     cleanup = rendered.cleanup
 
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
 
     expect(
-      getByTestId(rendered.container, 'remote-detail-route-link').getAttribute('href'),
+      getByTestId(rendered.container, 'remote-detail-route-link').getAttribute(
+        'href',
+      ),
     ).toBe('/orders')
     await click(getByTestId(rendered.container, 'remote-detail-route-link'))
     await waitFor(() => {
@@ -736,7 +759,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       } as never)
     })
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
 
     await click(getByTestId(rendered.container, 'remote-detail-route-navigate'))
@@ -769,15 +794,21 @@ describe('remote route tree mount in a browser-like React runtime', () => {
   })
 
   it('uses the remote root error boundary for a nested remote loader failure', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined)
+    const consoleWarn = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined)
     const fixture = createRuntimeFixture('/orders')
     const rendered = await renderFixture(fixture)
     cleanup = rendered.cleanup
 
     try {
       await waitFor(() => {
-        expect(rendered.container.textContent).toContain('Remote index component')
+        expect(rendered.container.textContent).toContain(
+          'Remote index component',
+        )
       })
 
       await click(getByTestId(rendered.container, 'remote-broken-link'))
@@ -826,7 +857,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
 
     await act(async () => {
-      await fixture.router.navigate({ to: '/orders/42/not-a-real-child' } as never)
+      await fixture.router.navigate({
+        to: '/orders/42/not-a-real-child',
+      } as never)
     })
     await waitFor(() => {
       expect(fixture.router.state.location.pathname).toBe(
@@ -942,20 +975,27 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     cleanup = rendered.cleanup
 
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote nested leaf component')
+      expect(rendered.container.textContent).toContain(
+        'Remote nested leaf component',
+      )
     })
-    expect(getByTestId(rendered.container, 'remote-pathless-layout')).toBeTruthy()
+    expect(
+      getByTestId(rendered.container, 'remote-pathless-layout'),
+    ).toBeTruthy()
     expect(fixture.pathlessLayoutLoader).toHaveBeenCalledTimes(1)
     expect(fixture.nestedLeafLoader).toHaveBeenCalledTimes(1)
 
-    await click(getByTestId(rendered.container, 'remote-pathless-layout-increment'))
+    await click(
+      getByTestId(rendered.container, 'remote-pathless-layout-increment'),
+    )
     await click(getByTestId(rendered.container, 'remote-nested-leaf-increment'))
     expect(
-      getByTestId(rendered.container, 'remote-pathless-layout-state').textContent,
+      getByTestId(rendered.container, 'remote-pathless-layout-state')
+        .textContent,
     ).toContain('pathless-layout-state:1')
-    expect(getByTestId(rendered.container, 'remote-nested-leaf-state').textContent).toContain(
-      'nested-leaf-state:1',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-nested-leaf-state').textContent,
+    ).toContain('nested-leaf-state:1')
 
     await act(async () => {
       await fixture.router.navigate({
@@ -965,17 +1005,22 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       } as never)
     })
     await waitFor(() => {
-      expect(fixture.router.state.location.pathname).toBe('/orders/projects/beta')
-      expect(fixture.router.state.location.search).toMatchObject({ tab: 'second' })
+      expect(fixture.router.state.location.pathname).toBe(
+        '/orders/projects/beta',
+      )
+      expect(fixture.router.state.location.search).toMatchObject({
+        tab: 'second',
+      })
     })
     // Params/search change on the same leaf route does not unmount either
     // component. The leaf loader runs once per parameter value.
     expect(
-      getByTestId(rendered.container, 'remote-pathless-layout-state').textContent,
+      getByTestId(rendered.container, 'remote-pathless-layout-state')
+        .textContent,
     ).toContain('pathless-layout-state:1')
-    expect(getByTestId(rendered.container, 'remote-nested-leaf-state').textContent).toContain(
-      'nested-leaf-state:1',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-nested-leaf-state').textContent,
+    ).toContain('nested-leaf-state:1')
     expect(fixture.nestedLeafLoader).toHaveBeenCalledTimes(2)
 
     await act(async () => {
@@ -989,7 +1034,8 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
     // The pathless layout remains mounted while the nested child changes.
     expect(
-      getByTestId(rendered.container, 'remote-pathless-layout-state').textContent,
+      getByTestId(rendered.container, 'remote-pathless-layout-state')
+        .textContent,
     ).toContain('pathless-layout-state:1')
 
     await act(async () => {
@@ -1000,16 +1046,19 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       } as never)
     })
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote nested leaf component')
+      expect(rendered.container.textContent).toContain(
+        'Remote nested leaf component',
+      )
     })
     // The leaf was unmatched by the activity branch, therefore local React
     // state starts over. Its TanStack loader data is still reused from cache.
     expect(
-      getByTestId(rendered.container, 'remote-pathless-layout-state').textContent,
+      getByTestId(rendered.container, 'remote-pathless-layout-state')
+        .textContent,
     ).toContain('pathless-layout-state:1')
-    expect(getByTestId(rendered.container, 'remote-nested-leaf-state').textContent).toContain(
-      'nested-leaf-state:0',
-    )
+    expect(
+      getByTestId(rendered.container, 'remote-nested-leaf-state').textContent,
+    ).toContain('nested-leaf-state:0')
     expect(fixture.nestedLeafLoader).toHaveBeenCalledTimes(2)
 
     await act(async () => {
@@ -1035,7 +1084,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
       } as never)
     })
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote nested leaf component')
+      expect(rendered.container.textContent).toContain(
+        'Remote nested leaf component',
+      )
     })
     expect(fixture.pathlessLayoutLoader).toHaveBeenCalledTimes(1)
     expect(fixture.nestedLeafLoader).toHaveBeenCalledTimes(2)
@@ -1092,7 +1143,9 @@ describe('remote route tree mount in a browser-like React runtime', () => {
     })
     fixture.releaseRemoteTree()
     await waitFor(() => {
-      expect(rendered.container.textContent).toContain('Remote detail component')
+      expect(rendered.container.textContent).toContain(
+        'Remote detail component',
+      )
     })
 
     expect(fixture.loadRouteTree).toHaveBeenCalledTimes(1)

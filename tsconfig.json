@@ -4,10 +4,5 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": [
-    "packages/route-tree-adapter/src",
-    "tests",
-    "vitest.config.ts"
-  ]
+  "include": ["packages/route-tree-adapter/src", "tests", "vitest.config.ts"]
 }
-

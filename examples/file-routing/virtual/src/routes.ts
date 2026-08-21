@@ -1,9 +1,4 @@
-import {
-  index,
-  layout,
-  rootRoute,
-  route,
-} from '@tanstack/virtual-file-routes'
+import { index, layout, rootRoute, route } from '@tanstack/virtual-file-routes'
 
 /**
  * Virtual route config: the URL of every route is declared here, not derived

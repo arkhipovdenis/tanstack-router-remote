@@ -22,10 +22,10 @@ to implement the same `loadRouteTree(): Promise<{ routeTree }>` boundary.
 
 ## Packages
 
-| Workspace | Role | Build/runtime |
-| --- | --- | --- |
+| Workspace                                              | Role                                        | Build/runtime                              |
+| ------------------------------------------------------ | ------------------------------------------- | ------------------------------------------ |
 | `@tanstack-router-remote/example-native-import-remote` | Plain remote package exposing `./routeTree` | `tsc` → `dist/routeTree.js` + declarations |
-| `@tanstack-router-remote/example-native-import-host` | Browser host | Rsbuild on port `3200` |
+| `@tanstack-router-remote/example-native-import-host`   | Browser host                                | Rsbuild on port `3200`                     |
 
 Run the native-import lab independently from the repository root:
 

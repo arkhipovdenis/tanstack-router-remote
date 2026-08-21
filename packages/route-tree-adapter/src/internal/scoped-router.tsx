@@ -115,7 +115,10 @@ function createScopedRouter<TRouter extends AnyRouter>(
   // would likewise never match the mounted remote.
   scopedRouter.preloadRoute = ((options: LocationOptions = {}) =>
     router.preloadRoute(scope(options) as never)) as TRouter['preloadRoute']
-  scopedRouter.matchRoute = ((options: LocationOptions, matchOptions?: unknown) =>
+  scopedRouter.matchRoute = ((
+    options: LocationOptions,
+    matchOptions?: unknown,
+  ) =>
     router.matchRoute(
       scope(options) as never,
       matchOptions as never,

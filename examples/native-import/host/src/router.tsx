@@ -18,9 +18,8 @@ type NativeRouteTreeModule = {
 const loadNativeImportRouteTree = async () => {
   // This is intentionally a package-specifier native ESM import. There is no
   // Module Federation runtime, remote manifest, container, or alias to source.
-  const remote = (await import(
-    '@tanstack-router-remote/example-native-import-remote/routeTree'
-  )) as NativeRouteTreeModule
+  const remote =
+    (await import('@tanstack-router-remote/example-native-import-remote/routeTree')) as NativeRouteTreeModule
 
   if (!remote.routeTree) {
     throw new Error(
@@ -50,7 +49,8 @@ const homeRoute = createRoute({
       </p>
       <pre>
         <code>
-          await import('@tanstack-router-remote/example-native-import-remote/routeTree')
+          await
+          import('@tanstack-router-remote/example-native-import-remote/routeTree')
         </code>
       </pre>
       <p className="host-note">
@@ -124,18 +124,24 @@ function NativeCatalogMount() {
       mountRoute={catalogMountRoute}
       loadRouteTree={loadNativeImportRouteTree}
       loading={
-        <section className="native-load-state" data-testid="native-import-loading">
+        <section
+          className="native-load-state"
+          data-testid="native-import-loading"
+        >
           <p className="host-eyebrow">Native import pending</p>
           <h2>Importing the ESM route tree…</h2>
           <p>
             The host locally fuzzy-matched <code>/catalog</code>. It is now
-            resolving the built package and will call <code>router.update()</code>{' '}
-            before rendering the imported routes.
+            resolving the built package and will call{' '}
+            <code>router.update()</code> before rendering the imported routes.
           </p>
         </section>
       }
       error={(error) => (
-        <section className="native-load-state native-load-error" data-testid="native-import-error">
+        <section
+          className="native-load-state native-load-error"
+          data-testid="native-import-error"
+        >
           <p className="host-eyebrow">Native import failed</p>
           <h2>Catalog route tree could not attach</h2>
           <p>

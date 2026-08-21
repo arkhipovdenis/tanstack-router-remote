@@ -34,7 +34,9 @@ uses that same adapter automatically:
 ```tsx
 <RemoteRouteMount
   mountRoute={Route}
-  loadRouteTree={async () => (await loadRemote('someRemote/routeTree')).routeTree}
+  loadRouteTree={async () =>
+    (await loadRemote('someRemote/routeTree')).routeTree
+  }
   loading={<Spinner />}
   error={(error) => <RemoteLoadError error={error} />}
 >
