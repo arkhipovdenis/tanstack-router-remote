@@ -39,14 +39,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --ignore-unknown --write .",
     "format:check": "prettier --ignore-unknown --check .",
-    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run build",
-    "changeset": "changeset",
-    "changeset:version": "changeset version && pnpm install --lockfile-only && pnpm run format",
-    "changeset:publish": "pnpm run build:packages && changeset publish"
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run build"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.7.0",
-    "@changesets/cli": "^2.30.0",
     "@eslint/js": "^9.22.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/router-generator": "catalog:",

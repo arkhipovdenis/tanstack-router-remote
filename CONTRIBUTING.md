@@ -31,17 +31,30 @@ Before opening a change:
 4. Describe whether the change affects direct deep links, SPA navigation,
    basepaths, lifecycle options, cache, route-bound navigation, or a second
    mount.
-5. Add a changeset (`pnpm changeset`) for anything that changes the published
-   package. Examples are private and do not need one.
 
 ## Releasing
 
 The adapter is built with rslib (`packages/route-tree-adapter/rslib.config.ts`)
-as ESM only, one output file per source file. Releases go through Changesets:
-`changeset version` opens the version PR, and merging it publishes.
+as ESM only, one output file per source file.
 
-The `Release` workflow is manual and defaults to a dry run; publishing needs an
-`NPM_TOKEN` secret that is not configured yet.
+Releases are tag-driven. Bump the version in
+`packages/route-tree-adapter/package.json`, then push a matching `v*` tag:
+
+```bash
+git tag v0.1.0-alpha.1
+git push origin v0.1.0-alpha.1
+```
+
+The `Publish` workflow runs `pnpm run check`, verifies that the tag matches the
+manifest version, and publishes with `--provenance --access public`. A tag that
+disagrees with the version fails before anything reaches npm.
+
+Publishing requires an `NPM_TOKEN` repository secret (an npm automation token
+with publish rights). It is not configured yet, so no release can run until it
+is added.
+
+While the version carries a prerelease suffix, `publishConfig.tag` keeps it off
+the `latest` dist-tag. Drop that field for the first stable release.
 
 Keep the public API at `0.x` until the compatibility matrix is broad enough to
 justify a stable contract. This does not change the supported production scope
