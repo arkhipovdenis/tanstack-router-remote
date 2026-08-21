@@ -78,7 +78,11 @@ const routeTree = rootRoute.addChildren([homeRoute, ordersMountRoute])
 export const router = createRouter({
   routeTree,
   basepath: '/platform',
-  defaultPreload: false,
+  // Safe since imperative `preloadRoute`/`matchRoute` became scoped: a remote
+  // `to` no longer resolves against the host tree. Hovering an unattached mount
+  // preloads nothing (it is a static route), and the transport still runs once,
+  // on navigation.
+  defaultPreload: 'intent',
   context: {
     demoRuntimeProbe,
   },

@@ -13,6 +13,11 @@ import {
 
 type RouteOptionsBag = Record<string, unknown>
 
+// Shared by every mount, and deliberately not suffixed: TanStack resolves a
+// child `id` against the parent's fullPath, so two mounts yield
+// `/orders/__remote-root-bridge` and `/invoices/__remote-root-bridge`. The
+// constant collides only if two bridges share one parent, which cannot happen —
+// a mount accepts a single remote tree.
 const bridgeRouteId = '__remote-root-bridge'
 
 function optionsOf(route: AnyRoute): RouteOptionsBag {

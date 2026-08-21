@@ -73,7 +73,8 @@ const routeTree = rootRoute.addChildren([homeRoute, catalogMountRoute])
 export const router = createRouter({
   routeTree,
   basepath: '/native',
-  defaultPreload: false,
+  // See the module-federation host: scoped imperative preload makes this safe.
+  defaultPreload: 'intent',
 })
 
 declare module '@tanstack/react-router' {
