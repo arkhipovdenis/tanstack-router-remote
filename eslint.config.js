@@ -1,0 +1,74 @@
+// @ts-check
+
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import unusedImports from 'eslint-plugin-unused-imports'
+import globals from 'globals'
+
+export default tseslint.config(
+  {
+    // Build output, generated route trees and vendored deps are not ours to lint.
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/.tanstack/**',
+      '**/routeTree.gen.ts',
+    ],
+  },
+
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    plugins: {
+      'unused-imports': unusedImports,
+    },
+    rules: {
+      // Mirrors the TanStack Router repo: the base rule is replaced wholesale by
+      // unused-imports, which can distinguish a dead import from a dead binding.
+      '@typescript-eslint/no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
+
+      // The adapter grafts onto TanStack internals that are typed loosely or not
+      // exported at all, so casts through `any` are load-bearing here.
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+    },
+  },
+
+  {
+    // Tests reach into internals and build deliberately malformed route trees.
+    files: ['tests/**/*.ts', 'tests/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+
+      // Mount fixtures are cyclic: the component closes over the route, and the
+      // route is only assignable once the component exists. `let x!: AnyRoute`
+      // declared before both is the idiomatic break — prefer-const flags it
+      // because the write happens later, not because a const would work.
+      'prefer-const': 'off',
+    },
+  },
+
+  {
+    files: ['**/*.js', '**/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+  },
+)

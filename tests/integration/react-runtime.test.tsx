@@ -10,7 +10,6 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  notFound,
   type AnyRoute,
   useRouter,
   useRouterState,

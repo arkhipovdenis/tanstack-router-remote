@@ -1,0 +1,39 @@
+packages:
+  - 'packages/*'
+  - 'examples/*/*'
+
+# Every workspace pins the same React and TanStack versions. Declaring them once
+# here is what keeps them from drifting apart: a second React instance in one
+# process breaks hooks with `Invalid hook call`, and the adapter grafts onto
+# router internals, so a split router version is just as fatal.
+catalog:
+  '@tanstack/react-router': 1.170.18
+  '@tanstack/router-generator': 1.167.17
+  '@tanstack/router-plugin': 1.168.18
+  '@tanstack/virtual-file-routes': 1.162.0
+  '@module-federation/rsbuild-plugin': 2.8.2
+  '@module-federation/runtime': 2.8.2
+  '@rsbuild/core': 2.1.9
+  '@rsbuild/plugin-react': 2.1.0
+  '@types/node': 22.15.30
+  '@types/react': 19.2.4
+  '@types/react-dom': 19.2.3
+  react: 19.2.0
+  react-dom: 19.2.0
+  typescript: 5.8.3
+
+# The adapter declares an open peer range (`react >=18 <20`), so nothing stops a
+# transitive consumer from pulling a second copy. Pinning React through the
+# catalog collapses the tree back to one instance.
+overrides:
+  react: 'catalog:'
+  react-dom: 'catalog:'
+  '@types/react': 'catalog:'
+  '@types/react-dom': 'catalog:'
+
+linkWorkspacePackages: true
+preferWorkspacePackages: true
+allowBuilds:
+  esbuild: true # binary needed by the rslib/rsbuild toolchain
+  unrs-resolver: true # native resolver used by eslint-plugin-import-x
+  core-js: false # transitive polyfill, its postinstall is only a funding notice

@@ -1,20 +1,14 @@
 import { createElement } from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
 import {
   Outlet,
-  RouterProvider,
-  createMemoryHistory,
   createRootRoute,
   createRoute,
-  createRouter,
   notFound,
-  useLoaderData,
   useParams,
   useRouter,
-  useSearch,
   type AnyRoute,
 } from '@tanstack/react-router'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   createRemoteRoute,
@@ -22,7 +16,6 @@ import {
 } from '../../packages/route-tree-adapter/src'
 
 import {
-  Null,
   createInstrumentedRemote,
   createRuntimeHost,
   renderRouter,

@@ -10,15 +10,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@module-federation/runtime": "2.8.2",
-    "@tanstack-router-remote/route-tree-adapter": "file:../../../packages/route-tree-adapter",
-    "@tanstack/react-router": "1.170.18",
-    "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "@module-federation/runtime": "catalog:",
+    "@tanstack-router-remote/route-tree-adapter": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
-    "@module-federation/rsbuild-plugin": "2.8.2",
-    "@rsbuild/core": "2.1.9",
-    "@rsbuild/plugin-react": "2.1.0"
+    "@module-federation/rsbuild-plugin": "catalog:",
+    "@rsbuild/core": "catalog:",
+    "@rsbuild/plugin-react": "catalog:"
   }
 }
