@@ -1,0 +1,71 @@
+name: Release
+
+# Deliberately manual. The package is not on npm yet, so this workflow exists to
+# be reviewed and run on purpose rather than to fire on every push to main.
+#
+# To turn it into the usual Changesets flow later, add:
+#   on:
+#     push:
+#       branches: [main]
+# and the action below will open a "Version Packages" PR automatically, then
+# publish when that PR is merged.
+#
+# Requires an NPM_TOKEN secret with publish rights before it can succeed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Pack only; do not publish to npm'
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+
+      # Never publish something that does not pass the same gate as a PR.
+      - run: pnpm run check
+
+      - name: Pack (dry run)
+        if: ${{ inputs.dry-run }}
+        run: |
+          pnpm --filter @tanstack-router-remote/route-tree-adapter pack \
+            --pack-destination "$RUNNER_TEMP"
+          echo "Dry run: tarball built, nothing published." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create release PR or publish
+        if: ${{ !inputs.dry-run }}
+        uses: changesets/action@v1
+        with:
+          version: pnpm run changeset:version
+          publish: pnpm run changeset:publish
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -161,7 +161,7 @@ not use that TanStack router context: it is supplied once through
 
 The peer range is open (`>=1.168.18`) while the repository pins an exact
 version, so a fresh install can resolve a router this project has never been
-tested against. The `Canary (TanStack latest)` workflow runs `npm run check`
+tested against. The `Canary (TanStack latest)` workflow runs `pnpm run check`
 against the latest published release on a schedule to surface that gap; it is
 informational and not a required check.
 
@@ -177,7 +177,7 @@ Known drift above the pinned `@tanstack/react-router@1.170.18`
   has no public replacement: match caching moved to a private `router._cache`.
   Assert loader caching by counting loader runs instead of reading the cache.
 
-Adapter sources (`packages/*/src`) use none of these APIs — the breakage was
+Adapter sources (`packages/route-tree-adapter/src`) use none of these APIs — the breakage was
 confined to test probes, which now use the version-neutral helpers in
 `tests/support/router-compat.ts`. Do not widen the peer range's upper end, or
 repin, without re-running the canary.

@@ -10,8 +10,11 @@ API. It has no Module Federation dependency: provide
 It is supported for the repository's documented TanStack Router/React version
 range and covered by runtime and browser-like integration tests. The package
 API remains `0.x` because attachment is not yet an official TanStack Router
-composition API; see the repository [compatibility contract](../../README.md#production-scope-and-compatibility)
-and [limitations](../../docs/limitations.md).
+composition API; see the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
+and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md).
+
+Requires `@tanstack/react-router >=1.168.18` and React 18 or 19 as peer
+dependencies. ESM only.
 
 The host owns one adapter and provides it above its `RouterProvider`:
 
@@ -62,7 +65,7 @@ export const Route = createRemoteRoute(
 
 TanStack's generator reads the inner `createFileRoute` call, so no build-time
 transform is needed. See the runnable [file-route
-example](../../examples/file-routing/README.md). Render `RemoteRouteMount` from
+example](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/examples/file-routing/README.md). Render `RemoteRouteMount` from
 the route's normal component: a deep link below an unattached mount
 fuzzy-matches the mount itself, so that one component also covers the
 direct-link case. See the repository README for the full contract and
@@ -72,7 +75,7 @@ For SSR/hydration, call `adapter.prepare(...)` with fresh host and remote trees
 before server `router.load()` or client `hydrate(router)`. `prepare()` exposes
 the intermediate `prepared` state and deliberately does not perform a CSR
 rematch. The full request/bootstrap sequence is documented in the repository
-[SSR guide](../../README.md#ssr-and-hydration).
+[SSR guide](https://github.com/arkhipovdenis/tanstack-router-remote#ssr-and-hydration).
 
-This package is private until its community-owned npm name is decided. It is
-not affiliated with or endorsed by TanStack.
+The `@tanstack-router-remote` scope is unofficial: this package is not
+affiliated with or endorsed by TanStack.

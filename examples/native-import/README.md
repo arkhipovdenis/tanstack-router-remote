@@ -30,14 +30,14 @@ to implement the same `loadRouteTree(): Promise<{ routeTree }>` boundary.
 Run the native-import lab independently from the repository root:
 
 ```bash
-npm run dev:example:native-import
+pnpm run dev:example:native-import
 ```
 
 The command builds the adapter and remote package before it starts the host.
 For production artifacts, use:
 
 ```bash
-npm run preview:example:native-import
+pnpm run preview:example:native-import
 ```
 
 Open [http://localhost:3200/native/](http://localhost:3200/native/), then use
@@ -57,7 +57,7 @@ For live remote-package rebuilds during host development, use a second
 terminal:
 
 ```bash
-npm run dev --workspace=@tanstack-router-remote/example-native-import-remote
+pnpm --filter @tanstack-router-remote/example-native-import-remote dev
 ```
 
 ## What the UI demonstrates

@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -36,26 +37,29 @@ jobs:
         id: pins
         run: node scripts/pin-tanstack-canary.mjs "${{ inputs.dist-tag || 'latest' }}"
 
-      # No lockfile entry for the canary versions, so `npm ci` cannot be used.
-      - run: npm install --no-audit --no-fund
+      # The canary versions have no lockfile entry, so the frozen install CI
+      # uses cannot apply here.
+      - run: pnpm install --no-frozen-lockfile
 
-      # Installing without the lockfile lets a transitive React range float, and
-      # a root React that differs from the workspace pins gives the adapter its
-      # own nested copy. Two React instances in one process surface as
-      # `Invalid hook call` across ~24 unrelated tests, which reads like an
-      # upstream break rather than a resolution problem. Fail on the real cause.
+      # A floating transitive React range can pull a second copy into the tree,
+      # and two React instances in one process surface as `Invalid hook call`
+      # across ~24 unrelated tests — which reads like an upstream break rather
+      # than a resolution problem. Fail on the real cause instead.
+      #
+      # pnpm keeps one real directory per version under node_modules/.pnpm and
+      # symlinks the rest, so counting store entries counts actual instances.
       - name: Assert a single React instance
         run: |
-          copies=$(find . -type d -path '*node_modules/react' | sort)
+          copies=$(find node_modules/.pnpm -maxdepth 1 -name 'react@*' | sort)
           count=$(printf '%s\n' "$copies" | grep -c . || true)
           if [ "$count" -ne 1 ]; then
             echo "::error::Expected exactly 1 React copy, found $count:"
             printf '%s\n' "$copies"
             exit 1
           fi
-          echo "Single React instance: $(node -p "require('./node_modules/react/package.json').version")"
+          echo "Single React instance: $copies"
 
-      - run: npm run check
+      - run: pnpm run check
 
       - name: Report
         if: always()

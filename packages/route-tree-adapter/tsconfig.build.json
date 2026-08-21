@@ -8,7 +8,9 @@
     "outDir": "dist",
     "rootDir": "src",
     "composite": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo"
+    // Outside dist/: everything under dist/ ships in the npm tarball, and the
+    // build cache is not part of the package.
+    "tsBuildInfoFile": "node_modules/.cache/tsconfig.build.tsbuildinfo"
   },
   "include": ["src"]
 }

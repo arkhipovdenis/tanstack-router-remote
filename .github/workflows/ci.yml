@@ -12,10 +12,15 @@ jobs:
         node: [20, 22]
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - run: npm ci
-      - run: npm run check
-      - run: npm pack --workspace=@tanstack-router-remote/route-tree-adapter --dry-run
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+
+      # Catches a packaging mistake before it reaches npm: a missing file in
+      # `files`, or an export the tarball does not actually ship.
+      - name: Pack the adapter
+        run: pnpm --filter @tanstack-router-remote/route-tree-adapter pack --pack-destination "$RUNNER_TEMP"
