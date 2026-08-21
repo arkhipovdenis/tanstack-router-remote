@@ -15,7 +15,7 @@ npm run dev:example:module-federation
 
 It starts nested Invoices (`:3102`), Orders (`:3101`) and Host (`:3100`) in
 one terminal. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> once to stop all processes.
-Use `npm run dev:examples` only to run this lab and the separate native
+Use `pnpm run dev` only to run this lab and the separate native
 ESM-import lab together.
 
 For a production-artifact check, stop the dev servers first, then run:

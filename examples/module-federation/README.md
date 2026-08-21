@@ -12,7 +12,7 @@ This starts only the Module Federation chain: Invoices (`:3102`), Orders
 (`:3101`) and Host (`:3100`). Press <kbd>Ctrl</kbd>+<kbd>C</kbd> once to stop
 every process. Then open `http://localhost:3100/platform/` and enter **Orders
 remote**. The remote screen is deliberately an interactive evidence lab,
-rather than a minimal hello-world. Use `pnpm run dev:examples` only when both
+rather than a minimal hello-world. Use `pnpm run dev` only when both
 the federation and native-import labs are wanted together.
 
 ## Routes to try
