@@ -12,7 +12,7 @@
   "dependencies": {
     "@module-federation/runtime": "catalog:",
     "@tanstack/react-router": "catalog:",
-    "@tanstack-router-remote/route-tree-adapter": "workspace:*",
+    "tanstack-router-remote": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

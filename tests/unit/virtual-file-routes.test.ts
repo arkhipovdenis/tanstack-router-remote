@@ -36,7 +36,7 @@ export const Route = createFileRoute('/')({ component: () => <p>home</p> })
 
 /** The documented mount form: the decoration is the exported value. */
 const REMOTE_MOUNT = `import { Outlet, createFileRoute } from '@tanstack/react-router'
-import { createRemoteRoute } from '@tanstack-router-remote/route-tree-adapter'
+import { createRemoteRoute } from 'tanstack-router-remote'
 
 export const Route = createRemoteRoute(
   createFileRoute('/catalog')({

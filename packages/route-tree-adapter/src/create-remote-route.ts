@@ -10,7 +10,7 @@ import {
   type RouteOptions,
 } from '@tanstack/react-router'
 
-import { prepareRouteTreeMount } from './internal/prepare-mount'
+import { prepareRouteTreeMount } from './internal/prepare-mount.js'
 
 /**
  * Creates a childless host mount for a remotely supplied route tree.

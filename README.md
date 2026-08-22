@@ -36,7 +36,7 @@ other transport.
 ## Install
 
 ```bash
-pnpm add @tanstack-router-remote/route-tree-adapter
+pnpm add tanstack-router-remote
 ```
 
 Peers: `@tanstack/react-router >=1.168.18`, React 18 or 19. ESM only.

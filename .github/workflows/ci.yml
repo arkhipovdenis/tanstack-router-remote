@@ -23,4 +23,4 @@ jobs:
       # Catches a packaging mistake before it reaches npm: a missing file in
       # `files`, or an export the tarball does not actually ship.
       - name: Pack the adapter
-        run: pnpm --filter @tanstack-router-remote/route-tree-adapter pack --pack-destination "$RUNNER_TEMP"
+        run: pnpm --filter tanstack-router-remote pack --pack-destination "$RUNNER_TEMP"

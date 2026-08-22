@@ -5,7 +5,7 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@tanstack-router-remote/route-tree-adapter": [
+      "tanstack-router-remote": [
         "../../../packages/route-tree-adapter/src/index.ts"
       ]
     }

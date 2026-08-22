@@ -6,16 +6,16 @@ export type {
   RouteTreeAttachmentSource,
   RouteTreePreparationController,
   RouterGetter,
-} from './types'
-export { RouteTreeUpdateAdapter } from './adapter'
-export { createRemoteRoute } from './create-remote-route'
+} from './types.js'
+export { RouteTreeUpdateAdapter } from './adapter.js'
+export { createRemoteRoute } from './create-remote-route.js'
 export {
   RemoteRouteMount,
   RouteTreeUpdateAdapterProvider,
   useRouteTreeAttachment,
   useRouteTreeUpdateAdapter,
-} from './react'
+} from './react.js'
 export type {
   RemoteRouteMountProps,
   RouteTreeUpdateAdapterProviderProps,
-} from './react'
+} from './react.js'

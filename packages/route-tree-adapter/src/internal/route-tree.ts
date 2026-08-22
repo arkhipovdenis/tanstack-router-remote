@@ -8,7 +8,7 @@ import {
 import {
   configureRemoteStructuralNotFound,
   createRemoteRootBridge,
-} from './remote-root'
+} from './remote-root.js'
 
 export function childRoutesOf(route: AnyRoute) {
   if (Array.isArray(route.children)) {

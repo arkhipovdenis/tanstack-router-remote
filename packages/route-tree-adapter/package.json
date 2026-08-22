@@ -1,5 +1,5 @@
 {
-  "name": "@tanstack-router-remote/route-tree-adapter",
+  "name": "tanstack-router-remote",
   "version": "0.1.0-alpha.0",
   "description": "Route-tree attachment bridge for TanStack React Router microfrontends.",
   "keywords": [
@@ -34,10 +34,13 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./route-tree-adapter": {
+      "types": "./dist/route-tree-adapter.d.ts",
+      "import": "./dist/route-tree-adapter.js"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public",
     "tag": "alpha"
   },
   "scripts": {

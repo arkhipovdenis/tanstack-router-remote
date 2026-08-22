@@ -1,4 +1,4 @@
-# @tanstack-router-remote/route-tree-adapter
+# tanstack-router-remote
 
 Production-oriented route-tree attachment for TanStack React Router
 microfrontends. It supports ordinary CSR attachment and a documented,
@@ -16,13 +16,20 @@ and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/m
 Requires `@tanstack/react-router >=1.168.18` and React 18 or 19 as peer
 dependencies. ESM only.
 
+Two entry points expose the same surface — use whichever reads better:
+
+```ts
+import { RouteTreeUpdateAdapter } from 'tanstack-router-remote'
+import { RouteTreeUpdateAdapter } from 'tanstack-router-remote/route-tree-adapter'
+```
+
 The host owns one adapter and provides it above its `RouterProvider`:
 
 ```tsx
 import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-} from '@tanstack-router-remote/route-tree-adapter'
+} from 'tanstack-router-remote'
 
 const adapter = new RouteTreeUpdateAdapter(() => router)
 

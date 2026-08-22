@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@tanstack-router-remote/example-native-import-remote": "workspace:*",
-    "@tanstack-router-remote/route-tree-adapter": "workspace:*",
+    "tanstack-router-remote": "workspace:*",
     "@tanstack/react-router": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

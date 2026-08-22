@@ -99,10 +99,10 @@ boundaries, state persistence and cache checks, see
 ## Integration details
 
 The host and both remotes share React, React DOM, `@tanstack/react-router`,
-its core, history, and `@tanstack-router-remote/route-tree-adapter` as singletons.
+its core, history, and `tanstack-router-remote` as singletons.
 A remote that renders its own
 `RemoteRouteMount` must also share
-`@tanstack-router-remote/route-tree-adapter` as a singleton so it reads the host's
+`tanstack-router-remote` as a singleton so it reads the host's
 adapter context. Two copies make the bridge context and mutable route object
 identities unsafe.
 

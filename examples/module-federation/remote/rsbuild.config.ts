@@ -15,7 +15,7 @@ const shared = {
   },
   '@tanstack/router-core': { singleton: true, requiredVersion: false as const },
   '@tanstack/history': { singleton: true, requiredVersion: false as const },
-  '@tanstack-router-remote/route-tree-adapter': {
+  'tanstack-router-remote': {
     singleton: true,
     requiredVersion: false as const,
   },
