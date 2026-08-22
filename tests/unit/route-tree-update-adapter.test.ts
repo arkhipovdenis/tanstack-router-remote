@@ -16,7 +16,7 @@ import {
   createRemoteRoute,
   RemoteRouterAdapter,
 } from '../../packages/route-tree-adapter/src/react'
-import { scopeLocationOptions } from '../../packages/route-tree-adapter/src/react/internal/scoped-router'
+import { scopeLocationOptions } from '../../packages/route-tree-adapter/src/core/internal/scoped-router'
 import { clearRouterCache, isNotFoundMatch } from '../support/router-compat'
 
 const Null = () => null
