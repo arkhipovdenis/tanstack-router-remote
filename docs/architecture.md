@@ -5,28 +5,49 @@ and framework boundary—not by an application-layer template.
 
 ```text
 src/
-  index.ts             public exports only
-  types.ts             public transport and attachment contracts
-  adapter.ts           public lifecycle coordinator
-  create-remote-route.ts code-route factory and file-route enhancer
-  react.tsx            host adapter provider, mount component, and hooks
-  internal/
-    prepare-mount.ts   childless-mount invariant
-    attachment-store.ts observable immutable snapshots
-    batching-task-queue.ts serialized, batch-collapsing route-tree mutations
-    attach-remote-route-tree.ts TanStack attach/update/rematch transaction
-    route-tree.ts      mutable tree grafting and host-root replacement
-    remote-root.tsx    remote-root bridge
-    scoped-router.tsx  mount-aware navigation facade
-    ownership.ts       mutable route-tree ownership guard
+  index.ts             framework-neutral types, the package root
+  core/                no framework import anywhere below this line
+    types.ts           public transport and attachment contracts
+    framework.ts       the seam a framework entry point implements
+    adapter.ts         lifecycle coordinator
+    internal/
+      prepare-mount.ts   childless-mount invariant
+      attachment-store.ts observable immutable snapshots
+      batching-task-queue.ts serialized, batch-collapsing route-tree mutations
+      attach-remote-route-tree.ts TanStack attach/update/rematch transaction
+      route-tree.ts      mutable tree grafting and host-root replacement
+      ownership.ts       mutable route-tree ownership guard
+  react/               entry point: `tanstack-router-remote/react`
+    index.ts           public exports for React
+    adapter.ts         core adapter pre-bound to the React binding
+    create-remote-route.ts code-route factory and file-route enhancer
+    components.tsx     adapter provider, mount component, and hooks
+    internal/
+      binding.ts       the three React-bound operations
+      remote-root.tsx  remote-root bridge
+      scoped-router.tsx mount-aware navigation facade
 ```
+
+## Framework boundary
+
+`core/` operates on `@tanstack/router-core` objects and imports no framework
+package. Everything it does to a route tree — reparenting children, cloning the
+host root, undoing a failed graft — is identical across React, Solid and Vue.
+
+Three operations cannot be neutral, because they create routes or render
+components: `createRootRoute`, building the remote-root bridge, and wiring the
+structural not-found boundary. `core/framework.ts` declares them as
+`FrameworkBinding`; each entry point supplies one. That is why adding Solid or
+Vue means writing those three plus the components, not another copy of the
+attachment logic.
 
 ## Public surface
 
-`types.ts`, `adapter.ts`, `create-remote-route.ts`, and `react.tsx` make up the
-supported public surface and are re-exported from `index.ts`. It stays `0.x`
-because attachment is not yet an official TanStack Router API — an API-evolution
-risk, not a limit on the production scope documented in the README.
+Each framework entry point re-exports the supported surface: the adapter,
+`createRemoteRoute`, the mount component and hooks. The root exports only the
+shared types. It stays `0.x` because attachment is not yet an official TanStack
+Router API — an API-evolution risk, not a limit on the production scope
+documented in the README.
 
 - `RouteTreeUpdateAdapter` coordinates attachment lifecycle and idempotency.
   It accepts a lazy `getRouter()` callback, pinned on the first attachment

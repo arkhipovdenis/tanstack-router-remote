@@ -13,15 +13,19 @@ API remains `0.x` because attachment is not yet an official TanStack Router
 composition API; see the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
 and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md).
 
-Requires `@tanstack/react-router >=1.168.18` and React 18 or 19 as peer
-dependencies. ESM only.
+ESM only. The React entry needs `@tanstack/react-router >=1.168.18` and React
+18 or 19; those peers are optional, so a future Solid or Vue host does not
+install them.
 
-Two entry points expose the same surface — use whichever reads better:
+The mount components and the adapter are framework-bound, so they live behind
+an explicit entry point:
 
 ```ts
-import { RouteTreeUpdateAdapter } from 'tanstack-router-remote'
-import { RouteTreeUpdateAdapter } from 'tanstack-router-remote/route-tree-adapter'
+import { RouteTreeUpdateAdapter } from 'tanstack-router-remote/react'
 ```
+
+The package root exports only the framework-neutral types shared by every
+entry (`RouterGetter`, `RouteTreeAttachment`, `FrameworkBinding`, …).
 
 The host owns one adapter and provides it above its `RouterProvider`:
 
@@ -29,7 +33,7 @@ The host owns one adapter and provides it above its `RouterProvider`:
 import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-} from 'tanstack-router-remote'
+} from 'tanstack-router-remote/react'
 
 const adapter = new RouteTreeUpdateAdapter(() => router)
 

@@ -34,9 +34,9 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./route-tree-adapter": {
-      "types": "./dist/route-tree-adapter.d.ts",
-      "import": "./dist/route-tree-adapter.js"
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -53,9 +53,21 @@
     "react": ">=18 <20",
     "react-dom": ">=18 <20"
   },
+  "peerDependenciesMeta": {
+    "@tanstack/react-router": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@rslib/core": "^0.19.0",
     "@tanstack/react-router": "catalog:",
+    "@tanstack/router-core": "1.171.15",
     "react": "catalog:",
     "react-dom": "catalog:"
   }

@@ -1,4 +1,4 @@
-import type { AnyRoute } from '@tanstack/react-router'
+import type { AnyRoute } from '@tanstack/router-core'
 
 const mountByRemoteTree = new WeakMap<AnyRoute, AnyRoute>()
 

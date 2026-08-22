@@ -4,7 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-} from 'tanstack-router-remote'
+} from 'tanstack-router-remote/react'
 
 import { routeTree } from './routeTree'
 import './styles.css'

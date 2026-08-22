@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   BatchingTaskQueue,
   type BatchMemberResult,
-} from '../../packages/route-tree-adapter/src/internal/batching-task-queue'
+} from '../../packages/route-tree-adapter/src/core/internal/batching-task-queue'
 
 function deferred<T = void>() {
   let resolve!: (value: T | PromiseLike<T>) => void

@@ -1,14 +1,7 @@
-import {
-  createRootRoute,
-  type AnyRootRoute,
-  type AnyRoute,
-  type NotFoundRouteComponent,
-} from '@tanstack/react-router'
+import type { AnyRoute } from '@tanstack/router-core'
 
-import {
-  configureRemoteStructuralNotFound,
-  createRemoteRootBridge,
-} from './remote-root.js'
+import type { FrameworkBinding } from '../framework.js'
+import type { AnyNotFoundComponent } from '../types.js'
 
 export function childRoutesOf(route: AnyRoute) {
   if (Array.isArray(route.children)) {
@@ -23,10 +16,13 @@ export function childRoutesOf(route: AnyRoute) {
  * identity. A cloned root is sufficient once all direct host children are
  * rebound to that root.
  */
-export function cloneHostRootForUpdate(routeTree: AnyRootRoute) {
-  const nextRoot = createRootRoute({
+export function cloneHostRootForUpdate(
+  routeTree: AnyRoute,
+  binding: FrameworkBinding,
+) {
+  const nextRoot = binding.createRootRoute({
     ...routeTree.options,
-  } as never) as AnyRootRoute
+  } as never) as AnyRoute
   const hostChildren = childRoutesOf(routeTree)
   const previousParents = hostChildren.map((route) => ({
     route,
@@ -61,12 +57,14 @@ export function cloneHostRootForUpdate(routeTree: AnyRootRoute) {
  * mutating the host tree without a way back would strand the remote tree.
  */
 export function graftRemoteRouteTree({
+  binding,
   hostDefaultNotFoundComponent,
   mountRoute,
   remoteTree,
   preserveMountChildren,
 }: {
-  hostDefaultNotFoundComponent?: NotFoundRouteComponent
+  binding: FrameworkBinding
+  hostDefaultNotFoundComponent?: AnyNotFoundComponent
   mountRoute: AnyRoute
   remoteTree: AnyRoute
   preserveMountChildren: boolean
@@ -83,7 +81,7 @@ export function graftRemoteRouteTree({
 
   const hostChildren = childRoutesOf(mountRoute)
   const mountNotFoundComponent = mountRoute.options.notFoundComponent
-  const remoteRootBridge = createRemoteRootBridge({
+  const remoteRootBridge = binding.createRemoteRootBridge({
     mountRoute,
     remoteTree,
   })
@@ -113,7 +111,7 @@ export function graftRemoteRouteTree({
         ? [...hostChildren, remoteRootBridge]
         : [remoteRootBridge]) as never,
     )
-    configureRemoteStructuralNotFound({
+    binding.configureStructuralNotFound({
       hostDefaultNotFoundComponent,
       mountRoute,
       remoteRootBridge,

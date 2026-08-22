@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { RouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src'
+import { RouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react'
 import {
   createInstrumentedRemote,
   createRuntimeHost,

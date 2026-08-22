@@ -20,7 +20,7 @@ import {
   type AnyRoute,
 } from '@tanstack/react-router'
 
-import { createRemoteRoute } from '../../packages/route-tree-adapter/src'
+import { createRemoteRoute } from '../../packages/route-tree-adapter/src/react'
 
 const Null = () => null
 

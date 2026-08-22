@@ -39,7 +39,18 @@ other transport.
 pnpm add tanstack-router-remote
 ```
 
-Peers: `@tanstack/react-router >=1.168.18`, React 18 or 19. ESM only.
+ESM only. Import from the entry point for your framework:
+
+```ts
+import { RemoteRouteMount } from 'tanstack-router-remote/react'
+```
+
+The core that mutates the route tree is framework-neutral — it works on
+`@tanstack/router-core` objects — so `/solid` and `/vue` entries can reuse it.
+Only `/react` ships today. The package root exports the shared types.
+
+React peers (`@tanstack/react-router >=1.168.18`, React 18 or 19) are declared
+optional, so a host on another framework will not be asked to install them.
 
 ## Quick start
 
@@ -171,8 +182,7 @@ router runtime, React integration, tree mutation, deep links, nested remotes,
 cache, lifecycle and 404 boundaries — see the
 [evidence matrix](docs/runtime-evidence.md).
 
-Not affiliated with or endorsed by TanStack; the `@tanstack-router-remote`
-scope is unofficial.
+Not affiliated with or endorsed by TanStack.
 
 ## Development
 

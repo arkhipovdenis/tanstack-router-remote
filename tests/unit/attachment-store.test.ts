@@ -1,7 +1,7 @@
 import type { AnyRoute } from '@tanstack/react-router'
 import { describe, expect, it } from 'vitest'
 
-import { AttachmentStore } from '../../packages/route-tree-adapter/src/internal/attachment-store'
+import { AttachmentStore } from '../../packages/route-tree-adapter/src/core/internal/attachment-store'
 
 describe('AttachmentStore', () => {
   it('publishes immutable snapshots and isolates observer failures', () => {

@@ -22,7 +22,7 @@ import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
   useRouteTreeUpdateAdapter,
-} from '../../packages/route-tree-adapter/src'
+} from '../../packages/route-tree-adapter/src/react'
 import { hasNotFoundMatch } from '../support/router-compat'
 
 type UntypedLinkProps = {

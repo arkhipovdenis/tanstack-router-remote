@@ -14,8 +14,8 @@ import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
   useRouteTreeUpdateAdapter,
-} from '../../packages/route-tree-adapter/src'
-import { provideScopedRouter } from '../../packages/route-tree-adapter/src/internal/scoped-router'
+} from '../../packages/route-tree-adapter/src/react'
+import { provideScopedRouter } from '../../packages/route-tree-adapter/src/react/internal/scoped-router'
 
 describe('RouteTreeUpdateAdapterProvider', () => {
   it('supplies the same host-owned adapter to every descendant', () => {

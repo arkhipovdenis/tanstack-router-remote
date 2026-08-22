@@ -1,14 +1,15 @@
-import type {
-  AnyRoute,
-  AnyRouter,
-  NotFoundRouteComponent,
-} from '@tanstack/react-router'
+import type { AnyRoute, AnyRouter } from '@tanstack/router-core'
 
-import type { AttachRemoteRouteTreeOptions, RouterGetter } from '../types.js'
+import type {
+  AnyNotFoundComponent,
+  AttachRemoteRouteTreeOptions,
+  RouterGetter,
+} from '../types.js'
 import {
   claimRemoteRouteTreeMount,
   releaseRemoteRouteTreeMount,
 } from './ownership.js'
+import type { FrameworkBinding } from '../framework.js'
 import { cloneHostRootForUpdate, graftRemoteRouteTree } from './route-tree.js'
 
 export type RouteTreeAttachmentResult =
@@ -81,7 +82,10 @@ export class TanStackRouteTreeAttachmentTransaction<
 > implements RouteTreeAttachmentTransaction {
   private router: TRouter | undefined
 
-  constructor(private readonly resolveRouter: RouterGetter<TRouter>) {}
+  constructor(
+    private readonly resolveRouter: RouterGetter<TRouter>,
+    private readonly binding: FrameworkBinding,
+  ) {}
 
   async executeBatch(
     requests: readonly RouteTreeAttachmentRequest[],
@@ -156,9 +160,10 @@ export class TanStackRouteTreeAttachmentTransaction<
         claimed = true
 
         const { undo } = graftRemoteRouteTree({
+          binding: this.binding,
           hostDefaultNotFoundComponent: (
             router.options as {
-              defaultNotFoundComponent?: NotFoundRouteComponent
+              defaultNotFoundComponent?: AnyNotFoundComponent
             }
           ).defaultNotFoundComponent,
           mountRoute: request.options.mountRoute,
@@ -226,7 +231,10 @@ export class TanStackRouteTreeAttachmentTransaction<
       // try keeps even that unreachable failure a rollback rather than a throw
       // that escapes the batch.
       const hostRouter = router ?? this.getRouter()
-      const nextTree = cloneHostRootForUpdate(hostRouter.routeTree as never)
+      const nextTree = cloneHostRootForUpdate(
+        hostRouter.routeTree as never,
+        this.binding,
+      )
 
       hostRouter.update({ routeTree: nextTree } as never)
     } catch (cause) {

@@ -1,4 +1,5 @@
-import type { AnyRoute, AnyRouter } from '@tanstack/react-router'
+import type { FrameworkBinding } from './framework.js'
+import type { AnyRoute, AnyRouter } from '@tanstack/router-core'
 
 import type {
   AttachRemoteRouteTreeOptions,
@@ -52,8 +53,11 @@ export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
     void
   >
 
-  constructor(getRouter: RouterGetter<TRouter>) {
-    this.transaction = new TanStackRouteTreeAttachmentTransaction(getRouter)
+  constructor(getRouter: RouterGetter<TRouter>, binding: FrameworkBinding) {
+    this.transaction = new TanStackRouteTreeAttachmentTransaction(
+      getRouter,
+      binding,
+    )
 
     const runBatch = (requests: readonly RouteTreeAttachmentRequest[]) =>
       this.runBatch(requests)

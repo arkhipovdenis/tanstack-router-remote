@@ -1,4 +1,12 @@
-import type { AnyRoute, AnyRouter } from '@tanstack/react-router'
+import type { AnyRoute, AnyRouter } from '@tanstack/router-core'
+
+/**
+ * A framework's not-found component. The core never renders it — it only reads
+ * the option off the host router and hands it to the graft — so the concrete
+ * type belongs to the framework entry point, not here. `router-core` has no
+ * equivalent: components are React/Solid/Vue-specific by construction.
+ */
+export type AnyNotFoundComponent = unknown
 
 /** Resolves the host router only when an attachment needs to mutate it. */
 export type RouterGetter<TRouter extends AnyRouter = AnyRouter> = () => TRouter

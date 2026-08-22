@@ -6,6 +6,7 @@ import {
   type RouteComponent,
 } from '@tanstack/react-router'
 
+import type { AnyNotFoundComponent } from '../../core/types.js'
 import {
   provideScopedNotFoundRouter,
   provideScopedRouter,
@@ -91,7 +92,10 @@ export function configureRemoteStructuralNotFound({
   mountRoute,
   remoteRootBridge,
 }: {
-  hostDefaultNotFoundComponent?: NotFoundRouteComponent
+  // Narrowed from the core's `AnyNotFoundComponent` here: this is the React
+  // boundary, the first place the value is used as a component rather than
+  // carried through.
+  hostDefaultNotFoundComponent?: AnyNotFoundComponent
   mountRoute: AnyRoute
   remoteRootBridge: AnyRoute
 }) {
@@ -105,7 +109,8 @@ export function configureRemoteStructuralNotFound({
         mountRoute.fullPath,
         remoteRootNotFound as NotFoundRouteComponent,
       )
-    : (hostDefaultNotFoundComponent ?? DefaultGlobalNotFound)
+    : ((hostDefaultNotFoundComponent as NotFoundRouteComponent | undefined) ??
+      DefaultGlobalNotFound)
 
   mountRoute.update({
     notFoundComponent: structuralNotFoundComponent,

@@ -7,7 +7,7 @@ import {
   useMatches,
   useRouter,
 } from '@tanstack/react-router'
-import { useRouteTreeUpdateAdapter } from 'tanstack-router-remote'
+import { useRouteTreeUpdateAdapter } from 'tanstack-router-remote/react'
 
 type LoaderEvidence = {
   readonly execution: number

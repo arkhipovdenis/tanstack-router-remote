@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createRemoteRoute,
   RouteTreeUpdateAdapter,
-} from '../../packages/route-tree-adapter/src'
+} from '../../packages/route-tree-adapter/src/react'
 
 import {
   createInstrumentedRemote,

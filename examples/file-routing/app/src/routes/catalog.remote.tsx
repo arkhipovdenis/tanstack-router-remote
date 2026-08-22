@@ -1,5 +1,8 @@
 import { Outlet, createFileRoute, type AnyRoute } from '@tanstack/react-router'
-import { RemoteRouteMount, createRemoteRoute } from 'tanstack-router-remote'
+import {
+  RemoteRouteMount,
+  createRemoteRoute,
+} from 'tanstack-router-remote/react'
 
 type NativeRouteTreeModule = {
   readonly routeTree: AnyRoute

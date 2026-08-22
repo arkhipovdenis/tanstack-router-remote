@@ -29,7 +29,7 @@ import {
   RemoteRouteMount,
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-} from '../../packages/route-tree-adapter/src'
+} from '../../packages/route-tree-adapter/src/react'
 
 type UntypedLinkProps = {
   children: ReactNode
