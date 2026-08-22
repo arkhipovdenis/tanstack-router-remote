@@ -28,7 +28,7 @@ import {
  * The getter is resolved only after a remote tree has loaded, then pinned for
  * this adapter's remaining lifetime.
  */
-export class RouteTreeUpdateAdapter<TRouter extends AnyRouter = AnyRouter>
+export class RemoteRouterAdapter<TRouter extends AnyRouter = AnyRouter>
   implements RouteTreeAttachmentController, RouteTreePreparationController
 {
   private readonly attachedMounts = new WeakSet<AnyRoute>()

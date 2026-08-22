@@ -45,9 +45,15 @@ ESM only. Import from the entry point for your framework:
 import { RemoteRouteMount } from 'tanstack-router-remote/react'
 ```
 
-The core that mutates the route tree is framework-neutral — it works on
+| Entry      | What it holds                                                                          |
+| ---------- | -------------------------------------------------------------------------------------- |
+| `/react`   | `RemoteRouterAdapter`, `RemoteRouterProvider`, `RemoteRouteMount`, `createRemoteRoute` |
+| `/adapter` | the framework-neutral attachment engine, for implementing a new framework binding      |
+| root       | the shared types                                                                       |
+
+The engine behind `/adapter` imports no framework package — it works on
 `@tanstack/router-core` objects — so `/solid` and `/vue` entries can reuse it.
-Only `/react` ships today. The package root exports the shared types.
+Only `/react` ships today.
 
 React peers (`@tanstack/react-router >=1.168.18`, React 18 or 19) are declared
 optional, so a host on another framework will not be asked to install them.
@@ -87,12 +93,12 @@ function OrdersMount() {
 mount route:
 
 ```tsx
-const routeTreeAdapter = new RouteTreeUpdateAdapter(() => router)
+const routeTreeAdapter = new RemoteRouterAdapter(() => router)
 
 createRoot(rootElement).render(
-  <RouteTreeUpdateAdapterProvider adapter={routeTreeAdapter}>
+  <RemoteRouterProvider adapter={routeTreeAdapter}>
     <RouterProvider router={router} />
-  </RouteTreeUpdateAdapterProvider>,
+  </RemoteRouterProvider>,
 )
 ```
 

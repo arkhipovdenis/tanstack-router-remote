@@ -17,7 +17,7 @@ import type {
 const routeTreeUpdateAdapterContext =
   createContext<RouteTreeAttachmentController | null>(null)
 
-export type RouteTreeUpdateAdapterProviderProps = {
+export type RemoteRouterProviderProps = {
   adapter: RouteTreeAttachmentController
   children: ReactNode
 }
@@ -27,10 +27,10 @@ export type RouteTreeUpdateAdapterProviderProps = {
  * Put it above RouterProvider so scoped TanStack router contexts never create
  * a second attachment queue.
  */
-export function RouteTreeUpdateAdapterProvider({
+export function RemoteRouterProvider({
   adapter,
   children,
-}: RouteTreeUpdateAdapterProviderProps) {
+}: RemoteRouterProviderProps) {
   return (
     <routeTreeUpdateAdapterContext.Provider value={adapter}>
       {children}
@@ -38,12 +38,12 @@ export function RouteTreeUpdateAdapterProvider({
   )
 }
 
-export function useRouteTreeUpdateAdapter() {
+export function useRemoteRouterAdapter() {
   const adapter = useContext(routeTreeUpdateAdapterContext)
 
   if (!adapter) {
     throw new Error(
-      'RemoteRouteMount must be rendered below RouteTreeUpdateAdapterProvider.',
+      'RemoteRouteMount must be rendered below RemoteRouterProvider.',
     )
   }
 
@@ -86,7 +86,7 @@ export function RemoteRouteMount({
   error,
   children,
 }: RemoteRouteMountProps) {
-  const adapter = useRouteTreeUpdateAdapter()
+  const adapter = useRemoteRouterAdapter()
   const attachment = useRouteTreeAttachment(adapter, mountRoute)
 
   useEffect(() => {

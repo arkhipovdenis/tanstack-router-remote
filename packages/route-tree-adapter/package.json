@@ -34,6 +34,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./adapter": {
+      "types": "./dist/adapter.d.ts",
+      "import": "./dist/adapter.js"
+    },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.js"

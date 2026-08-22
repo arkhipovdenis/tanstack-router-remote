@@ -27,8 +27,8 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   createRemoteRoute,
   RemoteRouteMount,
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from '../../packages/route-tree-adapter/src/react'
 
 type UntypedLinkProps = {
@@ -129,7 +129,7 @@ function createSsrFixture(initialEntry: string) {
     // some runners. Force TanStack's server branch independently of globals.
     isServer: true,
   })
-  const adapter = new RouteTreeUpdateAdapter(() => router)
+  const adapter = new RemoteRouterAdapter(() => router)
   const loadRouteTree = vi.fn(async () => remoteTree)
 
   return {
@@ -218,7 +218,7 @@ function createClientFixture(initialEntry: string) {
     history: createMemoryHistory({ initialEntries: [initialEntry] }),
     isServer: false,
   })
-  const adapter = new RouteTreeUpdateAdapter(() => router)
+  const adapter = new RemoteRouterAdapter(() => router)
   const loadRouteTree = vi.fn(async () => remoteTree)
 
   return {
@@ -257,14 +257,14 @@ async function renderRequest(fixture: SsrFixture) {
     children: (
       <html>
         <body>
-          <RouteTreeUpdateAdapterProvider adapter={fixture.adapter}>
+          <RemoteRouterProvider adapter={fixture.adapter}>
             <RouterContextProvider router={fixture.router}>
               <div id="root">
                 <RouterServer router={fixture.router} />
               </div>
               <Scripts />
             </RouterContextProvider>
-          </RouteTreeUpdateAdapterProvider>
+          </RemoteRouterProvider>
         </body>
       </html>
     ),
@@ -354,9 +354,9 @@ describe('SSR route-tree attachment', () => {
     await act(async () => {
       root = hydrateRoot(
         appRoot,
-        <RouteTreeUpdateAdapterProvider adapter={clientFixture.adapter}>
+        <RemoteRouterProvider adapter={clientFixture.adapter}>
           <RouterProvider router={clientFixture.router} />
-        </RouteTreeUpdateAdapterProvider>,
+        </RemoteRouterProvider>,
         {
           onRecoverableError(error) {
             recoverableErrors.push(error)

@@ -2,8 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import {
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from 'tanstack-router-remote/react'
 
 import { demoRuntimeProbe, router } from './router'
@@ -16,13 +16,13 @@ if (!rootElement) {
 }
 
 // One coordinator owns every mutable route-tree attach for this host router.
-const routeTreeAdapter = new RouteTreeUpdateAdapter(() => router)
+const routeTreeAdapter = new RemoteRouterAdapter(() => router)
 demoRuntimeProbe.routeTreeAdapter = routeTreeAdapter
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouteTreeUpdateAdapterProvider adapter={routeTreeAdapter}>
+    <RemoteRouterProvider adapter={routeTreeAdapter}>
       <RouterProvider router={router} />
-    </RouteTreeUpdateAdapterProvider>
+    </RemoteRouterProvider>
   </StrictMode>,
 )

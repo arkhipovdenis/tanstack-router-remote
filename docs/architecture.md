@@ -6,6 +6,7 @@ and framework boundary—not by an application-layer template.
 ```text
 src/
   index.ts             framework-neutral types, the package root
+  adapter.ts           entry point: `tanstack-router-remote/adapter`
   core/                no framework import anywhere below this line
     types.ts           public transport and attachment contracts
     framework.ts       the seam a framework entry point implements
@@ -49,13 +50,13 @@ shared types. It stays `0.x` because attachment is not yet an official TanStack
 Router API — an API-evolution risk, not a limit on the production scope
 documented in the README.
 
-- `RouteTreeUpdateAdapter` coordinates attachment lifecycle and idempotency.
+- `RemoteRouterAdapter` coordinates attachment lifecycle and idempotency.
   It accepts a lazy `getRouter()` callback, pinned on the first attachment
   after the remote tree resolves.
 - `RouteTreeAttachmentSource` exposes only snapshots and subscriptions, while
   `RouteTreeAttachmentController` additionally permits `attach()`. React
   rendering consumes the narrower source contract.
-- `RouteTreeUpdateAdapterProvider` is the host-level ownership boundary. It
+- `RemoteRouterProvider` is the host-level ownership boundary. It
   receives one pre-created adapter and makes it available to every mount via
   React context.
 - `createRemoteRoute` declares the static, initially childless host mount and
@@ -68,7 +69,7 @@ documented in the README.
   imperative adapter remains usable without them.
 
 Create one adapter per host router outside React render, then place
-`RouteTreeUpdateAdapterProvider` above that host's `RouterProvider`. The
+`RemoteRouterProvider` above that host's `RouterProvider`. The
 context remains unchanged through nested TanStack `RouterContextProvider`s, so
 scoped navigation facades never create a second route-tree mutation queue.
 

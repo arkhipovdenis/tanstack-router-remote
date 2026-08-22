@@ -1,9 +1,9 @@
-// Package root: framework-neutral surface only.
+// Package root: the shared contracts, and nothing that binds a framework.
 //
-// The mount components, the adapter and `createRemoteRoute` are bound to a
-// framework, so they live behind an explicit entry point:
-// `tanstack-router-remote/react` (and `/solid`, `/vue` as they land). Importing
-// the root gives you the contracts shared by all of them.
+// Two entry points sit below it:
+//   `tanstack-router-remote/adapter` — the framework-neutral attachment engine
+//   `tanstack-router-remote/react`   — the React adapter, provider and mount
+//                                      (`/solid` and `/vue` as they land)
 
 export type {
   AnyNotFoundComponent,

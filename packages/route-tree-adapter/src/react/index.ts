@@ -9,13 +9,10 @@ export type {
   RouteTreePreparationController,
   RouterGetter,
 } from '../core/types.js'
-export { RouteTreeUpdateAdapter } from './adapter.js'
+export { RemoteRouterAdapter } from './adapter.js'
 export { createRemoteRoute } from './create-remote-route.js'
-export {
-  RemoteRouteMount,
-  RouteTreeUpdateAdapterProvider,
-} from './components.js'
+export { RemoteRouteMount, RemoteRouterProvider } from './components.js'
 export type {
   RemoteRouteMountProps,
-  RouteTreeUpdateAdapterProviderProps,
+  RemoteRouterProviderProps,
 } from './components.js'

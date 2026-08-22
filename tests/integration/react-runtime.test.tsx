@@ -19,11 +19,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createRemoteRoute,
   RemoteRouteMount,
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from '../../packages/route-tree-adapter/src/react'
 // Not public API - used here to assert every mount sees one adapter instance.
-import { useRouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react/components'
+import { useRemoteRouterAdapter } from '../../packages/route-tree-adapter/src/react/components'
 import { hasNotFoundMatch } from '../support/router-compat'
 
 type UntypedLinkProps = {
@@ -156,7 +156,7 @@ function createRuntimeFixture(
 
   function RemoteRoot() {
     const router = useRouter()
-    const adapter = useRouteTreeUpdateAdapter()
+    const adapter = useRemoteRouterAdapter()
     const [count, setCount] = useState(0)
     const pathname = useRouterState({
       select: (state) => state.location.pathname,
@@ -442,7 +442,7 @@ function createRuntimeFixture(
     defaultPendingMinMs: 0,
     defaultPendingMs: 0,
   })
-  const adapter = new RouteTreeUpdateAdapter(() => router)
+  const adapter = new RemoteRouterAdapter(() => router)
 
   return {
     adapter,
@@ -483,9 +483,9 @@ async function renderFixture(fixture: RuntimeFixture) {
   await fixture.router.load()
   await act(async () => {
     root.render(
-      <RouteTreeUpdateAdapterProvider adapter={fixture.adapter}>
+      <RemoteRouterProvider adapter={fixture.adapter}>
         <RouterProvider router={fixture.router} />
-      </RouteTreeUpdateAdapterProvider>,
+      </RemoteRouterProvider>,
     )
   })
 

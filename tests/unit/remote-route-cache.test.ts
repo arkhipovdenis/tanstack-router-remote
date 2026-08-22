@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { RouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react'
+import { RemoteRouterAdapter } from '../../packages/route-tree-adapter/src/react'
 import {
   createInstrumentedRemote,
   createRuntimeHost,
@@ -17,7 +17,7 @@ describe('attached remote runtime cache', () => {
   it('retains native root, index, detail, and nested loader cache across SPA transitions', async () => {
     const host = createRuntimeHost('/orders?tab=overview')
     const remote = createInstrumentedRemote()
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({

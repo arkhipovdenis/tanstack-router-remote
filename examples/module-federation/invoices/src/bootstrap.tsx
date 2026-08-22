@@ -2,8 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import {
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from 'tanstack-router-remote/react'
 
 import { routeTree } from './routeTree'
@@ -16,12 +16,12 @@ if (!rootElement) {
 }
 
 const router = createRouter({ routeTree })
-const routeTreeAdapter = new RouteTreeUpdateAdapter(() => router)
+const routeTreeAdapter = new RemoteRouterAdapter(() => router)
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouteTreeUpdateAdapterProvider adapter={routeTreeAdapter}>
+    <RemoteRouterProvider adapter={routeTreeAdapter}>
       <RouterProvider router={router} />
-    </RouteTreeUpdateAdapterProvider>
+    </RemoteRouterProvider>
   </StrictMode>,
 )

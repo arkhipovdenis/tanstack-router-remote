@@ -86,7 +86,7 @@ export function scopeLocationOptions<T extends LocationOptions>(
   )
 }
 
-function createScopedRouter<TRouter extends AnyRouter>(
+export function createScopedRouter<TRouter extends AnyRouter>(
   router: TRouter,
   mountPath: string,
 ): TRouter {

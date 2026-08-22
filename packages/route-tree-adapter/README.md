@@ -21,25 +21,27 @@ The mount components and the adapter are framework-bound, so they live behind
 an explicit entry point:
 
 ```ts
-import { RouteTreeUpdateAdapter } from 'tanstack-router-remote/react'
+import { RemoteRouterAdapter } from 'tanstack-router-remote/react'
 ```
 
-The package root exports only the framework-neutral types shared by every
-entry (`RouterGetter`, `RouteTreeAttachment`, `FrameworkBinding`, …).
+`tanstack-router-remote/adapter` holds the same engine without any framework
+binding — reach for it to implement a new binding, not to build an app. The
+package root exports only the shared types (`RouterGetter`,
+`RouteTreeAttachment`, `FrameworkBinding`, …).
 
 The host owns one adapter and provides it above its `RouterProvider`:
 
 ```tsx
 import {
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from 'tanstack-router-remote/react'
 
-const adapter = new RouteTreeUpdateAdapter(() => router)
+const adapter = new RemoteRouterAdapter(() => router)
 
-<RouteTreeUpdateAdapterProvider adapter={adapter}>
+<RemoteRouterProvider adapter={adapter}>
   <RouterProvider router={router} />
-</RouteTreeUpdateAdapterProvider>
+</RemoteRouterProvider>
 ```
 
 Every `RemoteRouteMount`, including one rendered by a nested remote, then

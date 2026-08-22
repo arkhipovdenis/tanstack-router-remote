@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   createRemoteRoute,
-  RouteTreeUpdateAdapter,
+  RemoteRouterAdapter,
 } from '../../packages/route-tree-adapter/src/react'
 
 import {
@@ -101,7 +101,7 @@ describe('attached remote runtime', () => {
   it('renders the projected remote root and its index component with root lifecycle data', async () => {
     const host = createRuntimeHost('/orders?tab=activity')
     const remote = createInstrumentedRemote()
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({
@@ -147,7 +147,7 @@ describe('attached remote runtime', () => {
   it('renders nested remote routes with params through one shared host runtime', async () => {
     const host = createRuntimeHost('/orders/42/line-items?tab=detail')
     const remote = createInstrumentedRemote()
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({
@@ -231,7 +231,7 @@ describe('attached remote runtime', () => {
       '/platform',
     )
     const remote = createInstrumentedRemote()
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({
@@ -314,7 +314,7 @@ describe('attached remote runtime', () => {
       },
     })
     const host = createRuntimeHost('/orders/invoices/42')
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({
@@ -347,7 +347,7 @@ describe('attached remote runtime', () => {
   it('projects root pending/error/not-found boundaries and executes root error and not-found states', async () => {
     const host = createRuntimeHost('/orders?tab=overview')
     const remote = createRootBoundaryRemote()
-    const adapter = new RouteTreeUpdateAdapter(() => host.router)
+    const adapter = new RemoteRouterAdapter(() => host.router)
 
     await host.router.load()
     await adapter.attach({

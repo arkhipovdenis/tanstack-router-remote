@@ -45,8 +45,8 @@ instances.
 
 ## Mount and ownership rules
 
-1. Create one `RouteTreeUpdateAdapter` per host router and place
-   `RouteTreeUpdateAdapterProvider` above the host `RouterProvider`. Do not
+1. Create one `RemoteRouterAdapter` per host router and place
+   `RemoteRouterProvider` above the host `RouterProvider`. Do not
    create an adapter inside an individual mount route.
 2. Create a code mount with `createRemoteRoute({ ... })` before
    `createRouter()` receives the host route tree. For a standard file route,
@@ -143,7 +143,7 @@ generic Proxy does not — but it is a real constraint on remote code.
 Nested scoped facades delegate navigation to their parent facade, so route
 prefixes compose back to the host router. The route-tree adapter itself does
 not use that TanStack router context: it is supplied once through
-`RouteTreeUpdateAdapterProvider` and therefore remains the same at every depth.
+`RemoteRouterProvider` and therefore remains the same at every depth.
 
 ## Validation required before expanding the supported scope
 

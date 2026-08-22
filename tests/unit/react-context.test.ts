@@ -11,29 +11,29 @@ import {
 import { describe, expect, it } from 'vitest'
 
 import {
-  RouteTreeUpdateAdapter,
-  RouteTreeUpdateAdapterProvider,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from '../../packages/route-tree-adapter/src/react'
 // Not public API: RemoteRouteMount is its only caller. Tested directly because
 // these two properties - one adapter per provider, and a named failure outside
 // it - are what the provider exists for.
-import { useRouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react/components'
+import { useRemoteRouterAdapter } from '../../packages/route-tree-adapter/src/react/components'
 import { provideScopedRouter } from '../../packages/route-tree-adapter/src/react/internal/scoped-router'
 
-describe('RouteTreeUpdateAdapterProvider', () => {
+describe('RemoteRouterProvider', () => {
   it('supplies the same host-owned adapter to every descendant', () => {
-    const adapter = new RouteTreeUpdateAdapter(() => {
+    const adapter = new RemoteRouterAdapter(() => {
       throw new Error('The adapter is not expected to attach in this test')
     })
     const received: unknown[] = []
 
     function Probe() {
-      received.push(useRouteTreeUpdateAdapter())
+      received.push(useRemoteRouterAdapter())
       return null
     }
 
     renderToStaticMarkup(
-      createElement(RouteTreeUpdateAdapterProvider, {
+      createElement(RemoteRouterProvider, {
         adapter,
         children: createElement(
           Fragment,
@@ -49,12 +49,12 @@ describe('RouteTreeUpdateAdapterProvider', () => {
 
   it('fails fast outside the host adapter provider', () => {
     function Probe() {
-      useRouteTreeUpdateAdapter()
+      useRemoteRouterAdapter()
       return null
     }
 
     expect(() => renderToStaticMarkup(createElement(Probe))).toThrow(
-      'RouteTreeUpdateAdapterProvider',
+      'RemoteRouterProvider',
     )
   })
 
@@ -78,14 +78,14 @@ describe('RouteTreeUpdateAdapterProvider', () => {
         initialEntries: ['/orders/invoices'],
       }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => hostRouter)
+    const adapter = new RemoteRouterAdapter(() => hostRouter)
     let receivedAdapter: unknown
     let receivedRouter: unknown
 
     await hostRouter.load()
 
     function Probe() {
-      receivedAdapter = useRouteTreeUpdateAdapter()
+      receivedAdapter = useRemoteRouterAdapter()
       receivedRouter = useRouter()
       return null
     }
@@ -93,7 +93,7 @@ describe('RouteTreeUpdateAdapterProvider', () => {
     const ScopedProbe = provideScopedRouter('/orders', InvoicesScopedProbe)
 
     renderToStaticMarkup(
-      createElement(RouteTreeUpdateAdapterProvider, {
+      createElement(RemoteRouterProvider, {
         adapter,
         children: createElement(RouterContextProvider, {
           router: hostRouter,

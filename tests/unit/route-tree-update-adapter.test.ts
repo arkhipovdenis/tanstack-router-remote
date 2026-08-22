@@ -14,7 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   createRemoteRoute,
-  RouteTreeUpdateAdapter,
+  RemoteRouterAdapter,
 } from '../../packages/route-tree-adapter/src/react'
 import { scopeLocationOptions } from '../../packages/route-tree-adapter/src/react/internal/scoped-router'
 import { clearRouterCache, isNotFoundMatch } from '../support/router-compat'
@@ -123,7 +123,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
       isServer: true,
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await adapter.prepare({
       mountRoute: local.mounts[0],
@@ -152,7 +152,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const loadRouteTree = vi.fn(async () => remote.tree)
 
     await adapter.prepare({ mountRoute: local.mounts[0], loadRouteTree })
@@ -174,7 +174,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const remoteReady = deferred<AnyRoute>()
     const loadRouteTree = vi.fn(async () => remoteReady.promise)
 
@@ -226,7 +226,7 @@ describe('route-tree update adapter', () => {
 
       return router
     })
-    const adapter = new RouteTreeUpdateAdapter(getRouter)
+    const adapter = new RemoteRouterAdapter(getRouter)
 
     expect(getRouter).not.toHaveBeenCalled()
 
@@ -266,7 +266,7 @@ describe('route-tree update adapter', () => {
     let resolveRouter: () => typeof router = () => {
       throw new Error('router is not ready')
     }
-    const adapter = new RouteTreeUpdateAdapter(() => resolveRouter())
+    const adapter = new RemoteRouterAdapter(() => resolveRouter())
 
     await router.load()
     await expect(
@@ -300,7 +300,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
     const getRouter = vi.fn(() => router)
-    const adapter = new RouteTreeUpdateAdapter(getRouter)
+    const adapter = new RemoteRouterAdapter(getRouter)
 
     await router.load()
     await adapter.attach({
@@ -322,7 +322,7 @@ describe('route-tree update adapter', () => {
     const remote = generatedRemote()
     const history = createMemoryHistory({ initialEntries: ['/orders/42'] })
     const router = createRouter({ routeTree: local.tree, history })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     const originalRouter = router
@@ -362,7 +362,7 @@ describe('route-tree update adapter', () => {
     const remote = generatedRemote()
     const history = createMemoryHistory({ initialEntries: ['/orders/42'] })
     const router = createRouter({ routeTree: local.tree, history })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const loadRouteTree = vi.fn(async () => remote.tree)
 
     await router.load()
@@ -395,7 +395,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
     const getRouter = vi.fn(() => router)
-    const adapter = new RouteTreeUpdateAdapter(getRouter)
+    const adapter = new RemoteRouterAdapter(getRouter)
 
     await router.load()
     await adapter.attach({
@@ -430,7 +430,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const calls: string[] = []
     const ordersStarted = deferred()
     const releaseOrders = deferred()
@@ -480,7 +480,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
 
@@ -535,7 +535,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     const update = vi.spyOn(router, 'update')
@@ -586,7 +586,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     vi.spyOn(router, 'update').mockImplementationOnce(() => {
@@ -624,7 +624,7 @@ describe('route-tree update adapter', () => {
       routeTree: fresh.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const freshAdapter = new RouteTreeUpdateAdapter(() => freshRouter)
+    const freshAdapter = new RemoteRouterAdapter(() => freshRouter)
 
     await freshRouter.load()
     await Promise.all([
@@ -655,7 +655,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
       isServer: true,
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const update = vi.spyOn(router, 'update')
     const load = vi.spyOn(router, 'load')
 
@@ -692,7 +692,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     const load = vi.spyOn(router, 'load')
@@ -722,7 +722,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
     const loadRouteTree = vi.fn(async () => remote.tree)
     const states: string[] = []
     let reentered = false
@@ -765,7 +765,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     adapter.subscribe(() => {
       throw new Error('render observer failed')
@@ -789,7 +789,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     await adapter.attach({
@@ -818,7 +818,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
     const getRouter = vi.fn(() => router)
-    const adapter = new RouteTreeUpdateAdapter(getRouter)
+    const adapter = new RemoteRouterAdapter(getRouter)
     const originalTree = router.routeTree
 
     await router.load()
@@ -847,7 +847,7 @@ describe('route-tree update adapter', () => {
       routeTree: local.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const adapter = new RouteTreeUpdateAdapter(() => router)
+    const adapter = new RemoteRouterAdapter(() => router)
 
     await router.load()
     vi.spyOn(router, 'load').mockRejectedValueOnce(new Error('rematch failed'))
@@ -878,7 +878,7 @@ describe('route-tree update adapter', () => {
       routeTree: failing.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const failingAdapter = new RouteTreeUpdateAdapter(() => failingRouter)
+    const failingAdapter = new RemoteRouterAdapter(() => failingRouter)
 
     await failingRouter.load()
     const mountNotFoundComponent = failingMount.options.notFoundComponent
@@ -912,7 +912,7 @@ describe('route-tree update adapter', () => {
       routeTree: fresh.tree,
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
     })
-    const freshAdapter = new RouteTreeUpdateAdapter(() => freshRouter)
+    const freshAdapter = new RemoteRouterAdapter(() => freshRouter)
 
     await freshRouter.load()
     await freshAdapter.attach({
@@ -937,7 +937,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
       isServer: true,
     })
-    const failingAdapter = new RouteTreeUpdateAdapter(() => failingRouter)
+    const failingAdapter = new RemoteRouterAdapter(() => failingRouter)
     const mountNotFoundComponent = failingMount.options.notFoundComponent
 
     vi.spyOn(failingRouter, 'update').mockImplementationOnce(() => {
@@ -972,7 +972,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
       isServer: true,
     })
-    const freshAdapter = new RouteTreeUpdateAdapter(() => freshRouter)
+    const freshAdapter = new RemoteRouterAdapter(() => freshRouter)
 
     await freshAdapter.prepare({
       mountRoute: fresh.mounts[0],
@@ -1001,7 +1001,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/orders/42'] }),
       isServer: true,
     })
-    const failingAdapter = new RouteTreeUpdateAdapter(() => failingRouter)
+    const failingAdapter = new RemoteRouterAdapter(() => failingRouter)
 
     vi.spyOn(failingRouter, 'update').mockImplementationOnce(() => {
       throw new Error('update failed')
@@ -1038,7 +1038,7 @@ describe('route-tree update adapter', () => {
       history: createMemoryHistory({ initialEntries: ['/payments/42'] }),
       isServer: true,
     })
-    const freshAdapter = new RouteTreeUpdateAdapter(() => freshRouter)
+    const freshAdapter = new RemoteRouterAdapter(() => freshRouter)
 
     await Promise.all([
       freshAdapter.prepare({
