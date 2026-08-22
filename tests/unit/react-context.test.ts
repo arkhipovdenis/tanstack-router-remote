@@ -13,8 +13,11 @@ import { describe, expect, it } from 'vitest'
 import {
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-  useRouteTreeUpdateAdapter,
 } from '../../packages/route-tree-adapter/src/react'
+// Not public API: RemoteRouteMount is its only caller. Tested directly because
+// these two properties - one adapter per provider, and a named failure outside
+// it - are what the provider exists for.
+import { useRouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react/components'
 import { provideScopedRouter } from '../../packages/route-tree-adapter/src/react/internal/scoped-router'
 
 describe('RouteTreeUpdateAdapterProvider', () => {

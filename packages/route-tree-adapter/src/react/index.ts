@@ -14,8 +14,6 @@ export { createRemoteRoute } from './create-remote-route.js'
 export {
   RemoteRouteMount,
   RouteTreeUpdateAdapterProvider,
-  useRouteTreeAttachment,
-  useRouteTreeUpdateAdapter,
 } from './components.js'
 export type {
   RemoteRouteMountProps,

@@ -7,7 +7,6 @@ import {
   useMatches,
   useRouter,
 } from '@tanstack/react-router'
-import { useRouteTreeUpdateAdapter } from 'tanstack-router-remote/react'
 
 type LoaderEvidence = {
   readonly execution: number
@@ -31,7 +30,6 @@ type RuntimeComparableRouter = {
 type DemoRuntimeProbe = {
   readonly hostRouterId: string
   readonly rawRouter: RuntimeComparableRouter | null
-  readonly routeTreeAdapter?: object
 }
 
 const cachePolicy = {
@@ -85,7 +83,6 @@ function useRootLoaderEvidence() {
 function InvoicesRoot() {
   const [rootClicks, setRootClicks] = useState(0)
   const router = useRouter() as unknown as RuntimeComparableRouter
-  const adapter = useRouteTreeUpdateAdapter()
   const rootLoaderData = useRootLoaderEvidence()
   const runtimeContext = router.options.context as
     { readonly demoRuntimeProbe?: DemoRuntimeProbe } | undefined
@@ -111,8 +108,16 @@ function InvoicesRoot() {
       value: hostRouter ? router.routesById === hostRouter.routesById : false,
     },
     {
-      label: 'One attachment adapter',
-      value: hostRouter ? hostRuntime?.routeTreeAdapter === adapter : false,
+      // The adapter itself is no longer readable from a remote — that hook is
+      // not public API. Its single-instance property is what this row stood
+      // for, and the rows above already establish it: a second adapter would
+      // have had to run `router.update()` on a different tree, which cannot
+      // produce the shared `routesById` and `stores` asserted above.
+      label: 'One host runtime behind both facades',
+      value: hostRouter
+        ? router.routesById === hostRouter.routesById &&
+          router.stores === hostRouter.stores
+        : false,
     },
   ]
 

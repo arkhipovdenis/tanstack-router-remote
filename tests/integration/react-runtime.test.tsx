@@ -21,8 +21,9 @@ import {
   RemoteRouteMount,
   RouteTreeUpdateAdapter,
   RouteTreeUpdateAdapterProvider,
-  useRouteTreeUpdateAdapter,
 } from '../../packages/route-tree-adapter/src/react'
+// Not public API - used here to assert every mount sees one adapter instance.
+import { useRouteTreeUpdateAdapter } from '../../packages/route-tree-adapter/src/react/components'
 import { hasNotFoundMatch } from '../support/router-compat'
 
 type UntypedLinkProps = {
