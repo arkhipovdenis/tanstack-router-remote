@@ -27,4 +27,20 @@ export default defineConfig({
       js: 'source-map',
     },
   },
+  tools: {
+    swc: {
+      jsc: {
+        transform: {
+          react: {
+            // Without this the output is the classic transform — bare
+            // `React.createElement` calls with no `React` import, which only
+            // survive if a bundler happens to supply the global. The package
+            // must not depend on that: emit the automatic runtime, which
+            // imports `react/jsx-runtime` itself.
+            runtime: 'automatic',
+          },
+        },
+      },
+    },
+  },
 })

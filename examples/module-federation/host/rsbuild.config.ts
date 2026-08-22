@@ -19,6 +19,14 @@ const shared = {
     singleton: true,
     requiredVersion: false as const,
   },
+  // The examples import `tanstack-router-remote/react`. Module Federation
+  // matches share keys by exact request, so the bare package name does not
+  // cover a subpath — without this each remote bundles its own copy and the
+  // adapter React context stops crossing the module boundary.
+  'tanstack-router-remote/': {
+    singleton: true,
+    requiredVersion: false as const,
+  },
 }
 
 export default defineConfig({
