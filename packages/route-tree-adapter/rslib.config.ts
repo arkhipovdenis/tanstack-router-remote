@@ -1,16 +1,16 @@
-import { defineConfig } from '@rslib/core'
+import { defineConfig, type LibConfig } from '@rslib/core'
 import { pluginBabel } from '@rsbuild/plugin-babel'
 import { pluginSolid } from '@rsbuild/plugin-solid'
 
 // Transpile-only, one output file per source file, for every lib below. Keeps
 // `dist/` shaped like `src/`, so the exports map, `sideEffects: false` and
 // consumer-side tree-shaking behave as they did under `tsc`.
-const shared = {
+const shared: LibConfig = {
   format: 'esm',
   bundle: false,
   syntax: ['node 20', 'chrome 111', 'firefox 128', 'safari 16.4'],
   dts: { build: true },
-} as const
+}
 
 export default defineConfig({
   lib: [
@@ -24,7 +24,7 @@ export default defineConfig({
         entry: {
           index: ['./src/index.ts', './src/core/**/*.ts'],
         },
-        tsconfigPath: './tsconfig.build.core.json',
+        tsconfigPath: './tsconfig.core.json',
       },
     },
     {
@@ -37,7 +37,7 @@ export default defineConfig({
         entry: {
           index: ['./src/react/**/*.ts', './src/react/**/*.tsx'],
         },
-        tsconfigPath: './tsconfig.build.react.json',
+        tsconfigPath: './tsconfig.react.json',
       },
       output: {
         distPath: { js: 'react' },
@@ -58,7 +58,7 @@ export default defineConfig({
         entry: {
           index: ['./src/solid/**/*.ts', './src/solid/**/*.tsx'],
         },
-        tsconfigPath: './tsconfig.build.solid.json',
+        tsconfigPath: './tsconfig.solid.json',
       },
       output: {
         distPath: { js: 'solid' },
@@ -86,7 +86,7 @@ export default defineConfig({
         entry: {
           index: ['./src/vue/**/*.ts'],
         },
-        tsconfigPath: './tsconfig.build.vue.json',
+        tsconfigPath: './tsconfig.vue.json',
       },
       output: {
         distPath: { js: 'vue' },

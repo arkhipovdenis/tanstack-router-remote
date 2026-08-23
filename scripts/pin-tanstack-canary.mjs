@@ -5,8 +5,12 @@
 // Since the migration to pnpm every workspace resolves these through the
 // `catalog:` in pnpm-workspace.yaml, so a single file holds the pins and the
 // per-manifest rewriting this script used to do is unnecessary. The adapter's
-// open peer range (`>=1.168.18`) lives in package.json and is deliberately
-// left alone: that range is the contract under test.
+// open peer ranges live in package.json and are deliberately left alone: those
+// ranges are the contract under test.
+//
+// All three framework routers are covered. Each declares its own compatible
+// `@tanstack/router-core`, so a release that moves only one of them is exactly
+// the drift this job exists to surface.
 //
 // Usage: node scripts/pin-tanstack-canary.mjs [dist-tag]
 // Writes the resolved versions to $GITHUB_OUTPUT when running in Actions.
@@ -20,6 +24,9 @@ const run = promisify(execFile)
 
 const PACKAGES = [
   '@tanstack/react-router',
+  '@tanstack/router-core',
+  '@tanstack/solid-router',
+  '@tanstack/vue-router',
   '@tanstack/router-plugin',
   '@tanstack/router-generator',
   '@tanstack/virtual-file-routes',

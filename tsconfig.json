@@ -4,12 +4,14 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  // Solid and Vue sources are checked by the package's own projects
-  // (`pnpm -r typecheck`), not by this React-flavoured root project that also
-  // covers the test suite.
+  // React-flavoured: it carries `jsx: react-jsx` from the base config. The
+  // Solid and Vue suites compile under their own JSX settings and are checked
+  // by tsconfig.solid.json / tsconfig.vue.json instead.
   "include": ["packages/route-tree-adapter/src", "tests", "vitest.config.ts"],
   "exclude": [
     "packages/route-tree-adapter/src/solid",
-    "packages/route-tree-adapter/src/vue"
+    "packages/route-tree-adapter/src/vue",
+    "tests/**/solid-*",
+    "tests/**/vue-*"
   ]
 }

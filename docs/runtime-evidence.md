@@ -4,10 +4,13 @@ The adapter changes a mutable TanStack Router route tree, so its useful
 contract must be demonstrated at runtime—not inferred from the generated
 route objects alone. The suite has two complementary levels of evidence.
 
-The same suite has been run successfully against TanStack Router `1.168.18`
-and the current repository baseline `1.170.18`. The published adapter peer
-range is `>=1.168.18`; the repository intentionally keeps one reproducible
-baseline instead of a permanent CI job for every TanStack patch release.
+The same suite runs against the lowest supported TanStack Router and against
+the repository's pinned baseline. Both live in one place — the `catalog:` in
+`pnpm-workspace.yaml` for the pin, `peerDependencies` in the package manifest
+for the supported range — rather than being restated here, where they go stale.
+The repository keeps one reproducible baseline instead of a CI job for every
+TanStack patch release; the `Canary (TanStack latest)` workflow covers the
+upper end.
 
 ## Deterministic router runtime
 

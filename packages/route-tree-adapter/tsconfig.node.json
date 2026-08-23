@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Build scripts, not shipped code: they run in Node and are type-checked
+    // so the editor does not leave rslib.config.ts unresolved.
+    "composite": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "node_modules/.cache/tsc-node",
+    "tsBuildInfoFile": "node_modules/.cache/tsc-node.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["rslib.config.ts"]
+}

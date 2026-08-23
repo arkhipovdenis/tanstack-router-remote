@@ -69,7 +69,14 @@ export function SolidIsland({
     }
   })
 
-  return <div data-testid="solid-island" ref={ref} />
+  return (
+    <div
+      className="island"
+      data-framework="solid"
+      data-testid="solid-island"
+      ref={ref}
+    />
+  )
 }
 
 export function VueIsland({
@@ -99,5 +106,12 @@ export function VueIsland({
     }
   })
 
-  return <div data-testid="vue-island" ref={ref} />
+  return (
+    <div
+      className="island"
+      data-framework="vue"
+      data-testid="vue-island"
+      ref={ref}
+    />
+  )
 }

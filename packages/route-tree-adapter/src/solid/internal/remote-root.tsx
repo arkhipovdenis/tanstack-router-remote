@@ -6,6 +6,7 @@ import {
   type RouteComponent,
 } from '@tanstack/solid-router'
 
+import { hasUnattachedDescendantMount } from '../../core/internal/route-tree.js'
 import type { AnyNotFoundComponent } from '../../core/types.js'
 import {
   provideScopedNotFoundRouter,
@@ -61,6 +62,9 @@ export function createRemoteRootBridge({
     shellComponent: _shellComponent,
     component: _component,
     staticData: _staticData,
+    // Held back deliberately - see the React binding for the full reason: a
+    // boundary here would shadow a descendant mount that has not attached yet.
+    notFoundComponent: _notFoundComponent,
     ...mountCompatibleOptions
   } = remoteOptions
 
@@ -91,6 +95,7 @@ export function configureRemoteStructuralNotFound({
   hostDefaultNotFoundComponent,
   mountRoute,
   remoteRootBridge,
+  remoteRootNotFoundComponent,
 }: {
   // Narrowed from the core's `AnyNotFoundComponent` here: this is the Solid
   // boundary, the first place the value is used as a component rather than
@@ -98,8 +103,13 @@ export function configureRemoteStructuralNotFound({
   hostDefaultNotFoundComponent?: AnyNotFoundComponent
   mountRoute: AnyRoute
   remoteRootBridge: AnyRoute
+  remoteRootNotFoundComponent?: AnyNotFoundComponent
 }) {
-  const remoteRootNotFound = remoteRootBridge.options.notFoundComponent
+  if (hasUnattachedDescendantMount(remoteRootBridge)) {
+    return
+  }
+
+  const remoteRootNotFound = remoteRootNotFoundComponent
 
   // A remote-local boundary is part of the mounted application, so it needs
   // scoped navigation. A host-wide default is only a safety fallback and must
@@ -115,4 +125,10 @@ export function configureRemoteStructuralNotFound({
   mountRoute.update({
     notFoundComponent: structuralNotFoundComponent,
   } as never)
+
+  if (remoteRootNotFound) {
+    remoteRootBridge.update({
+      notFoundComponent: remoteRootNotFound,
+    } as never)
+  }
 }

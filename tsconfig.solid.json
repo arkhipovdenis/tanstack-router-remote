@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["packages/route-tree-adapter/src/solid", "tests/**/solid-*"]
+}

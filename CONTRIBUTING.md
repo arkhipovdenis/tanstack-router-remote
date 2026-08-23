@@ -37,25 +37,29 @@ Before opening a change:
 The adapter is built with rslib (`packages/route-tree-adapter/rslib.config.ts`)
 as ESM only, one output file per source file.
 
-Releases are tag-driven. Bump the version in
-`packages/route-tree-adapter/package.json`, then push a matching `v*` tag:
+Releases are tag-driven. The manifest stays at `0.0.0` in git; the version is
+set as part of cutting a release:
 
 ```bash
-git tag v0.1.0-alpha.1
-git push origin v0.1.0-alpha.1
+pnpm run release 1.0.0   # or major | minor | patch | prerelease
+git push origin main v1.0.0
 ```
+
+`pnpm run release` bumps the manifest, commits it and tags the commit. It
+refuses to run on a dirty tree, so the release commit only ever contains the
+version bump. (`pnpm version` alone stops after the bump here: npm only
+commits and tags when package.json sits at the git root, and ours is under
+`packages/`.)
 
 The `Publish` workflow runs `pnpm run check`, verifies that the tag matches the
 manifest version, and publishes with `--provenance --access public`. A tag that
 disagrees with the version fails before anything reaches npm.
 
-Publishing requires an `NPM_TOKEN` repository secret (an npm automation token
-with publish rights). It is not configured yet, so no release can run until it
-is added.
+Publishing uses the `NPM_TOKEN` repository secret (an npm automation token with
+publish rights).
 
-While the version carries a prerelease suffix, `publishConfig.tag` keeps it off
-the `latest` dist-tag. Drop that field for the first stable release.
-
-Keep the public API at `0.x` until the compatibility matrix is broad enough to
-justify a stable contract. This does not change the supported production scope
-documented in the repository README.
+The public API follows semver: the four exported names keep their shape within
+a major. The internals are a different matter — they rely on TanStack behaviour
+that is not an official composition API, so an upstream release can force the
+peer range to narrow in a minor. Widening the supported range still needs a
+reproduction and a regression test, as above.

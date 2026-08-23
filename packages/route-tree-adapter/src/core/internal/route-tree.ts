@@ -3,6 +3,27 @@ import type { AnyRoute } from '@tanstack/router-core'
 import type { FrameworkBinding } from '../framework.js'
 import type { AnyNotFoundComponent } from '../types.js'
 
+/**
+ * A mount that is declared but not yet attached: `prepareRouteTreeMount` gives
+ * every mount an empty children array, and a graft replaces it. An empty array
+ * is therefore the signature of "waiting for its remote tree", distinct from a
+ * route that never had children at all (`undefined`).
+ */
+export function isUnattachedMount(route: AnyRoute) {
+  return Array.isArray(route.children) && route.children.length === 0
+}
+
+/** Depth-first search for a descendant mount still waiting to attach. */
+export function hasUnattachedDescendantMount(route: AnyRoute): boolean {
+  for (const child of childRoutesOf(route)) {
+    if (isUnattachedMount(child) || hasUnattachedDescendantMount(child)) {
+      return true
+    }
+  }
+
+  return false
+}
+
 export function childRoutesOf(route: AnyRoute) {
   if (Array.isArray(route.children)) {
     return route.children as AnyRoute[]
@@ -115,6 +136,9 @@ export function graftRemoteRouteTree({
       hostDefaultNotFoundComponent,
       mountRoute,
       remoteRootBridge,
+      remoteRootNotFoundComponent: (
+        remoteTree.options as { notFoundComponent?: AnyNotFoundComponent }
+      ).notFoundComponent,
     })
   } catch (error) {
     undo()

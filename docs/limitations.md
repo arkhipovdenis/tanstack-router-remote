@@ -159,14 +159,15 @@ not use that TanStack router context: it is supplied once through
 
 ## Upstream version drift
 
-The peer range is open (`>=1.168.18`) while the repository pins an exact
-version, so a fresh install can resolve a router this project has never been
-tested against. The `Canary (TanStack latest)` workflow runs `pnpm run check`
+The peer range is open while the repository pins an exact version (both in
+`pnpm-workspace.yaml` and the package manifest, not restated here), so a fresh
+install can resolve a router this project has never been tested against. The `Canary (TanStack latest)` workflow runs `pnpm run check`
 against the latest published release on a schedule to surface that gap; it is
 informational and not a required check.
 
-Known drift above the pinned `@tanstack/react-router@1.170.18`
-(`@tanstack/router-core@1.171.15`):
+Known drift above the pinned baseline. The versions below are historical
+record — the release that removed an API does not change — unlike the pin
+itself, which lives in the catalog:
 
 - **Removed introspection APIs, by `1.170.27` (`router-core@1.171.22`).**
   `router.stores.cachedMatches`, `router.clearExpiredCache()`,

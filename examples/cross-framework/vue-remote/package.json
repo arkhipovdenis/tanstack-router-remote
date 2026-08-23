@@ -11,6 +11,10 @@
     "./routeTree": {
       "types": "./dist/routeTree.d.ts",
       "import": "./dist/routeTree.js"
+    },
+    "./nestedTree": {
+      "types": "./dist/nestedTree.d.ts",
+      "import": "./dist/nestedTree.js"
     }
   },
   "scripts": {

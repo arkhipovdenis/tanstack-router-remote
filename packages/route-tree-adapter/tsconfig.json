@@ -4,6 +4,7 @@
     { "path": "./tsconfig.core.json" },
     { "path": "./tsconfig.react.json" },
     { "path": "./tsconfig.solid.json" },
-    { "path": "./tsconfig.vue.json" }
+    { "path": "./tsconfig.vue.json" },
+    { "path": "./tsconfig.node.json" }
   ]
 }

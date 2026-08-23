@@ -7,10 +7,11 @@ route modules while TanStack Router has no first-class remote-tree composition
 API. It has no Module Federation dependency: provide
 `loadRouteTree(): Promise<AnyRoute>` from any transport.
 
-It is supported for the repository's documented TanStack Router/React version
-range and covered by runtime and browser-like integration tests. The package
-API remains `0.x` because attachment is not yet an official TanStack Router
-composition API; see the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
+It is supported for the repository's documented TanStack Router version range
+and covered by runtime and browser-like integration tests. The public API
+follows semver; the internals depend on TanStack behaviour that is not an
+official composition API, so an upstream release can narrow the supported peer
+range in a minor. See the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
 and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md).
 
 ESM only. Every framework peer is optional, so a Vue host never installs React.

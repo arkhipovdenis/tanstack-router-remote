@@ -1,12 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
     "composite": true,
-    "tsBuildInfoFile": "node_modules/.cache/tsconfig.solid.tsbuildinfo",
-    // Solid compiles JSX to its own reactive calls, not React.createElement.
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "node_modules/.cache/tsc-solid.tsbuildinfo"
   },
   "include": ["src/solid"],
   "references": [{ "path": "./tsconfig.core.json" }]

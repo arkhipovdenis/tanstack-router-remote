@@ -26,6 +26,27 @@ function islandify(
   Island: (props: { component: never; data: unknown }) => ReactElement,
 ) {
   const visit = (route: AnyRoute) => {
+    const staticData = route.options.staticData as
+      { crossFrameworkMount?: string } | undefined
+
+    // A mount inside a remote tree stays React-rendered: `RemoteRouteMount`
+    // needs the host's adapter context, which an island would cut it off from.
+    // The remote marks it with staticData rather than exporting a component,
+    // so the remote never has to import a React binding.
+    if (staticData?.crossFrameworkMount === 'solid-nested') {
+      route.update({ component: SolidNestedMount } as never)
+      nestedSolidMountRoute = route
+
+      return
+    }
+
+    if (staticData?.crossFrameworkMount === 'vue-nested') {
+      route.update({ component: VueNestedMount } as never)
+      nestedVueMountRoute = route
+
+      return
+    }
+
     const original = route.options.component
 
     if (original) {
@@ -80,6 +101,48 @@ function islandify(
 // bundle cannot compile React JSX and Solid JSX at once: whichever plugin is
 // configured wins, and the other framework's components come out as calls into
 // a runtime that cannot render them.
+let nestedSolidMountRoute: AnyRoute | undefined
+
+const loadNestedSolidTree = async () => {
+  const remote =
+    await import('@tanstack-router-remote/example-cross-solid-remote/nestedTree')
+
+  return islandify(remote.nestedRouteTree as AnyRoute, SolidIsland)
+}
+
+function SolidNestedMount() {
+  return (
+    <RemoteRouteMount
+      mountRoute={nestedSolidMountRoute as AnyRoute}
+      loadRouteTree={loadNestedSolidTree}
+      loading={<p data-testid="solid-nested-loading">Loading nested Solid…</p>}
+    >
+      <Outlet />
+    </RemoteRouteMount>
+  )
+}
+
+let nestedVueMountRoute: AnyRoute | undefined
+
+const loadNestedVueTree = async () => {
+  const remote =
+    await import('@tanstack-router-remote/example-cross-vue-remote/nestedTree')
+
+  return islandify(remote.nestedRouteTree as AnyRoute, VueIsland)
+}
+
+function VueNestedMount() {
+  return (
+    <RemoteRouteMount
+      mountRoute={nestedVueMountRoute as AnyRoute}
+      loadRouteTree={loadNestedVueTree}
+      loading={<p data-testid="vue-nested-loading">Loading nested Vue…</p>}
+    >
+      <Outlet />
+    </RemoteRouteMount>
+  )
+}
+
 const loadSolidRouteTree = async () => {
   const remote =
     (await import('@tanstack-router-remote/example-cross-solid-remote/routeTree')) as {
@@ -101,16 +164,35 @@ const loadVueRouteTree = async () => {
 const rootRoute = createRootRoute({
   component: () => (
     <main>
-      <h1>React host, remote route trees from three frameworks</h1>
+      <h1>One router, three frameworks</h1>
+      <p className="lede">
+        A React host whose route tree is extended at runtime by a Solid remote
+        and a Vue remote. Same router, same history, same route cache — the
+        labelled panels below are rendered by the framework named on them.
+      </p>
       <nav>
         <Link to="/" data-testid="host-link-home">
           Host home
         </Link>
-        <Link to="/solid" data-testid="host-link-solid">
+        <Link to="/solid" data-framework="solid" data-testid="host-link-solid">
           Solid remote
         </Link>
-        <Link to="/vue" data-testid="host-link-vue">
+        <Link to="/vue" data-framework="vue" data-testid="host-link-vue">
           Vue remote
+        </Link>
+        <Link
+          to="/solid/nested/n-2"
+          data-framework="solid"
+          data-testid="host-link-nested"
+        >
+          Solid → Solid (2 levels)
+        </Link>
+        <Link
+          to="/vue/nested/n-2"
+          data-framework="vue"
+          data-testid="host-link-vue-nested"
+        >
+          Vue → Vue (2 levels)
         </Link>
       </nav>
       <Outlet />
@@ -122,9 +204,11 @@ const indexRoute = createRemoteRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: () => (
-    <p data-testid="host-home">
-      One React router, one history, one route cache. The Solid and Vue trees
-      below are grafted into it.
+    <p className="host-note" data-testid="host-home">
+      Open a remote above. Each one is a route tree authored in another
+      framework and grafted into this router on demand — its URL, params and
+      loader data all belong to the host router, and a direct link to{' '}
+      <code>/cross/solid/sr-2</code> resolves without loading the other remote.
     </p>
   ),
 })

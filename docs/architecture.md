@@ -52,10 +52,10 @@ attachment logic.
 Each framework entry point exports four names: `RemoteRouterAdapter`,
 `RemoteRouterProvider`, `RemoteRouteMount` and `createRemoteRoute`, plus the
 attachment types. The root exports only what a new binding needs — the bare
-adapter, whose constructor takes a `FrameworkBinding`, and that type. It stays
-`0.x` because attachment is not yet an official TanStack Router API — an
-API-evolution risk, not a limit on the production scope documented in the
-README.
+adapter, whose constructor takes a `FrameworkBinding`, and that type. These
+names follow semver; what does not is the ground under them, since attachment
+is not an official TanStack Router API. That is an upstream-compatibility
+risk, not a limit on the production scope documented in the README.
 
 - `RemoteRouterAdapter` coordinates attachment lifecycle and idempotency.
   It accepts a lazy `getRouter()` callback, pinned on the first attachment

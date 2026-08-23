@@ -1,17 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    // A referenced project must emit. This one only emits the declarations the
-    // react/solid projects type-check against; the shipped dist/ is built by
-    // rslib, so this output goes to the cache.
-    "noEmit": false,
-    "emitDeclarationOnly": true,
+    // A referenced project must emit; rslib overrides outDir when it builds
+    // dist/, so this default only feeds the react/solid/vue projects.
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "composite": true,
-    "outDir": "node_modules/.cache/tsc-core",
+    "sourceMap": true,
     "rootDir": "src",
-    "tsBuildInfoFile": "node_modules/.cache/tsconfig.core.tsbuildinfo"
+    "outDir": "node_modules/.cache/tsc-core",
+    // rslib emits the shipped declarations into dist/; outDir above only holds
+    // the project-reference build info the framework projects consume.
+    "declarationDir": "dist",
+    "tsBuildInfoFile": "node_modules/.cache/tsc-core.tsbuildinfo"
   },
   "include": ["src/index.ts", "src/core"]
 }

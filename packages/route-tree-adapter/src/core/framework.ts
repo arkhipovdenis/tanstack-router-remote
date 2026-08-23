@@ -37,5 +37,10 @@ export type FrameworkBinding = {
     hostDefaultNotFoundComponent?: AnyNotFoundComponent
     mountRoute: AnyRoute
     remoteRootBridge: AnyRoute
+    /**
+     * The remote root's own boundary. The bridge does not carry it while a
+     * descendant mount is still unattached, so it is passed separately.
+     */
+    remoteRootNotFoundComponent?: AnyNotFoundComponent
   }) => void
 }

@@ -75,4 +75,21 @@ detailRoute.update({
   ),
 } as never)
 
-export const routeTree = rootRoute.addChildren([indexRoute, detailRoute])
+/**
+ * A mount inside this remote tree, for the second level of nesting. The host
+ * recognises it and keeps it React-rendered: a `RemoteRouteMount` has to stay
+ * in the host's own tree, since an island would cut it off from the adapter.
+ */
+const nestedMountRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/nested',
+  staticData: { crossFrameworkMount: 'solid-nested' },
+})
+
+nestedMountRoute.addChildren([])
+
+export const routeTree = rootRoute.addChildren([
+  indexRoute,
+  detailRoute,
+  nestedMountRoute,
+])

@@ -1,9 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
     "composite": true,
-    "tsBuildInfoFile": "node_modules/.cache/tsconfig.vue.tsbuildinfo"
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "node_modules/.cache/tsc-vue.tsbuildinfo"
   },
   "include": ["src/vue"],
   "references": [{ "path": "./tsconfig.core.json" }]

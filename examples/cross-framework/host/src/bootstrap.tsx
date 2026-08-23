@@ -7,6 +7,7 @@ import {
 } from 'tanstack-router-remote/react'
 
 import { router } from './router'
+import './styles.css'
 
 const rootElement = document.getElementById('root')
 

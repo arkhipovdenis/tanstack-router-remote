@@ -8,6 +8,7 @@ packages:
 # router internals, so a split router version is just as fatal.
 catalog:
   '@tanstack/react-router': 1.170.31
+  '@tanstack/router-core': 1.171.26
   '@tanstack/solid-router': 1.170.29
   '@tanstack/vue-router': 1.170.28
   '@tanstack/router-generator': 1.167.17
