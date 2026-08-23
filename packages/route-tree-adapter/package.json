@@ -1,7 +1,7 @@
 {
   "name": "tanstack-router-remote",
-  "version": "0.0.0",
-  "description": "Attach remote route trees to a TanStack Router host at runtime \u2014 React, Solid and Vue.",
+  "version": "1.0.0",
+  "description": "Attach remote route trees to a TanStack Router host at runtime — React, Solid and Vue.",
   "keywords": [
     "tanstack",
     "tanstack-router",
@@ -59,10 +59,10 @@
     "@tanstack/react-router": ">=1.168.18",
     "@tanstack/router-core": ">=1.168.18",
     "@tanstack/solid-router": ">=1.168.18",
+    "@tanstack/vue-router": ">=1.168.18",
     "react": ">=18 <20",
     "react-dom": ">=18 <20",
     "solid-js": ">=1.9",
-    "@tanstack/vue-router": ">=1.168.18",
     "vue": ">=3.3"
   },
   "peerDependenciesMeta": {
