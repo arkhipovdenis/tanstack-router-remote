@@ -7,7 +7,7 @@ reproduction and regression test.
 ## Setup
 
 This is a pnpm workspace; npm and Yarn will not resolve `workspace:*` or the
-version catalog. Node 20+ and pnpm 11+ are required.
+version catalog. Node 22.13+ and pnpm 11+ are required (pnpm 11 itself needs 22.13; Node 20 reached EOL in April 2026).
 
 ```bash
 pnpm install

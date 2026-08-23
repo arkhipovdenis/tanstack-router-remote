@@ -1,0 +1,28 @@
+{
+  "name": "@tanstack-router-remote/example-cross-framework",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "preview": "rsbuild preview",
+    "build": "rsbuild build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "tanstack-router-remote": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/solid-router": "catalog:",
+    "@tanstack/vue-router": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "solid-js": "catalog:",
+    "vue": "catalog:",
+    "@tanstack-router-remote/example-cross-solid-remote": "workspace:*",
+    "@tanstack-router-remote/example-cross-vue-remote": "workspace:*"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "catalog:",
+    "@rsbuild/plugin-react": "catalog:"
+  }
+}

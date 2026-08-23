@@ -4,5 +4,12 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["packages/route-tree-adapter/src", "tests", "vitest.config.ts"]
+  // Solid and Vue sources are checked by the package's own projects
+  // (`pnpm -r typecheck`), not by this React-flavoured root project that also
+  // covers the test suite.
+  "include": ["packages/route-tree-adapter/src", "tests", "vitest.config.ts"],
+  "exclude": [
+    "packages/route-tree-adapter/src/solid",
+    "packages/route-tree-adapter/src/vue"
+  ]
 }

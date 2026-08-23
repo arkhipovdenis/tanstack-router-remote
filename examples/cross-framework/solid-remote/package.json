@@ -1,0 +1,33 @@
+{
+  "name": "@tanstack-router-remote/example-cross-solid-remote",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./routeTree": {
+      "types": "./dist/routeTree.d.ts",
+      "import": "./dist/routeTree.js"
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "pnpm run clean && rslib build",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "@tanstack/solid-router": ">=1.168.18",
+    "solid-js": ">=1.9"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@rsbuild/plugin-babel": "1.2.1",
+    "@rslib/core": "^0.19.0",
+    "@tanstack/solid-router": "catalog:",
+    "babel-preset-solid": "^1.9.15",
+    "solid-js": "catalog:"
+  }
+}

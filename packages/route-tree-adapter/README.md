@@ -13,21 +13,47 @@ API remains `0.x` because attachment is not yet an official TanStack Router
 composition API; see the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
 and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md).
 
-ESM only. The React entry needs `@tanstack/react-router >=1.168.18` and React
-18 or 19; those peers are optional, so a future Solid or Vue host does not
-install them.
+ESM only. Every framework peer is optional, so a Vue host never installs React.
 
-The mount components and the adapter are framework-bound, so they live behind
-an explicit entry point:
+## Entry points
+
+| Import                         | Use it to                                             |
+| ------------------------------ | ----------------------------------------------------- |
+| `tanstack-router-remote/react` | build a React host or remote                          |
+| `tanstack-router-remote/solid` | build a Solid host or remote                          |
+| `tanstack-router-remote/vue`   | build a Vue host or remote                            |
+| `tanstack-router-remote`       | implement a binding for a framework with no entry yet |
+
+Applications use the framework entry — it supplies the binding, adds the mount
+component, and re-exports the attachment types:
 
 ```ts
 import { RemoteRouterAdapter } from 'tanstack-router-remote/react'
 ```
 
-`tanstack-router-remote/adapter` holds the same engine without any framework
-binding — reach for it to implement a new binding, not to build an app. The
-package root exports only the shared types (`RouterGetter`,
-`RouteTreeAttachment`, `FrameworkBinding`, …).
+The root is the extension point, not a second way to do the same thing. It
+exports the bare `RemoteRouterAdapter` — whose constructor takes a
+`FrameworkBinding` — plus the three types that binding needs. Everything the
+adapter does to a route tree is already framework-neutral, so a new framework
+means implementing three operations, not reimplementing attachment:
+
+```ts
+import {
+  RemoteRouterAdapter,
+  type FrameworkBinding,
+} from 'tanstack-router-remote'
+import { createRootRoute } from '@tanstack/svelte-router'
+
+const svelteBinding: FrameworkBinding = {
+  createRootRoute: (options) => createRootRoute(options as never),
+  createRemoteRootBridge, // project the remote root onto a pathless bridge
+  configureStructuralNotFound, // point the mount's 404 at the remote boundary
+}
+
+const adapter = new RemoteRouterAdapter(() => router, svelteBinding)
+```
+
+`src/react/internal/binding.ts` is the smallest complete example — 15 lines.
 
 The host owns one adapter and provides it above its `RouterProvider`:
 

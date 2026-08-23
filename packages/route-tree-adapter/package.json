@@ -34,13 +34,17 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./adapter": {
-      "types": "./dist/adapter.d.ts",
-      "import": "./dist/adapter.js"
-    },
     "./react": {
       "types": "./dist/react/index.d.ts",
       "import": "./dist/react/index.js"
+    },
+    "./solid": {
+      "types": "./dist/solid/index.d.ts",
+      "import": "./dist/solid/index.js"
+    },
+    "./vue": {
+      "types": "./dist/vue/index.d.ts",
+      "import": "./dist/vue/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -53,10 +57,14 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@tanstack/router-core": ">=1.168.18",
     "@tanstack/react-router": ">=1.168.18",
+    "@tanstack/router-core": ">=1.168.18",
+    "@tanstack/solid-router": ">=1.168.18",
     "react": ">=18 <20",
-    "react-dom": ">=18 <20"
+    "react-dom": ">=18 <20",
+    "solid-js": ">=1.9",
+    "@tanstack/vue-router": ">=1.168.18",
+    "vue": ">=3.3"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-router": {
@@ -67,13 +75,33 @@
     },
     "react-dom": {
       "optional": true
+    },
+    "@tanstack/solid-router": {
+      "optional": true
+    },
+    "solid-js": {
+      "optional": true
+    },
+    "@tanstack/vue-router": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
     }
   },
   "devDependencies": {
+    "@babel/core": "^8.0.1",
+    "@rsbuild/plugin-babel": "1.2.1",
+    "@rsbuild/plugin-solid": "1.2.2",
     "@rslib/core": "^0.19.0",
     "@tanstack/react-router": "catalog:",
-    "@tanstack/router-core": "1.171.15",
+    "@tanstack/router-core": "1.171.26",
+    "@tanstack/solid-router": "catalog:",
+    "@tanstack/vue-router": "catalog:",
+    "babel-preset-solid": "^1.9.15",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "solid-js": "catalog:",
+    "vue": "catalog:"
   }
 }

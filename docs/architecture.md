@@ -5,8 +5,7 @@ and framework boundary—not by an application-layer template.
 
 ```text
 src/
-  index.ts             framework-neutral types, the package root
-  adapter.ts           entry point: `tanstack-router-remote/adapter`
+  index.ts             the extension point: bare adapter + FrameworkBinding
   core/                no framework import anywhere below this line
     types.ts           public transport and attachment contracts
     framework.ts       the seam a framework entry point implements
@@ -27,7 +26,13 @@ src/
       binding.ts       the three React-bound operations
       remote-root.tsx  remote-root bridge
       scoped-router.tsx mount-aware navigation facade
+  solid/               entry point: `tanstack-router-remote/solid`
+  vue/                 entry point: `tanstack-router-remote/vue`
 ```
+
+`solid/` and `vue/` mirror `react/` file for file. Only the framework-bound
+parts differ: the binding, the remote-root bridge, the scoped-router wrapper
+and the components. Nothing about grafting is duplicated.
 
 ## Framework boundary
 
@@ -44,11 +49,13 @@ attachment logic.
 
 ## Public surface
 
-Each framework entry point re-exports the supported surface: the adapter,
-`createRemoteRoute`, the mount component and hooks. The root exports only the
-shared types. It stays `0.x` because attachment is not yet an official TanStack
-Router API — an API-evolution risk, not a limit on the production scope
-documented in the README.
+Each framework entry point exports four names: `RemoteRouterAdapter`,
+`RemoteRouterProvider`, `RemoteRouteMount` and `createRemoteRoute`, plus the
+attachment types. The root exports only what a new binding needs — the bare
+adapter, whose constructor takes a `FrameworkBinding`, and that type. It stays
+`0.x` because attachment is not yet an official TanStack Router API — an
+API-evolution risk, not a limit on the production scope documented in the
+README.
 
 - `RemoteRouterAdapter` coordinates attachment lifecycle and idempotency.
   It accepts a lazy `getRouter()` callback, pinned on the first attachment
@@ -56,22 +63,26 @@ documented in the README.
 - `RouteTreeAttachmentSource` exposes only snapshots and subscriptions, while
   `RouteTreeAttachmentController` additionally permits `attach()`. React
   rendering consumes the narrower source contract.
-- `RemoteRouterProvider` is the host-level ownership boundary. It
-  receives one pre-created adapter and makes it available to every mount via
-  React context.
+- `RemoteRouterProvider` is the host-level ownership boundary. It receives one
+  pre-created adapter and makes it available to every mount through the
+  framework's own context mechanism — React context, Solid context, Vue
+  provide/inject. That transport matters for nested remotes: a remote's own
+  mount is rendered by the router as a route `component`, so it cannot be
+  handed the adapter as a prop.
 - `createRemoteRoute` declares the static, initially childless host mount and
   has two overloads. Given TanStack `createRoute` options it mirrors that
   signature and its inferred route type; given an existing route instance it
   returns the same instance, prepared in place, with its type unchanged. The
   second form is what a file route wraps:
   `createRemoteRoute(createFileRoute('/catalog')({ ... }))`.
-- `RemoteRouteMount` and its hooks are optional React bindings. The
-  imperative adapter remains usable without them.
+- `RemoteRouteMount` is the rendering half and is optional; the imperative
+  adapter remains usable without it. In Vue its `loading` and `error` are
+  slots rather than props, which is the idiomatic shape there.
 
-Create one adapter per host router outside React render, then place
-`RemoteRouterProvider` above that host's `RouterProvider`. The
-context remains unchanged through nested TanStack `RouterContextProvider`s, so
-scoped navigation facades never create a second route-tree mutation queue.
+Create one adapter per host router outside render, then place
+`RemoteRouterProvider` above that host's `RouterProvider`. The context remains
+unchanged through nested TanStack `RouterContextProvider`s, so scoped
+navigation facades never create a second route-tree mutation queue.
 
 ## Internal implementation
 

@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=20",
+    "node": ">=22.13",
     "pnpm": ">=11"
   },
   "scripts": {
@@ -28,13 +28,21 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --ignore-unknown --write .",
     "format:check": "prettier --ignore-unknown --check .",
-    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run build"
+    "check": "pnpm run lint && pnpm run format:check && pnpm run typecheck && pnpm run test && pnpm run build",
+    "dev:example:solid": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-solid-remote build && pnpm --filter @tanstack-router-remote/example-solid-host dev",
+    "preview:example:solid": "pnpm run build && pnpm --filter @tanstack-router-remote/example-solid-host preview",
+    "dev:example:vue": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-vue-remote build && pnpm --filter @tanstack-router-remote/example-vue-host dev",
+    "preview:example:vue": "pnpm run build && pnpm --filter @tanstack-router-remote/example-vue-host preview",
+    "dev:example:cross-framework": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-cross-solid-remote --filter @tanstack-router-remote/example-cross-vue-remote build && pnpm --filter @tanstack-router-remote/example-cross-framework dev",
+    "preview:example:cross-framework": "pnpm run build && pnpm --filter @tanstack-router-remote/example-cross-framework preview"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/router-generator": "catalog:",
     "@tanstack/router-plugin": "catalog:",
+    "@tanstack/solid-router": "catalog:",
+    "@tanstack/vue-router": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
@@ -47,8 +55,10 @@
     "prettier": "^3.8.0",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "solid-js": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "^8.26.0",
-    "vitest": "3.2.7"
+    "vitest": "3.2.7",
+    "vue": "catalog:"
   }
 }

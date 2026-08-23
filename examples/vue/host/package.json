@@ -1,0 +1,26 @@
+{
+  "name": "@tanstack-router-remote/example-vue-host",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "preview": "rsbuild preview",
+    "build": "rsbuild build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack-router-remote/example-vue-remote": "workspace:*",
+    "@tanstack/vue-router": "catalog:",
+    "tanstack-router-remote": "workspace:*",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@rsbuild/core": "catalog:",
+    "@rsbuild/plugin-babel": "2.1.0",
+    "@rsbuild/plugin-vue": "2.0.1",
+    "@rsbuild/plugin-vue-jsx": "2.0.1",
+    "@vue/babel-plugin-jsx": "3.0.0"
+  }
+}

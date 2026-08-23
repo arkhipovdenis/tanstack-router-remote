@@ -1,7 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "noEmit": true
-  },
-  "include": ["src"]
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.core.json" },
+    { "path": "./tsconfig.react.json" },
+    { "path": "./tsconfig.solid.json" },
+    { "path": "./tsconfig.vue.json" }
+  ]
 }

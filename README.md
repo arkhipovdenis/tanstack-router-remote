@@ -45,18 +45,20 @@ ESM only. Import from the entry point for your framework:
 import { RemoteRouteMount } from 'tanstack-router-remote/react'
 ```
 
-| Entry      | What it holds                                                                          |
-| ---------- | -------------------------------------------------------------------------------------- |
-| `/react`   | `RemoteRouterAdapter`, `RemoteRouterProvider`, `RemoteRouteMount`, `createRemoteRoute` |
-| `/adapter` | the framework-neutral attachment engine, for implementing a new framework binding      |
-| root       | the shared types                                                                       |
+| Entry    | What it holds                                                                          |
+| -------- | -------------------------------------------------------------------------------------- |
+| `/react` | `RemoteRouterAdapter`, `RemoteRouterProvider`, `RemoteRouteMount`, `createRemoteRoute` |
+| `/solid` | the same four, bound to Solid                                                          |
+| `/vue`   | the same four, bound to Vue                                                            |
+| root     | the extension point: the bare adapter and `FrameworkBinding`                           |
 
-The engine behind `/adapter` imports no framework package — it works on
-`@tanstack/router-core` objects — so `/solid` and `/vue` entries can reuse it.
-Only `/react` ships today.
+Attachment itself is framework-neutral — it operates on
+`@tanstack/router-core` objects — so each entry only supplies three
+framework-bound operations. That is what the root exposes, for a framework
+with no entry yet; applications never import it.
 
-React peers (`@tanstack/react-router >=1.168.18`, React 18 or 19) are declared
-optional, so a host on another framework will not be asked to install them.
+Every framework peer is optional, so a Vue host is never asked to install
+React.
 
 ## Quick start
 
@@ -192,7 +194,7 @@ Not affiliated with or endorsed by TanStack.
 
 ## Development
 
-Requires Node 20+ and pnpm 11+ (npm and Yarn cannot resolve `workspace:*` or the
+Requires Node 22.13+ and pnpm 11+ (npm and Yarn cannot resolve `workspace:*` or the
 version catalog).
 
 ```bash

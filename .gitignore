@@ -4,3 +4,8 @@ coverage
 .DS_Store
 .idea
 *.tsbuildinfo
+
+# tsc -b output must never land next to sources
+packages/*/src/**/*.d.ts
+packages/*/src/**/*.d.ts.map
+.claude
