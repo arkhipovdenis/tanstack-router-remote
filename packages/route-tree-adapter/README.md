@@ -1,17 +1,17 @@
 # tanstack-router-remote
 
-Production-oriented route-tree attachment for TanStack React Router
-microfrontends. It supports ordinary CSR attachment and a documented,
-non-streaming SSR/hydration bootstrap. It is the current bridge for remote
-route modules while TanStack Router has no first-class remote-tree composition
-API. It has no Module Federation dependency: provide
+Production-oriented route-tree attachment for TanStack Router microfrontends,
+for **React, Solid and Vue**. It supports ordinary CSR attachment and a
+documented, non-streaming SSR/hydration bootstrap. It is the current bridge for
+remote route modules while TanStack Router has no first-class remote-tree
+composition API. It has no Module Federation dependency: provide
 `loadRouteTree(): Promise<AnyRoute>` from any transport.
 
 It is supported for the repository's documented TanStack Router version range
 and covered by runtime and browser-like integration tests. The public API
 follows semver; the internals depend on TanStack behaviour that is not an
 official composition API, so an upstream release can narrow the supported peer
-range in a minor. See the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#production-scope-and-compatibility)
+range in a minor. See the repository [compatibility contract](https://github.com/arkhipovdenis/tanstack-router-remote#status)
 and [limitations](https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md).
 
 ESM only. Every framework peer is optional, so a Vue host never installs React.
@@ -115,7 +115,6 @@ For SSR/hydration, call `adapter.prepare(...)` with fresh host and remote trees
 before server `router.load()` or client `hydrate(router)`. `prepare()` exposes
 the intermediate `prepared` state and deliberately does not perform a CSR
 rematch. The full request/bootstrap sequence is documented in the repository
-[SSR guide](https://github.com/arkhipovdenis/tanstack-router-remote#ssr-and-hydration).
+[SSR guide](https://github.com/arkhipovdenis/tanstack-router-remote#ssr).
 
-The `@tanstack-router-remote` scope is unofficial: this package is not
-affiliated with or endorsed by TanStack.
+Not affiliated with or endorsed by TanStack.

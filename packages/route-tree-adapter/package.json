@@ -1,14 +1,16 @@
 {
   "name": "tanstack-router-remote",
   "version": "0.0.0",
-  "description": "Route-tree attachment bridge for TanStack React Router microfrontends.",
+  "description": "Attach remote route trees to a TanStack Router host at runtime \u2014 React, Solid and Vue.",
   "keywords": [
     "tanstack",
-    "react-router",
+    "tanstack-router",
     "microfrontend",
     "module-federation",
     "route-tree",
-    "rspack"
+    "react",
+    "solid",
+    "vue"
   ],
   "license": "MIT",
   "repository": {
