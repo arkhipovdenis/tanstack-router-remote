@@ -56,12 +56,20 @@ version bump. (`pnpm version` alone stops after the bump here: npm only
 commits and tags when package.json sits at the git root, and ours is under
 `packages/`.)
 
-The `Publish` workflow runs `pnpm run check`, verifies that the tag matches the
-manifest version, and publishes with `--provenance --access public`. A tag that
-disagrees with the version fails before anything reaches npm.
+Push the branch and the tag together, as above: the workflow refuses a tag that
+is not an ancestor of `main`, so a tag that arrives before its commit fails.
 
-Publishing uses the `NPM_TOKEN` repository secret (an npm automation token with
-publish rights).
+The `Publish` workflow checks the tag against the manifest version and against
+`main`, runs `pnpm run check` and `check:consumers`, builds the package, and
+refuses to continue if the resulting tarball carries no `dist/` files. It then
+publishes with `--provenance --access public`. Everything that can fail is
+checked before the irreversible step.
+
+Publishing uses the `NPM_TOKEN` secret (an npm automation token with publish
+rights) and runs in the `npm` environment, which must exist under
+Settings → Environments. Give that environment required reviewers to hold each
+release for approval, and hold `NPM_TOKEN` there rather than at repository
+level so no other workflow can read it.
 
 The public API follows semver: documented public exports keep their shape within
 a major. The internals are a different matter — they rely on TanStack behaviour

@@ -4,9 +4,23 @@ on:
   push:
     tags: ['v*']
 
+# Never cancel a publish in flight: a half-finished npm publish is worse than a
+# queued one. Two tags pushed together run one after the other.
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
+
+    # Create this environment under Settings → Environments before tagging a
+    # release; the job fails without it. Add required reviewers there to hold
+    # the irreversible step for approval, and move NPM_TOKEN into it so the
+    # token is unavailable to every other workflow.
+    environment: npm
+
+    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -16,6 +30,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The default shallow fetch has no merge base to compare against, so
+          # the "tag is on main" check below would have nothing to resolve.
+          fetch-depth: 0
 
       # No `version:` here on purpose - packageManager in package.json is the
       # single source, and setting both makes the action refuse to choose.
@@ -27,14 +45,9 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
-
-      # Same gate as CI: never publish something that would fail a pull request.
-      - run: pnpm run check
-      - run: pnpm run check:consumers
-
       # The tag is the source of truth for the version, so a tag that disagrees
-      # with the manifest is a mistake — catch it before it reaches npm.
+      # with the manifest is a mistake — catch it before spending a full check
+      # on a release that cannot go out.
       - name: Verify the tag matches the package version
         run: |
           tag="${GITHUB_REF_NAME#v}"
@@ -44,6 +57,37 @@ jobs:
             exit 1
           fi
           echo "Publishing version $pkg"
+
+      # A tag can be pushed from any branch; only release what main holds.
+      - name: Verify the tag is on main
+        run: |
+          git fetch --no-tags origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" FETCH_HEAD; then
+            echo "::error::Tag $GITHUB_REF_NAME is not on main"
+            exit 1
+          fi
+
+      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Same gate as CI: never publish something that would fail a pull request.
+      - run: pnpm run check
+      - run: pnpm run check:consumers
+
+      # `files` ships dist/, and a missing dist/ is not an error — it publishes
+      # an empty package. `check` happens to build, but nothing enforces that,
+      # so build explicitly rather than relying on it.
+      - run: pnpm run build:packages
+
+      - name: Verify the tarball carries the build
+        working-directory: packages/route-tree-adapter
+        run: |
+          npm pack --dry-run --json > /tmp/pack.json
+          count=$(node -p "JSON.parse(require('fs').readFileSync('/tmp/pack.json','utf8'))[0].files.filter(f=>f.path.startsWith('dist/')).length")
+          if [ "$count" -eq 0 ]; then
+            echo "::error::The tarball contains no dist/ files"
+            exit 1
+          fi
+          echo "Tarball carries $count dist/ files"
 
       - name: Publish
         working-directory: packages/route-tree-adapter
