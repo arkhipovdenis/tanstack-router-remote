@@ -16,3 +16,5 @@ export type {
   RemoteRouteMountProps,
   RemoteRouterProviderProps,
 } from './components.js'
+
+export { resolveRemotePath } from '../core/internal/scoped-router.js'

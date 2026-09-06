@@ -19,6 +19,7 @@ describe('solid entry point', () => {
       'RemoteRouterAdapter',
       'RemoteRouterProvider',
       'createRemoteRoute',
+      'resolveRemotePath',
     ])
   })
 

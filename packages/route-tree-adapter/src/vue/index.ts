@@ -12,3 +12,5 @@ export type {
 export { RemoteRouterAdapter } from './adapter.js'
 export { createRemoteRoute } from './create-remote-route.js'
 export { RemoteRouteMount, RemoteRouterProvider } from './components.js'
+
+export { resolveRemotePath } from '../core/internal/scoped-router.js'

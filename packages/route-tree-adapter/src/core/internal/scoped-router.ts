@@ -1,5 +1,7 @@
 import { joinPaths, type AnyRouter } from '@tanstack/router-core'
 
+const mountPaths = new WeakMap<AnyRouter, string>()
+
 export type LocationOptions = {
   from?: unknown
   to?: unknown
@@ -85,10 +87,21 @@ export function createScopedRouter<TRouter extends AnyRouter>(
   // TanStack Router. It leaves stores, history, cache, and every
   // non-navigation member on the contextual router. A generic ES Proxy would
   // also have to preserve RouterCore accessor receivers, while this narrow
-  // facade changes only the two navigation methods we actually scope. A nested
+  // facade changes only the navigation methods we actually scope. A nested
   // facade delegates to the previous contextual facade, so prefixes compose
   // until the original host router receives the navigation.
   const scopedRouter = Object.create(router) as TRouter
+  const parentMount = mountPaths.get(router)
+  mountPaths.set(
+    scopedRouter,
+    parentMount
+      ? (rebaseRoutePath(
+          parentMount,
+          normalizedMountPath(parentMount),
+          mountPath,
+        ) as string)
+      : mountPath,
+  )
   const normalizedMount = normalizedMountPath(mountPath)
   const scope = <T extends LocationOptions>(options: T) =>
     scopeLocationOptionsWith(mountPath, normalizedMount, options)
@@ -116,4 +129,33 @@ export function createScopedRouter<TRouter extends AnyRouter>(
     )) as TRouter['matchRoute']
 
   return scopedRouter
+}
+
+/**
+ * Resolves a path that is relative to the remote's own root into the host path,
+ * for `Link`, `navigate`, `preloadRoute` and `matchRoute`.
+ *
+ * Use it when a remote path could be mistaken for one that already carries the
+ * mount prefix — a remote mounted at `/orders` with its own `/orders/history`
+ * route resolves to `/orders/orders/history`. On an unscoped router the path is
+ * returned unchanged.
+ *
+ * @param router - A scoped router from the remote's context, or a host router.
+ * @param path - A root-relative route path, without search or hash.
+ * @throws If `path` is relative, protocol-relative, or carries search or hash;
+ * pass those as navigation options instead.
+ */
+export function resolveRemotePath(router: AnyRouter, path: string): string {
+  if (
+    !path.startsWith('/') ||
+    path.startsWith('//') ||
+    path.includes('?') ||
+    path.includes('#')
+  ) {
+    throw new Error(
+      'resolveRemotePath expects a root-relative route path; pass search and hash as navigation options',
+    )
+  }
+  const mount = mountPaths.get(router) ?? '/'
+  return path === '/' ? normalizedMountPath(mount) : joinPaths([mount, path])
 }

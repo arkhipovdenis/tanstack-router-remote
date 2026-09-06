@@ -17,6 +17,7 @@ describe('vue entry point', () => {
       'RemoteRouterAdapter',
       'RemoteRouterProvider',
       'createRemoteRoute',
+      'resolveRemotePath',
     ])
   })
 
