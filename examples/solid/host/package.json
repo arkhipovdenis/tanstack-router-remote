@@ -16,9 +16,9 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
+    "@babel/core": "7.29.7",
     "@rsbuild/core": "catalog:",
     "@rsbuild/plugin-babel": "1.2.1",
-    "babel-preset-solid": "^1.9.15"
+    "babel-preset-solid": "1.9.15"
   }
 }

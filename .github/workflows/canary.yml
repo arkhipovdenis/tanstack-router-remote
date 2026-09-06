@@ -1,7 +1,7 @@
 name: Canary (TanStack latest)
 
 # The adapter builds on TanStack Router internals and declares an open peer
-# range (`>=1.168.18`), so a release inside that range can break the bridge
+# range (within TanStack major 1), so a release inside that range can break the bridge
 # without any change landing here. This job runs the normal verification
 # against the latest published router instead of the pinned one.
 #
@@ -80,7 +80,7 @@ jobs:
               '',
               `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               '',
-              'The peer range is open (`>=1.168.18`), so this affects fresh installs.',
+              'The peer range permits compatible major-1 updates (within TanStack major 1), so this affects fresh installs.',
               'Triage: confirm whether the adapter itself broke or only the test probes,',
               'then either fix the bridge or document an upper bound.',
             ].join('\n')

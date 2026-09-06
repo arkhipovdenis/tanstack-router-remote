@@ -22,7 +22,7 @@ catalog:
   '@types/react': 19.2.4
   '@types/react-dom': 19.2.3
   react: 19.2.0
-  'solid-js': 1.9.10
+  'solid-js': 1.9.15
   vue: 3.5.13
   react-dom: 19.2.0
   typescript: 5.8.3
