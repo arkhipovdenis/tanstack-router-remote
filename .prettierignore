@@ -4,3 +4,5 @@ node_modules
 .tanstack
 pnpm-lock.yaml
 **/routeTree.gen.ts
+
+.pnpm-store

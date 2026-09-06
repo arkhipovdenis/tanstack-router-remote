@@ -1,0 +1,22 @@
+{
+  "name": "@tanstack-router-remote/example-ssr",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.server.json && rsbuild build",
+    "typecheck": "tsc --noEmit",
+    "preview": "node dist/server/server.js",
+    "dev": "pnpm run build && node dist/server/server.js"
+  },
+  "dependencies": {
+    "tanstack-router-remote": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "catalog:",
+    "@rsbuild/plugin-react": "catalog:"
+  }
+}
