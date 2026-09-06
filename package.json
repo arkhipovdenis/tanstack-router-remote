@@ -5,8 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=22.13",
-    "pnpm": ">=11"
+    "node": "^22.18.0 || >=24.11.0",
+    "pnpm": ">=10.26.0"
   },
   "scripts": {
     "build": "pnpm run build:packages && pnpm run build:examples",
@@ -29,17 +29,22 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --ignore-unknown --write .",
     "format:check": "prettier --ignore-unknown --check .",
-    "check": "pnpm run lint && pnpm run format:check && pnpm run build:packages && pnpm run build:remotes && pnpm run typecheck && pnpm run test && pnpm run build:examples",
+    "check": "pnpm run check:docs && pnpm run lint && pnpm run format:check && pnpm run build:packages && pnpm run build:remotes && pnpm run typecheck && pnpm run test && pnpm run build:examples",
     "release": "node scripts/release.mjs",
     "dev:example:solid": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-solid-remote build && pnpm --filter @tanstack-router-remote/example-solid-host dev",
     "preview:example:solid": "pnpm run build && pnpm --filter @tanstack-router-remote/example-solid-host preview",
     "dev:example:vue": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-vue-remote build && pnpm --filter @tanstack-router-remote/example-vue-host dev",
     "preview:example:vue": "pnpm run build && pnpm --filter @tanstack-router-remote/example-vue-host preview",
     "dev:example:cross-framework": "pnpm run build:packages && pnpm --filter @tanstack-router-remote/example-cross-solid-remote --filter @tanstack-router-remote/example-cross-vue-remote build && pnpm --filter @tanstack-router-remote/example-cross-framework dev",
-    "preview:example:cross-framework": "pnpm run build && pnpm --filter @tanstack-router-remote/example-cross-framework preview"
+    "preview:example:cross-framework": "pnpm run build && pnpm --filter @tanstack-router-remote/example-cross-framework preview",
+    "test:e2e": "playwright test",
+    "check:consumers": "pnpm run build:packages && node scripts/check-consumers.mjs",
+    "check:docs": "node scripts/check-docs.mjs",
+    "sync:readme": "node scripts/check-docs.mjs --write"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@playwright/test": "^1.63.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/router-generator": "catalog:",
     "@tanstack/router-plugin": "catalog:",

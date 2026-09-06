@@ -27,10 +27,11 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
 
       # Same gate as CI: never publish something that would fail a pull request.
       - run: pnpm run check
+      - run: pnpm run check:consumers
 
       # The tag is the source of truth for the version, so a tag that disagrees
       # with the manifest is a mistake — catch it before it reaches npm.

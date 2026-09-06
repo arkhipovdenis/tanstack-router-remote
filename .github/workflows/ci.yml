@@ -9,18 +9,22 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [22, 24]
+        # The supported floor and the current toolchain, not their cross
+        # product: a mixed pair adds a combination nobody runs.
+        include:
+          - node: '22.18.0'
+            pnpm: '10.26.0'
+          - node: '24'
+            pnpm: '11.9.0'
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      # action-setup and recursive commands must select the same manager.
+      - run: npm pkg set packageManager=pnpm@${{ matrix.pnpm }}
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
       - run: pnpm run check
-
-      # Catches a packaging mistake before it reaches npm: a missing file in
-      # `files`, or an export the tarball does not actually ship.
-      - name: Pack the adapter
-        run: pnpm --filter tanstack-router-remote pack --pack-destination "$RUNNER_TEMP"
+      - name: Install and build packed React, Solid and Vue consumers
+        run: pnpm run check:consumers
