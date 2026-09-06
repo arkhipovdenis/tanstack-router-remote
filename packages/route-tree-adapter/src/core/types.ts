@@ -40,8 +40,8 @@ export interface RouteTreeAttachmentController extends RouteTreeAttachmentSource
 /**
  * Server/client bootstrap operation. It grafts a remote tree and rebuilds the
  * host route registry, then publishes `prepared` rather than `attached`.
- * The caller deliberately owns the first server `router.load()` or client
- * `hydrate(router)`, before React renders the mount.
+ * The caller owns the first server `router.load()` or client
+ * `hydrate(router)`, and calls it before the mount renders.
  */
 export interface RouteTreePreparationController extends RouteTreeAttachmentSource {
   prepare(options: AttachRemoteRouteTreeOptions): Promise<void>

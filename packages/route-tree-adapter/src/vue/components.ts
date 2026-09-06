@@ -22,9 +22,10 @@ const remoteRouterAdapterKey: InjectionKey<RouteTreeAttachmentController> =
   Symbol('tanstack-router-remote.adapter')
 
 /**
- * Host-level ownership boundary for the single mutable route-tree adapter.
- * Put it above RouterProvider so scoped TanStack router contexts never create
- * a second attachment queue.
+ * Provides the {@link RemoteRouterAdapter} that every `RemoteRouteMount` below
+ * it uses. Render it above the host's `RouterProvider`, once per application:
+ * one adapter owns all route-tree mutation, so a second provider would give
+ * remotes a competing attachment queue.
  */
 export const RemoteRouterProvider = defineComponent({
   name: 'RemoteRouterProvider',
@@ -74,12 +75,24 @@ export function useRouteTreeAttachment(
 }
 
 /**
- * Vue adapter for a mount route. Render it from the mount's component: a fuzzy
- * 404 below an unattached mount matches the mount rather than throwing into it,
- * so one component covers both the exact path and a direct deep link. It begins
- * the attach on mount, once TanStack committed that match; invoking
- * router.load() during a route lifecycle would recurse into the navigation that
- * is currently pending.
+ * Loads and attaches a remote route tree below a mount created with
+ * {@link createRemoteRoute}. Render it from the mount's own `component`, and it
+ * covers both the mount path and a direct deep link below it.
+ *
+ * Takes `mountRoute` and `loadRouteTree` as props; the `default`, `loading` and
+ * `error` slots render the attached tree, the pending state and a failure. The
+ * `error` slot receives the `Error`.
+ *
+ * ```vue
+ * <RemoteRouteMount :mountRoute="mount" :loadRouteTree="loadOrders">
+ *   <template #default><RouterOutlet /></template>
+ *   <template #loading><Spinner /></template>
+ *   <template #error="error"><p>{{ error.message }}</p></template>
+ * </RemoteRouteMount>
+ * ```
+ *
+ * The attach runs once per mount. A failed load is reported through the `error`
+ * slot and is not retried automatically; retrying is the host's decision.
  */
 export const RemoteRouteMount = defineComponent({
   name: 'RemoteRouteMount',
@@ -95,6 +108,9 @@ export const RemoteRouteMount = defineComponent({
     const adapter = useRemoteRouterAdapter()
     const attachment = useRouteTreeAttachment(adapter, props.mountRoute)
 
+    // On mount, so the attach starts only once TanStack has committed the
+    // match: calling router.load() during a route lifecycle would recurse into
+    // the navigation that is still pending.
     onMounted(() => {
       // An SSR/client bootstrap has already grafted the matching fresh tree and
       // will hand routing to router.load() or hydrate(router) before this mount

@@ -41,11 +41,9 @@ import { createBootstrapNotFound } from './internal/bootstrap-not-found.js'
 export function createRemoteRoute<TRoute extends AnyRoute>(
   route: TRoute,
 ): TRoute
-/**
- * The generic list mirrors `createRoute` because inference is positional:
- * expressing this as `Parameters<typeof createRoute>` collapses `fullPath`,
- * params, search and loader data back to `unknown`.
- */
+// The generic list mirrors `createRoute` because inference is positional:
+// expressing this as `Parameters<typeof createRoute>` collapses `fullPath`,
+// params, search and loader data back to `unknown`.
 export function createRemoteRoute<
   TRegister = unknown,
   TParentRoute extends RouteConstraints['TParentRoute'] = AnyRoute,
