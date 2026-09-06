@@ -4,5 +4,6 @@ node_modules
 .tanstack
 pnpm-lock.yaml
 **/routeTree.gen.ts
+packages/route-tree-adapter/README.md
 
 .pnpm-store

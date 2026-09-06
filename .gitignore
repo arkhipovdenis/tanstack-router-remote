@@ -16,6 +16,9 @@ test-results
 playwright-report
 .playwright
 
+# Rendered from the root README by prepack, with links rewritten for npm.
+packages/route-tree-adapter/README.md
+
 # Review process artifacts and unpublished launch drafts: working notes for the
 # maintainer, not documentation of the package.
 AGENTS.md

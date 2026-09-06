@@ -39,8 +39,7 @@
     "preview:example:cross-framework": "pnpm run build && pnpm --filter @tanstack-router-remote/example-cross-framework preview",
     "test:e2e": "playwright test",
     "check:consumers": "pnpm run build:packages && node scripts/check-consumers.mjs",
-    "check:docs": "node scripts/check-docs.mjs",
-    "sync:readme": "node scripts/check-docs.mjs --write"
+    "check:docs": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

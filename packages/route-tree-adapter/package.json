@@ -51,6 +51,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "prepack": "node ../../scripts/build-package-readme.mjs",
     "build": "rslib build",
     "dev": "rslib build --watch",
     "typecheck": "tsc --noEmit"
