@@ -422,7 +422,7 @@ describe('route-tree update adapter', () => {
     expect(remote.detailRuns()).toBe(1)
   })
 
-  it('serializes two independent mount attachments on the same router', async () => {
+  it('attaches a ready remote while an earlier transport is still pending', async () => {
     const local = host(['/orders', '/payments'])
     const orders = generatedRemote()
     const payments = generatedRemote()
@@ -459,10 +459,13 @@ describe('route-tree update adapter', () => {
 
     expect(calls).toEqual(['orders:start'])
 
+    await paymentsAttachment
+    expect(adapter.getSnapshot(local.mounts[0]).state).toBe('loading')
+    expect(adapter.getSnapshot(local.mounts[1]).state).toBe('attached')
     releaseOrders.resolve()
-    await Promise.all([ordersAttachment, paymentsAttachment])
+    await ordersAttachment
 
-    expect(calls).toEqual(['orders:start', 'orders:end', 'payments'])
+    expect(calls).toEqual(['orders:start', 'payments', 'orders:end'])
     expect(router.routesById[routeId('/orders', '/$orderId')]).toBe(
       orders.detail,
     )
@@ -682,6 +685,43 @@ describe('route-tree update adapter', () => {
     expect(router.state.matches.at(-1)?.routeId).toBe(
       routeId('/orders', '/$orderId'),
     )
+  })
+
+  it('serializes prepare mutations behind an in-flight attach load', async () => {
+    const local = host(['/orders', '/payments'])
+    const router = createRouter({
+      routeTree: local.tree,
+      history: createMemoryHistory(),
+    })
+    const adapter = new RemoteRouterAdapter(() => router)
+    const started = deferred()
+    const release = deferred()
+    vi.spyOn(router, 'load').mockImplementationOnce(async () => {
+      started.resolve()
+      await release.promise
+    })
+    const update = vi.spyOn(router, 'update')
+    const first = adapter.attach({
+      mountRoute: local.mounts[0],
+      loadRouteTree: async () => generatedRemote().tree,
+    })
+    await started.promise
+    const loaded = deferred()
+    const second = adapter.prepare({
+      mountRoute: local.mounts[1],
+      loadRouteTree: async () => {
+        loaded.resolve()
+        return generatedRemote().tree
+      },
+    })
+    await loaded.promise
+    await Promise.resolve()
+    expect(update).toHaveBeenCalledTimes(1)
+    expect(adapter.getSnapshot(local.mounts[1]).state).toBe('loading')
+    release.resolve()
+    await Promise.all([first, second])
+    expect(update).toHaveBeenCalledTimes(2)
+    expect(adapter.getSnapshot(local.mounts[1]).state).toBe('prepared')
   })
 
   it('never lets a prepare() share a batch with an attach()', async () => {

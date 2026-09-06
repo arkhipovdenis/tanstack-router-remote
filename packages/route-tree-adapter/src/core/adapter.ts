@@ -21,12 +21,17 @@ import {
 } from './internal/batching-task-queue.js'
 
 /**
- * Attach-only adapter around one existing host router. It coordinates mount
- * lifecycle and idempotency; state publication, mutation serialization, and
- * the TanStack-specific transaction have separate owners.
+ * Attaches remote route trees to one existing host router. Create a single
+ * instance per application and pass it to `RemoteRouterProvider`.
  *
- * The getter is resolved only after a remote tree has loaded, then pinned for
- * this adapter's remaining lifetime.
+ * `attach()` performs a client-side load; `prepare()` grafts a tree for SSR or
+ * hydration and leaves the first `router.load()` to the caller. Both are
+ * idempotent per mount: concurrent calls share one in-flight promise, and an
+ * attached mount resolves immediately.
+ *
+ * The getter is called only after a remote tree has loaded, then pinned for
+ * this adapter's remaining lifetime — so the host router may be created after
+ * the adapter.
  */
 export class RemoteRouterAdapter<TRouter extends AnyRouter = AnyRouter>
   implements RouteTreeAttachmentController, RouteTreePreparationController
@@ -41,6 +46,7 @@ export class RemoteRouterAdapter<TRouter extends AnyRouter = AnyRouter>
   >()
   private readonly attachmentStore = new AttachmentStore()
   private readonly transaction: RouteTreeAttachmentTransaction
+  private mutationTail: Promise<unknown> = Promise.resolve()
   // `prepare()` hands routing to an explicit SSR/hydration boundary while
   // `attach()` owns a client load, so the two never share a batch. Separate
   // queues keep each kind collapsible without interleaving the other.
@@ -59,8 +65,11 @@ export class RemoteRouterAdapter<TRouter extends AnyRouter = AnyRouter>
       binding,
     )
 
-    const runBatch = (requests: readonly RouteTreeAttachmentRequest[]) =>
-      this.runBatch(requests)
+    const runBatch = (requests: readonly RouteTreeAttachmentRequest[]) => {
+      const next = this.mutationTail.then(() => this.runBatch(requests))
+      this.mutationTail = next.catch(() => undefined)
+      return next
+    }
 
     this.attachQueue = new BatchingTaskQueue(runBatch)
     this.prepareQueue = new BatchingTaskQueue(runBatch)
@@ -139,11 +148,34 @@ export class RemoteRouterAdapter<TRouter extends AnyRouter = AnyRouter>
       )
     }
 
-    const queue = operation === 'prepare' ? this.prepareQueue : this.attachQueue
-    const request = queue.enqueue({
-      options,
-      operation,
-      alreadyPrepared: this.preparedMounts.has(mountRoute),
+    // Yield before starting a transport so pending is registered even if the
+    // loader synchronously re-enters attach(). Loading never holds the queue.
+    const request = Promise.resolve().then(async () => {
+      const member: RouteTreeAttachmentRequest = {
+        options,
+        operation,
+        alreadyPrepared: this.preparedMounts.has(mountRoute),
+      }
+      let remoteTree: AnyRoute | undefined
+      if (!member.alreadyPrepared) {
+        try {
+          remoteTree = await options.loadRouteTree()
+          if (!remoteTree)
+            throw new Error('loadRouteTree() did not return a routeTree')
+        } catch (cause) {
+          const error =
+            cause instanceof Error ? cause : new Error(String(cause))
+          this.publishMemberResult(member, {
+            kind: 'failed',
+            error,
+            hostTreeWasMutated: false,
+          })
+          throw error
+        }
+      }
+      const queue =
+        operation === 'prepare' ? this.prepareQueue : this.attachQueue
+      return queue.enqueue({ ...member, remoteTree })
     })
 
     this.pendingByMount.set(mountRoute, request)

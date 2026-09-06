@@ -37,6 +37,8 @@ export type RouteTreeAttachmentRequest = {
    * contributes no graft and only needs the batch's shared `router.load()`.
    */
   readonly alreadyPrepared: boolean
+  /** Loaded before entering the mutation queue. */
+  readonly remoteTree?: AnyRoute
 }
 
 export type RouteTreeBatchMemberResult =
@@ -50,7 +52,7 @@ export type RouteTreeBatchMemberResult =
 
 export interface RouteTreeAttachmentTransaction {
   /**
-   * Runs one batch: remote trees load in parallel, grafts apply in order, and
+   * Runs one batch of ready trees: grafts apply in order, and
    * a single `router.update()` (plus one `router.load()` when any member is a
    * CSR attach) covers every member that grafted successfully.
    *
@@ -94,44 +96,11 @@ export class TanStackRouteTreeAttachmentTransaction<
       () => undefined,
     )
 
-    // Transports are independent, so the whole batch pays one round trip
-    // instead of N. Grafting stays sequential below — it mutates shared state.
-    const loaded = await Promise.all(
-      requests.map(async (request) => {
-        if (request.alreadyPrepared) {
-          return { kind: 'skipped' as const }
-        }
-
-        try {
-          const remoteTree = await request.options.loadRouteTree()
-
-          if (!remoteTree) {
-            throw new Error('loadRouteTree() did not return a routeTree')
-          }
-
-          return { kind: 'loaded' as const, remoteTree }
-        } catch (cause) {
-          return { kind: 'failed' as const, error: toError(cause) }
-        }
-      }),
-    )
-
     const grafted: GraftedMember[] = []
     let router: TRouter | undefined
 
     requests.forEach((request, index) => {
-      const outcome = loaded[index]
-
-      if (outcome.kind === 'failed') {
-        results[index] = {
-          kind: 'failed',
-          error: outcome.error,
-          hostTreeWasMutated: false,
-        }
-        return
-      }
-
-      if (outcome.kind === 'skipped') {
+      if (request.alreadyPrepared) {
         // Already grafted by a previous prepare(): it joins the batch only for
         // the shared load, and it must not release its ownership claim — the
         // router already indexes its routes.
@@ -144,7 +113,7 @@ export class TanStackRouteTreeAttachmentTransaction<
         return
       }
 
-      const { remoteTree } = outcome
+      const remoteTree = request.remoteTree!
       let claimed = false
 
       try {
