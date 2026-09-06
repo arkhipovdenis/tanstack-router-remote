@@ -7,7 +7,7 @@ reproduction and regression test.
 ## Setup
 
 This is a pnpm workspace; npm and Yarn will not resolve `workspace:*` or the
-version catalog. Node 22.13+ and pnpm 11+ are required (pnpm 11 itself needs 22.13; Node 20 reached EOL in April 2026).
+version catalog. Use Node `^22.18.0 || >=24.11.0` and Corepack pnpm 11.9.0. These Node versions define the supported repository verification matrix. pnpm 10.26.0 is the supported lower bound and is also checked in CI.
 
 ```bash
 pnpm install
@@ -21,13 +21,18 @@ tests that look unrelated.
 
 Before opening a change:
 
-1. Keep the public surface limited to the adapter, its host-level React
-   provider, mount preparation, and React attachment helpers. Graft/bridge
+1. Keep the public surface limited to the adapter, its host-level framework
+   providers, mount preparation, and React/Solid/Vue attachment helpers. Graft/bridge
    internals are intentionally private.
-2. Run `pnpm run check` (lint, format, typecheck, tests, builds).
+2. Run `pnpm run check` (lint, format, typecheck, tests, builds) and
+   `pnpm run check:consumers` (archive installed outside the workspace).
    `pnpm run format` fixes formatting; `pnpm run lint:fix` fixes lint.
 3. Add a unit or browser integration test for behavior that depends on route
-   tree mutation, `router.update()`, or rematching.
+   tree mutation, `router.update()`, or rematching. If the behavior only
+   appears with real chunk loading, the federation runtime or a network
+   failure, add it to `tests/e2e` instead and run `pnpm run test:e2e`
+   (Playwright against the production preview; needs
+   `pnpm exec playwright install chromium` once).
 4. Describe whether the change affects direct deep links, SPA navigation,
    basepaths, lifecycle options, cache, route-bound navigation, or a second
    mount.
@@ -37,7 +42,7 @@ Before opening a change:
 The adapter is built with rslib (`packages/route-tree-adapter/rslib.config.ts`)
 as ESM only, one output file per source file.
 
-Releases are tag-driven. The manifest stays at `0.0.0` in git; the version is
+Releases are tag-driven. The committed manifest records the package version; a new version is
 set as part of cutting a release:
 
 ```bash
@@ -58,7 +63,7 @@ disagrees with the version fails before anything reaches npm.
 Publishing uses the `NPM_TOKEN` repository secret (an npm automation token with
 publish rights).
 
-The public API follows semver: the four exported names keep their shape within
+The public API follows semver: documented public exports keep their shape within
 a major. The internals are a different matter — they rely on TanStack behaviour
 that is not an official composition API, so an upstream release can force the
 peer range to narrow in a minor. Widening the supported range still needs a

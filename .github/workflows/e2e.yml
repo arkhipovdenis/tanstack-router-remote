@@ -1,0 +1,37 @@
+name: Browser E2E
+
+# Deliberately separate from CI: these specs build three apps and drive a real
+# browser, so they are slower and more fragile than the unit and integration
+# suites. Keeping them out of the required check means an infrastructure flake
+# never blocks a pull request that jsdom already verified.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile --strict-peer-dependencies
+
+      # Chromium only: the adapter has no browser-specific code, so Firefox and
+      # WebKit would triple the install for no additional coverage.
+      - run: pnpm exec playwright install --with-deps chromium
+
+      # The config's webServer builds the packages and all three example apps,
+      # then serves the production artifacts.
+      - run: pnpm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

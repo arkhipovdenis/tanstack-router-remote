@@ -1,4 +1,4 @@
-import { loadRemote } from '@module-federation/runtime'
+import { loadRemote, registerRemotes } from '@module-federation/runtime'
 import {
   Link,
   Outlet,
@@ -35,6 +35,23 @@ export const demoRuntimeProbe: DemoRuntimeProbe = {
 }
 
 const loadOrdersRouteTree = async () => {
+  // A document-level switch makes transport failure reproducible before grafting.
+  const failure = new URLSearchParams(window.location.search).get(
+    'remoteFailure',
+  )
+  if (failure === 'network') {
+    registerRemotes(
+      [
+        {
+          name: 'orders',
+          entry: 'http://localhost:3101/static/js/missing-remote-entry.js',
+        },
+      ],
+      { force: true },
+    )
+  } else if (failure) {
+    throw new Error('Demo: Orders transport is unavailable')
+  }
   const remote = await loadRemote<RemoteRouteTreeModule>('orders/routeTree')
 
   if (!remote?.routeTree) {
@@ -46,6 +63,7 @@ const loadOrdersRouteTree = async () => {
 
 const rootRoute = createRootRoute({
   component: HostShell,
+  notFoundComponent: () => <h2>Host page not found</h2>,
 })
 
 const homeRoute = createRoute({
@@ -54,6 +72,16 @@ const homeRoute = createRoute({
   component: () => (
     <section>
       <h2>Host home</h2>
+      <p>
+        <a href="/platform/orders?remoteFailure=network">
+          Try a missing remote entry
+        </a>
+      </p>
+      <p>
+        <a href="/platform/orders?remoteFailure=1">
+          Try an unavailable Orders remote
+        </a>
+      </p>
       <p>
         Open the remote with a native TanStack Link. The remote screen is an
         interactive evidence lab: root, pathless layout, index, params, search,
@@ -123,7 +151,10 @@ function OrdersMount() {
       loadRouteTree={loadOrdersRouteTree}
       loading={<p data-testid="orders-loading">Loading orders route tree…</p>}
       error={(error) => (
-        <p data-testid="orders-error">Orders failed to load: {error.message}</p>
+        <section data-testid="orders-error">
+          <p>Orders failed to load: {error.message}</p>
+          <a href="/platform/orders">Restore Orders and reload</a>
+        </section>
       )}
     >
       <Outlet />
