@@ -49,8 +49,9 @@ attachment logic.
 
 ## Public surface
 
-Each framework entry point exports four names: `RemoteRouterAdapter`,
-`RemoteRouterProvider`, `RemoteRouteMount` and `createRemoteRoute`, plus the
+Each framework entry point exports five runtime names: `RemoteRouterAdapter`,
+`RemoteRouterProvider`, `RemoteRouteMount`, `createRemoteRoute` and
+`resolveRemotePath`, plus the
 attachment types. The root exports only what a new binding needs — the bare
 adapter, whose constructor takes a `FrameworkBinding`, and that type. These
 names follow semver; what does not is the ground under them, since attachment

@@ -60,15 +60,18 @@ createFileRoute('/catalog')({ ... }))` — so the decoration is the exported
    `createFileRoute()` path only when that call is the direct export
    initializer, so a wrapped file keeps a wrong path instead of having it
    silently fixed. The mount must initially have no children.
-3. Render `RemoteRouteMount` from the mount component. A direct deep link below
-   an unattached mount produces a fuzzy 404 that _matches the mount_ rather than
-   throwing into it, so that same component renders the loading UI and starts
-   the attach. A local `notFoundComponent` on the mount is **not** required for
-   this and is redundant if it only re-renders the mount; declare one to catch a
-   `notFound()` thrown by the mount's own `beforeLoad`/`loader`, which is the
-   case TanStack routes it to.
+3. Render `RemoteRouteMount` from the mount component. `createRemoteRoute()`
+   installs a local bootstrap `notFoundComponent` so a direct deep link enters
+   the mount even when the host root or a parent layout declares a 404 boundary.
+   Callers do not need to duplicate the mount component in that option.
+   An explicitly declared mount `notFoundComponent` handles resource errors
+   thrown with `notFound()` by the mount's own `beforeLoad`/`loader` before
+   attachment; those errors do not start loading a remote. Without one, resource
+   errors use the router default or TanStack's default boundary.
    After attachment, a structural miss stays a native fuzzy 404 on that mount
-   and renders the remote root's `notFoundComponent` in a scoped context. If
+   and renders the remote root's `notFoundComponent` in a scoped context.
+   Every nested mount owns its own bootstrap boundary, so parent remote 404
+   boundaries remain installed before and after nested attachment. If
    that boundary is absent, it safely uses the host default or TanStack's
    default instead of re-entering the mount. The adapter does **not** add a
    `/$` catch-all: a full-match splat would steal

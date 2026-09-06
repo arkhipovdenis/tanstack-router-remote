@@ -9,3 +9,16 @@ coverage
 packages/*/src/**/*.d.ts
 packages/*/src/**/*.d.ts.map
 .claude
+
+.pnpm-store
+
+test-results
+playwright-report
+.playwright
+
+# Review process artifacts and unpublished launch drafts: working notes for the
+# maintainer, not documentation of the package.
+AGENTS.md
+docs/review-plan.md
+docs/work-state.json
+docs/launch/

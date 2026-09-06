@@ -1,194 +1,172 @@
 # TanStack Router Remote
 
-Attach a remote route tree to a TanStack Router host **after** the host router
-already exists — one router, one history, one route cache.
+Load a remote's route tree when it is needed and attach it to an existing
+TanStack Router. The host and its remotes share history, stores and route cache.
+Bindings are available for React, Solid and Vue.
 
-Works with React, Solid and Vue.
+Use this when independently delivered remotes own routes unknown to the host at
+build time. If all routes are known in one build, start with TanStack's ordinary
+code splitting instead. Cross-renderer applications need an explicit rendering
+bridge; choosing another package entry does not create one automatically.
 
-## Install
+## Install and compatibility
 
-```bash
-pnpm add tanstack-router-remote
+```sh
+npm install tanstack-router-remote @tanstack/react-router @tanstack/router-core react react-dom
 ```
 
-ESM only. Every framework peer is optional, so a Vue host never installs React.
+ESM only. Choose `/react`, `/solid` or `/vue` to match your renderer. Install only
+that renderer's optional peers; core is required. The current tested router
+combination and the distinction between accepted and verified versions are in
+[compatibility](docs/compatibility.md). Do not independently mix TanStack versions
+across host and remotes.
 
-| Entry    | Exports                                                                                |
-| -------- | -------------------------------------------------------------------------------------- |
-| `/react` | `RemoteRouterAdapter`, `RemoteRouterProvider`, `RemoteRouteMount`, `createRemoteRoute` |
-| `/solid` | the same four, bound to Solid                                                          |
-| `/vue`   | the same four, bound to Vue                                                            |
-| root     | the extension point — see [architecture](docs/architecture.md)                         |
+## Complete React example with native import
 
-## Quick start
+In an existing React/TypeScript app, add these two files and an HTML element with
+`id="root"`. Use the same dependency versions for the host and remote.
 
-**1. Declare the mount** — static, childless, created before `createRouter()`:
+`remote.tsx` exports the tree itself. It does not create a router or a provider:
 
 ```tsx
-import { Outlet, type AnyRoute } from '@tanstack/react-router'
-import { loadRemote } from '@module-federation/runtime'
+import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router'
+
+const root = createRootRoute({
+  component: () => (
+    <>
+      <h2>Orders</h2>
+      <Outlet />
+    </>
+  ),
+})
+const index = createRoute({
+  getParentRoute: () => root,
+  path: '/',
+  component: () => <p>Orders index</p>,
+})
+const detail = createRoute({
+  getParentRoute: () => root,
+  path: '/$orderId',
+  component: () => <p>Order {detail.useParams().orderId}</p>,
+})
+export const routeTree = root.addChildren([index, detail])
+```
+
+`main.tsx` creates the mount before the router and provides one adapter:
+
+```tsx
+import { createRoot } from 'react-dom/client'
+import {
+  createRootRoute,
+  createRouter,
+  Outlet,
+  RouterProvider,
+} from '@tanstack/react-router'
 import {
   createRemoteRoute,
   RemoteRouteMount,
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
 } from 'tanstack-router-remote/react'
 
-const ordersMountRoute = createRemoteRoute({
-  getParentRoute: () => rootRoute,
+const root = createRootRoute({
+  component: () => (
+    <>
+      <h1>Host</h1>
+      <Outlet />
+    </>
+  ),
+  notFoundComponent: () => <p>Host page not found</p>,
+})
+const mount = createRemoteRoute({
+  getParentRoute: () => root,
   path: '/orders',
   component: OrdersMount,
 })
-
 function OrdersMount() {
   return (
     <RemoteRouteMount
-      mountRoute={ordersMountRoute}
-      loadRouteTree={async () =>
-        (await loadRemote<{ routeTree: AnyRoute }>('someRemote/routeTree'))
-          .routeTree
-      }
-      loading={<p>Loading Orders…</p>}
-      error={(error) => <p>Orders failed: {error.message}</p>}
+      mountRoute={mount}
+      loadRouteTree={async () => (await import('./remote')).routeTree}
+      loading={<p>Loading orders…</p>}
+      error={(error) => <p>Could not load orders: {error.message}</p>}
     >
       <Outlet />
     </RemoteRouteMount>
   )
 }
-```
-
-**2. Provide one adapter** above the host `RouterProvider`:
-
-```tsx
-import { createRoot } from 'react-dom/client'
-import { RouterProvider } from '@tanstack/react-router'
-import {
-  RemoteRouterAdapter,
-  RemoteRouterProvider,
-} from 'tanstack-router-remote/react'
-
-const routeTreeAdapter = new RemoteRouterAdapter(() => router)
-
-createRoot(rootElement).render(
-  <RemoteRouterProvider adapter={routeTreeAdapter}>
+const router = createRouter({ routeTree: root.addChildren([mount]) })
+const adapter = new RemoteRouterAdapter(() => router)
+const element = document.getElementById('root')
+if (!element) throw new Error('Missing #root element')
+createRoot(element).render(
+  <RemoteRouterProvider adapter={adapter}>
     <RouterProvider router={router} />
   </RemoteRouterProvider>,
 )
 ```
 
-That is the whole CSR setup. Nested remotes reuse the same adapter.
+Open `/orders/42` directly. Configure your web server to serve the host HTML for
+application URLs. Native import demonstrates the adapter without federation;
+independent deployment requires a transport such as Module Federation.
 
-Two constraints to know up front:
+## Constraints to decide on before adoption
 
-- Requires the default `notFoundMode: 'fuzzy'`.
-- A route tree attaches **once**. To mount one remote twice, export a factory
-  returning a fresh tree.
+- Use default fuzzy not-found matching. A static childless mount catches the
+  initial unmatched deep link, loads its tree and rematches it.
+- Trees attach once and are mutated. Export a factory for multiple mounts or
+  SSR requests. Detach/replacement is not supported.
+- The host owns basepath, browser history and global router options.
+- Remote component navigation is scoped; lifecycle redirects are not rebased.
+  Colliding path prefixes need `resolveRemotePath` explicitly.
+- Runtime routes do not extend the host's compile-time route union. The remote
+  root is represented by a pathless bridge, not the host root identity.
+- SSR requires explicit preparation before matching. TanStack Start and
+  streaming/deferred SSR are not established support claims.
 
-## Why it works this way
+See [navigation and types](docs/navigation.md), [API and retry](docs/api.md)
+and [full limitations](docs/limitations.md).
 
-TanStack Router builds its route tree when the router is created. A
-microfrontend host does not have that tree yet — the remote is resolved at
-runtime, often only when the user opens one of its URLs. The usual answers each
-cost something: loading every remote upfront pays for remotes nobody visits,
-and giving the remote its own `<RouterProvider>` splits history and cache in
-two, so deep links and back/forward stop behaving like one app.
+## Choose a guide or runnable example
 
-This grafts the remote tree into the host router instead:
+| Integration                     | Start here                                                         |
+| ------------------------------- | ------------------------------------------------------------------ |
+| Module Federation               | [transport and singleton configuration](docs/module-federation.md) |
+| React / Solid / Vue             | [framework setup](docs/frameworks.md)                              |
+| Physical / virtual file routing | [file routing examples](examples/file-routing/README.md)           |
+| Nested remote trees             | [Orders → Invoices example](examples/module-federation/README.md)  |
+| Native ESM                      | [complete workspace example](examples/native-import/README.md)     |
+| SSR / hydration                 | [runnable server and client](examples/ssr/README.md)               |
+| Custom rendering bridge         | [cross-framework example](examples/cross-framework/README.md)      |
 
-```text
-user opens /orders/42
-  → a static, childless /orders mount takes the fuzzy 404
-  → RemoteRouteMount loads someRemote/routeTree
-  → the adapter grafts it, then router.update() + router.load()
-  → the same router rematches /orders/42 as the remote detail route
+The framework entries export the adapter, provider, mount, route helper,
+and explicit path resolver. The package root is the
+[framework extension point](docs/architecture.md).
+
+## Run the examples
+
+```sh
+corepack pnpm install --frozen-lockfile
+corepack pnpm run dev:example:module-federation
+# http://localhost:3100/platform/orders/invoices/INV-42
 ```
 
-The adapter knows nothing about Module Federation — you supply
-`loadRouteTree(): Promise<AnyRoute>`, from federation, native `import()`, or
-anything else.
+Other scripts: `dev:example:native-import`, `dev:example:file-routing`,
+`dev:example:solid`, `dev:example:vue`, `dev:example:cross-framework`.
+The federation demo includes an unavailable-remote scenario on Host home.
+`pnpm run test:e2e` drives these production builds in a real browser.
 
-## Integrating with TanStack features
+## Contributing
 
-| Feature                | How                                                            | Example                                                              |
-| ---------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Code routes            | `createRemoteRoute({ getParentRoute, path, component })`       | [module-federation](examples/module-federation)                      |
-| File routes (physical) | Wrap the declaration: `createRemoteRoute(createFileRoute(…)…)` | [file-routing/app](examples/file-routing/app)                        |
-| Virtual file routes    | Same wrapper; `virtualRouteConfig` assigns the path            | [file-routing/virtual](examples/file-routing/virtual)                |
-| Pathless layouts       | Pass the route **id** (`/_shell/catalog`), not the URL         | [file-routing/virtual](examples/file-routing/virtual)                |
-| Nested remotes         | The inner remote reuses the host adapter — nothing to wire     | [module-federation/remote](examples/module-federation/remote)        |
-| Module Federation      | `loadRouteTree: () => loadRemote('someRemote/routeTree')`      | [module-federation/host](examples/module-federation/host)            |
-| Native ESM import      | `loadRouteTree: () => import('remote/routeTree')`              | [native-import/host](examples/native-import/host)                    |
-| SSR / hydration        | `adapter.prepare()` + a `createRouteTree()` factory            | [ssr-route-tree.test.tsx](tests/integration/ssr-route-tree.test.tsx) |
+Repository tooling is pinned to pnpm 11.9.0, also checks pnpm 10.26.0, and requires Node
+`^22.18.0 || >=24.11.0`. The supported tooling floor is pnpm 10.26.0;
+package consumers are not constrained to pnpm.
 
-Loaders, `validateSearch`, `beforeLoad`, boundaries, the route cache and scoped
-`Link`/`useNavigate` need **no** integration — they work inside a mounted
-remote as they do anywhere else.
-
-## Examples
-
-```bash
-pnpm run dev:example:module-federation   # localhost:3100/platform/
-pnpm run dev:example:native-import       # localhost:3200/native/catalog
-pnpm run dev:example:file-routing        # localhost:3210 and :3211
-pnpm run dev:example:solid               # localhost:3300/solid/
-pnpm run dev:example:vue                 # localhost:3400/vue/
-pnpm run dev:example:cross-framework     # localhost:3500/cross/
+```sh
+corepack pnpm run check
+corepack pnpm run check:consumers
 ```
 
-The [cross-framework example](examples/cross-framework) is a React host with
-Solid **and** Vue remotes in one router — and documents the rendering interop
-that needs, which the package deliberately does not ship.
-
-## SSR
-
-Attachment must happen **before** the first server match, so SSR needs a
-bootstrap with an async step — not TanStack's default `createRequestHandler`,
-which starts `router.load()` too early. Use `prepare()` instead of `attach()`,
-with fresh host router, adapter and trees per request:
-
-```tsx
-await routeTreeAdapter.prepare({ mountRoute, loadRouteTree: createRouteTree })
-await router.load() // server — or hydrate(router) on the client
-```
-
-`prepare()` only grafts and reindexes, leaving TanStack in control of loader
-data, dehydration and hydration. Full sequence in
-[limitations](docs/limitations.md).
-
-## Constraints
-
-- The host owns `basepath`, history, shell component and global router options.
-- `redirect({ to: '/' })` from remote lifecycle code targets the **host** router.
-- No catch-all `/$` route is added; a missing resource should still
-  `throw notFound()`.
-
-Not researched yet — not known incompatibilities: the remote `__root__`
-identity (projected onto a pathless bridge), streaming/deferred SSR and
-TanStack Start, detach and remote replacement.
-
-Full contract: [limitations](docs/limitations.md).
-
-## Status
-
-The public API follows semver. The ground under it does not: remote-tree
-attachment is not an official TanStack composition API, so an upstream release
-can force the peer range to narrow in a minor. The `Canary (TanStack latest)`
-workflow runs the full check against the newest published router to catch that
-early.
-
-Solid and Vue currently have entry-level test coverage only; the behavioural
-suite React has is not yet mirrored for them. See the
-[evidence matrix](docs/runtime-evidence.md).
+[CONTRIBUTING](CONTRIBUTING.md) · [compatibility policy](docs/compatibility.md)
 
 Not affiliated with or endorsed by TanStack.
-
-## Development
-
-Requires Node 22.13+ and pnpm 11+ (npm and Yarn cannot resolve `workspace:*` or
-the version catalog).
-
-```bash
-pnpm install --frozen-lockfile
-pnpm run check
-```
-
-[CONTRIBUTING.md](CONTRIBUTING.md) · [architecture](docs/architecture.md) ·
-[upstream API directions](docs/proposal.md)
