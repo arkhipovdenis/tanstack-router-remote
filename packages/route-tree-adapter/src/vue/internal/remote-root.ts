@@ -6,7 +6,6 @@ import {
   type RouteComponent,
 } from '@tanstack/vue-router'
 
-import { hasUnattachedDescendantMount } from '../../core/internal/route-tree.js'
 import type { AnyNotFoundComponent } from '../../core/types.js'
 import {
   provideScopedNotFoundRouter,
@@ -62,8 +61,7 @@ export function createRemoteRootBridge({
     shellComponent: _shellComponent,
     component: _component,
     staticData: _staticData,
-    // Held back deliberately - see the React binding for the full reason: a
-    // boundary here would shadow a descendant mount that has not attached yet.
+    // The boundary is installed with the host mount's navigation scope below.
     notFoundComponent: _notFoundComponent,
     ...mountCompatibleOptions
   } = remoteOptions
@@ -105,10 +103,8 @@ export function configureRemoteStructuralNotFound({
   remoteRootBridge: AnyRoute
   remoteRootNotFoundComponent?: AnyNotFoundComponent
 }) {
-  if (hasUnattachedDescendantMount(remoteRootBridge)) {
-    return
-  }
-
+  // Every nested mount owns a bootstrap boundary, so parent remote boundaries
+  // can be installed immediately without intercepting a nested deep link.
   const remoteRootNotFound = remoteRootNotFoundComponent
 
   // A remote-local boundary is part of the mounted application, so it needs

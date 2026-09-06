@@ -11,6 +11,7 @@ import {
 } from '@tanstack/solid-router'
 
 import { prepareRouteTreeMount } from '../core/internal/prepare-mount.js'
+import { createBootstrapNotFound } from './internal/bootstrap-not-found.js'
 
 /**
  * Creates a childless host mount for a remotely supplied route tree.
@@ -31,6 +32,11 @@ import { prepareRouteTreeMount } from '../core/internal/prepare-mount.js'
  *
  * The generator reads the inner `createFileRoute` call and is satisfied by it,
  * so no build-time transform is involved.
+ *
+ * The mount receives a not-found boundary that lets a deep link below it reach
+ * the mount even when a host ancestor declares its own, so `RemoteRouteMount`
+ * can start the attach. Declare `notFoundComponent` on the mount only to handle
+ * a `notFound()` thrown by its own `beforeLoad` or `loader`.
  */
 export function createRemoteRoute<TRoute extends AnyRoute>(
   route: TRoute,
@@ -102,7 +108,7 @@ export function createRemoteRoute<
 export function createRemoteRoute(input: unknown) {
   const route = isRouteInstance(input) ? input : createRoute(input as never)
 
-  return prepareRouteTreeMount(route)
+  return prepareRouteTreeMount(route, createBootstrapNotFound)
 }
 
 function isRouteInstance(value: unknown): value is AnyRoute {

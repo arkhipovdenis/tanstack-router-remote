@@ -424,8 +424,8 @@ function createRuntimeFixture(
     )
   }
 
-  // Deliberately no `notFoundComponent`: a deep link below an unattached mount
-  // fuzzy-matches the mount, so `component` is the only slot the handoff needs.
+  // createRemoteRoute installs the bootstrap boundary; callers only provide
+  // the mount component that loads the remote.
   const localOrdersMountRoute = createRemoteRoute({
     getParentRoute: () => hostRoot,
     path: '/orders',
@@ -1124,15 +1124,11 @@ describe('remote route tree mount in a browser-like React runtime', () => {
   })
 
   it('serves a direct deep link from a mount that declares no notFoundComponent', async () => {
-    // The documented contract: a fuzzy 404 below an unattached mount is an
-    // ordinary match on the mount, not a notFound() thrown into it, so the
-    // mount's `component` renders the loading UI and starts the attach.
-    // Wiring the same component into `notFoundComponent` as well is redundant.
+    // Callers do not need to wire a not-found boundary: preparation installs
+    // one that enters the mount component for structural misses.
     const fixture = createRuntimeFixture('/orders/42', {
       deferRemoteTree: true,
     })
-
-    expect(fixture.ordersMountRoute.options.notFoundComponent).toBeUndefined()
 
     const rendered = await renderFixture(fixture)
     cleanup = rendered.cleanup

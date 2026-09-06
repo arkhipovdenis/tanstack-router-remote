@@ -6,7 +6,6 @@ import {
   type RouteComponent,
 } from '@tanstack/react-router'
 
-import { hasUnattachedDescendantMount } from '../../core/internal/route-tree.js'
 import type { AnyNotFoundComponent } from '../../core/types.js'
 import {
   provideScopedNotFoundRouter,
@@ -62,12 +61,7 @@ export function createRemoteRootBridge({
     shellComponent: _shellComponent,
     component: _component,
     staticData: _staticData,
-    // Held back deliberately. Since router-core 1.171.16 the not-found
-    // boundary resolves to the nearest ancestor declaring one, so a boundary
-    // on the bridge shadows any descendant mount that has not attached yet -
-    // TanStack renders it instead of the mount's component, and that component
-    // is what starts the next attach. `configureRemoteStructuralNotFound`
-    // installs it once nothing below is still waiting.
+    // The boundary is installed with the host mount's navigation scope below.
     notFoundComponent: _notFoundComponent,
     ...mountCompatibleOptions
   } = remoteOptions
@@ -109,22 +103,8 @@ export function configureRemoteStructuralNotFound({
   remoteRootBridge: AnyRoute
   remoteRootNotFoundComponent?: AnyNotFoundComponent
 }) {
-  // A remote tree can itself contain a mount that has not attached yet. Since
-  // router-core 1.171.16 the not-found boundary is resolved to the nearest
-  // ancestor that declares `notFoundComponent`, so installing one here would
-  // shadow that inner mount: TanStack would render this boundary instead of
-  // descending into the mount's own component, and the component is what starts
-  // the next attach. A two-level deep link would then stop at the outer 404.
-  //
-  // Leaving the mount without a boundary keeps the fuzzy match on the mount
-  // itself, which is the documented handoff. The remote root still owns the 404
-  // once every descendant mount is attached, because the graft runs this again.
-  if (hasUnattachedDescendantMount(remoteRootBridge)) {
-    return
-  }
-
-  // Read from the original remote root: the bridge deliberately does not carry
-  // it until now (see `createRemoteRootBridge`).
+  // Every nested mount owns a bootstrap boundary, so parent remote boundaries
+  // can be installed immediately without intercepting a nested deep link.
   const remoteRootNotFound = remoteRootNotFoundComponent
 
   // A remote-local boundary is part of the mounted application, so it needs
@@ -142,10 +122,6 @@ export function configureRemoteStructuralNotFound({
     notFoundComponent: structuralNotFoundComponent,
   } as never)
 
-  // Now that nothing below is waiting to attach, the bridge can carry the
-  // remote root's own boundary - the projection `createRemoteRootBridge`
-  // deferred. Without this the remote root's `notFoundComponent` would be lost
-  // rather than merely postponed.
   if (remoteRootNotFound) {
     remoteRootBridge.update({
       notFoundComponent: remoteRootNotFound,
