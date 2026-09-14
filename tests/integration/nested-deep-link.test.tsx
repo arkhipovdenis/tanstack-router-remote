@@ -10,7 +10,9 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  useRouter,
   type AnyRoute,
+  type AnyRouter,
 } from '@tanstack/react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -46,6 +48,11 @@ type Level = {
   /** Path segment this level's mount occupies in its parent tree. */
   segment: string
   loadTree: ReturnType<typeof vi.fn>
+  /**
+   * The scoped facade the level below this mount renders with, captured from
+   * `useRouter()` once that level's root component has run.
+   */
+  scopedRouter?: AnyRouter
 }
 
 /**
@@ -61,11 +68,19 @@ function createChain(depth: number, leafLoader: () => unknown) {
 
   const buildTree = (level: number): AnyRoute => {
     const root = createRootRoute({
-      component: () => (
-        <section data-testid={`level-${level}-root`}>
-          <Outlet />
-        </section>
-      ),
+      component: () => {
+        // levels[] is indexed by the mount that introduced this level, so
+        // level N's router is recorded against levels[N - 2].
+        const parent = levels[level - 2]
+
+        if (parent) parent.scopedRouter = useRouter()
+
+        return (
+          <section data-testid={`level-${level}-root`}>
+            <Outlet />
+          </section>
+        )
+      },
       notFoundComponent: () => (
         <p data-testid={`level-${level}-404`}>level {level} 404</p>
       ),
@@ -258,6 +273,32 @@ describe('deep links through chained remote mounts', () => {
     })
     await settle()
     expect(container.querySelector('[data-testid="level-1-404"]')).toBeTruthy()
+  })
+
+  it('navigates a nested remote through its own composed facade', async () => {
+    // The facade a nested remote renders with composes over the outer mount's,
+    // so its own `/` is the nested mount path, not the host root. Asserted here
+    // rather than in the SSR suite: navigation is a client operation, and
+    // router-core no-ops it when it resolves `isServer`.
+    const fixture = createFixture(2, '/remote/level2/LEAF-1')
+    const container = await render(fixture)
+
+    const nested = fixture.chain.levels[0]?.scopedRouter
+
+    expect(nested).toBeDefined()
+    expect(nested).not.toBe(fixture.router)
+    expect(nested!.history).toBe(fixture.router.history)
+
+    await act(async () => {
+      await nested!.navigate({ to: '/' } as never)
+    })
+    await settle()
+
+    expect(fixture.router.state.location.pathname).toBe('/remote/level2')
+    expect(fixture.router.history.location.pathname).toBe('/remote/level2')
+    expect(
+      container.querySelector('[data-testid="level-2-index"]'),
+    ).toBeTruthy()
   })
 
   it('attaches two levels in one direct entry', async () => {

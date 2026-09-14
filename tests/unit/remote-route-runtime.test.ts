@@ -162,7 +162,6 @@ describe('attached remote runtime', () => {
     const rootRouter = remote.lifecycle.rootRouters.at(-1) as typeof host.router
     const detailRouter = remote.lifecycle.detailRouters.at(-1)
     const lineItemsRouter = remote.lifecycle.lineItemsRouters.at(-1)
-    const attachedTree = host.router.routeTree
 
     expect(markup).toContain('data-remote-root="remote-root-loader"')
     expect(markup).toContain('data-remote-detail="remote-detail-loader"')
@@ -206,29 +205,12 @@ describe('attached remote runtime', () => {
       source: 'remote-line-items-loader',
       orderId: '42',
     })
-
-    await rootRouter.navigate({ to: '/' } as never)
-
-    expect(host.router.state.location.pathname).toBe('/orders')
-    expect(host.router.routeTree).toBe(attachedTree)
-    expect(renderRouter(host.router)).toContain(
-      'data-remote-index="remote-index-loader"',
-    )
-
-    const indexRootRouter = remote.lifecycle.rootRouters.at(
-      -1,
-    ) as typeof host.router
-    const indexRouter = remote.lifecycle.indexRouters.at(-1)
-
-    expect(indexRootRouter).toBe(indexRouter)
-    expect(indexRootRouter.stores).toBe(host.router.stores)
-    expect(indexRootRouter.stores.matches).toBe(host.router.stores.matches)
-    expect(indexRootRouter.state.location.pathname).toBe(
-      host.router.state.location.pathname,
-    )
   })
 
-  it('matches through a host basepath and preserves it for scoped remote navigation', async () => {
+  it('matches a deep link through a host basepath', async () => {
+    // Scoped navigation under a basepath is a client operation, covered in
+    // tests/unit/scoped-navigation.test.ts. Here the basepath only has to
+    // survive matching and rendering.
     const host = createRuntimeHost(
       '/platform/orders/42?tab=detail',
       '/platform',
@@ -243,20 +225,18 @@ describe('attached remote runtime', () => {
     })
 
     expect(renderRouter(host.router)).toContain('data-detail-order-id="42"')
+    expect(host.router.history.location.pathname).toBe('/platform/orders/42')
 
+    // Read after rendering: the fixture captures routers from useRouter(),
+    // so the lifecycle arrays are empty until the components have run.
     const scopedRouter = remote.lifecycle.rootRouters.at(
       -1,
     ) as typeof host.router
 
-    await scopedRouter.navigate({ to: '/' } as never)
-
-    expect(host.router.history.location.pathname).toBe('/platform/orders')
-    expect(renderRouter(host.router)).toContain(
-      'data-remote-index="remote-index-loader"',
-    )
+    expect(scopedRouter.history).toBe(host.router.history)
   })
 
-  it('attaches nested remote trees through one host adapter and composes scoped navigation', async () => {
+  it('attaches nested remote trees through one host adapter', async () => {
     let invoicesRouter: unknown
 
     function OrdersRoot() {
@@ -337,14 +317,12 @@ describe('attached remote runtime', () => {
 
     const scopedInvoicesRouter = invoicesRouter as typeof host.router
 
+    // The nested facade composes over the outer one; that it also *navigates*
+    // scoped is covered in tests/integration/nested-deep-link.test.tsx, which
+    // runs in a client environment where navigation is not a no-op.
     expect(scopedInvoicesRouter).not.toBe(host.router)
     expect(scopedInvoicesRouter.history).toBe(host.router.history)
     expect(scopedInvoicesRouter.stores).toBe(host.router.stores)
-
-    await scopedInvoicesRouter.navigate({ to: '/' } as never)
-
-    expect(host.router.history.location.pathname).toBe('/orders/invoices')
-    expect(renderRouter(host.router)).toContain('invoices-index')
   })
 
   it('projects root pending/error/not-found boundaries and executes root error and not-found states', async () => {
