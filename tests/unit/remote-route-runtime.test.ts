@@ -40,11 +40,14 @@ function createRootBoundaryRemote() {
     return createElement('p', { 'data-root-pending': 'true' }, 'root-pending')
   }
 
-  function ErrorBoundary({ error }: { error: Error }) {
+  function ErrorBoundary({ error }: { error: unknown }) {
     errorRenders += 1
     return createElement(
       'p',
-      { 'data-root-error': error.message },
+      {
+        'data-root-error':
+          error instanceof Error ? error.message : String(error),
+      },
       'root-error',
     )
   }

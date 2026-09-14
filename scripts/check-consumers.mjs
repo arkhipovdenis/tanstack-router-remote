@@ -90,14 +90,24 @@ void adapter.prepare({ mountRoute: mount, loadRouteTree: async () => remote.addC
   run(join(dir, 'node_modules/.bin/tsc'), ['--noEmit'], dir)
   run(join(dir, 'node_modules/.bin/rsbuild'), ['build'], dir)
   if (framework === 'react') {
+    // Only the fences tagged `title=<file>.tsx` are complete files. The rest of
+    // the README's tsx blocks are deliberate fragments - one idea at a time,
+    // referring to identifiers declared in a neighbouring step - so compiling
+    // them would assert something the documentation never claims.
     const readme = await readFile(join(repo, 'README.md'), 'utf8')
-    const snippets = [...readme.matchAll(/```tsx\n([\s\S]*?)```/g)].map(
-      (match) => match[1],
+    const snippets = new Map(
+      [...readme.matchAll(/```tsx title=([\w.-]+)\n([\s\S]*?)```/g)].map(
+        (match) => [match[1], match[2]],
+      ),
     )
-    if (snippets.length !== 2)
-      throw new Error('Expected the two complete README files')
-    await writeFile(join(dir, 'remote.tsx'), snippets[0])
-    await writeFile(join(dir, 'main.tsx'), snippets[1])
+    const expected = ['remote.tsx', 'main.tsx']
+    const missing = expected.filter((name) => !snippets.has(name))
+    if (missing.length)
+      throw new Error(
+        `README is missing a complete \`\`\`tsx title=<file> block for: ${missing.join(', ')}`,
+      )
+    for (const name of expected)
+      await writeFile(join(dir, name), snippets.get(name))
     await writeFile(
       join(dir, 'tsconfig.docs.json'),
       JSON.stringify({

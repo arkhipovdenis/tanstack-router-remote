@@ -26,13 +26,48 @@ This package takes a third path: the remote exports its **route tree**, not a
 router, and the host grafts that tree into the tree it already has — the first
 time someone opens a URL under the mount.
 
-```text
-user opens /orders/42
-  → a static, childless /orders mount catches the unmatched deep link
-  → the mount loads the remote's route tree
-  → the tree is grafted, then router.update() + router.load()
-  → the same router rematches /orders/42 as the remote's detail route
+Concretely: the host builds its router knowing only that _something_ lives under
+`/orders`. It declares a mount — a real route with no children:
+
+```tsx
+const mount = createRemoteRoute({
+  getParentRoute: () => root,
+  path: '/orders',
+  component: OrdersMount,
+})
+
+const router = createRouter({ routeTree: root.addChildren([mount]) })
 ```
+
+Someone opens `/orders/42` — a bookmark, a shared link, a cold load. There is no
+`/orders/42` in that tree, so TanStack's fuzzy matching falls back to the closest
+route that does match: the `/orders` mount. Its component runs, and that is the
+hook the whole design hangs on:
+
+```tsx
+function OrdersMount() {
+  return (
+    <RemoteRouteMount
+      mountRoute={mount}
+      loadRouteTree={async () => (await import('./remote')).routeTree}
+      loading={<p>Loading orders…</p>}
+    >
+      <Outlet />
+    </RemoteRouteMount>
+  )
+}
+```
+
+`RemoteRouteMount` calls `loadRouteTree()`, receives the remote's exported
+`routeTree`, and adds it as children of the mount. The tree now _has_ an
+`/orders/$orderId`, so it asks the router to match the current URL again — and
+`/orders/42` resolves to the remote's detail route, which renders through the
+`<Outlet />` above. One `createRouter()`, one history, one cache, start to
+finish; `/orders/42` was never handled by a second router.
+
+Had the user opened plain `/orders` instead, the identical path runs — the
+rematch just lands on the remote's index route. The deep link is the interesting
+case only because it is the one that usually breaks.
 
 Loaders, `validateSearch`, `beforeLoad`, boundaries, the route cache and
 `Link`/`useNavigate` need no integration — inside a mounted remote they behave
@@ -61,13 +96,106 @@ combinations are in [compatibility](docs/compatibility.md).
 
 ## Quick start
 
-Two files, in an existing React/TypeScript app with an `id="root"` element. Host
-and remote must use the same dependency versions. This uses a native `import()`
-so there is nothing to configure; swap it for a federation call once it works.
+Four short steps, in an existing React/TypeScript app with an `id="root"`
+element. Host and remote must use the same dependency versions. This uses a
+native `import()` so there is nothing to configure; swap it for a federation
+call once it works.
 
-**1. The remote exports a route tree** — no router, no provider:
+**1. The remote exports a route tree** — no router, no provider. Whatever your
+remote already builds, export the tree instead of a router:
 
 ```tsx
+export const routeTree = root.addChildren([index, detail])
+```
+
+**2. The host declares a mount.** This is the only part that differs between
+routing styles, and it is a few lines either way.
+
+Code routes — the mount is a route like any other, passed to `createRouter()`:
+
+```tsx
+import { createRemoteRoute } from 'tanstack-router-remote/react'
+
+const mount = createRemoteRoute({
+  getParentRoute: () => root,
+  path: '/orders',
+  component: OrdersMount,
+})
+
+const router = createRouter({ routeTree: root.addChildren([mount]) })
+```
+
+File routes — the generator decides the parent, so wrap the generated
+declaration and let the wrapper be the exported `Route`:
+
+```tsx
+// src/routes/orders.remote.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { createRemoteRoute } from 'tanstack-router-remote/react'
+
+export const Route = createRemoteRoute(
+  createFileRoute('/orders')({ component: OrdersMount }),
+)
+```
+
+The generator reads the inner `createFileRoute` call, so no build-time transform
+is involved — and a mount that forgot the wrapper cannot exist, because the
+wrapper _is_ the export.
+
+**3. The mount's component loads the tree** — identical in both styles, except
+that `mountRoute` is `mount` or `Route` to match:
+
+```tsx
+import { Outlet } from '@tanstack/react-router'
+import { RemoteRouteMount } from 'tanstack-router-remote/react'
+
+function OrdersMount() {
+  return (
+    <RemoteRouteMount
+      mountRoute={Route}
+      loadRouteTree={async () => (await import('./remote')).routeTree}
+      loading={<p>Loading orders…</p>}
+      error={(error) => <p>Could not load orders: {error.message}</p>}
+    >
+      <Outlet />
+    </RemoteRouteMount>
+  )
+}
+```
+
+**4. One adapter above `RouterProvider`** — the same in both styles:
+
+```tsx
+import {
+  RemoteRouterAdapter,
+  RemoteRouterProvider,
+} from 'tanstack-router-remote/react'
+
+const adapter = new RemoteRouterAdapter(() => router)
+
+createRoot(element).render(
+  <RemoteRouterProvider adapter={adapter}>
+    <RouterProvider router={router} />
+  </RemoteRouterProvider>,
+)
+```
+
+Now open `/orders/42` directly — not `/orders` first. The deep link is the case
+that matters: the mount catches it, loads the tree and rematches, all before
+anything renders. Your dev server must serve the host HTML for application URLs.
+
+To deploy the remote separately, replace `import('./remote')` with a transport —
+`loadRemote('orders/routeTree')` for Module Federation, or anything else that
+returns a route tree. The adapter does not care which.
+
+The steps above are fragments, shown one idea at a time. Here are the same two
+files whole — this pair is compiled on every CI run, so it is known to build
+against the packed package:
+
+<details>
+<summary>The complete host and remote</summary>
+
+```tsx title=remote.tsx
 import { createRootRoute, createRoute, Outlet } from '@tanstack/react-router'
 
 const root = createRootRoute({
@@ -91,10 +219,7 @@ const detail = createRoute({
 export const routeTree = root.addChildren([index, detail])
 ```
 
-**2. The host declares a mount** before `createRouter()`, and provides one
-adapter above `RouterProvider`:
-
-```tsx
+```tsx title=main.tsx
 import { createRoot } from 'react-dom/client'
 import {
   createRootRoute,
@@ -146,14 +271,20 @@ createRoot(element).render(
 )
 ```
 
-Open `/orders/42` directly — not `/orders` first. The deep link is the case that
-matters: the mount catches it, loads the tree and rematches, all before anything
-renders. Your dev server must serve the host HTML for application URLs.
+</details>
 
-To deploy the remote separately, replace `import('./remote')` with a transport —
-`loadRemote('orders/routeTree')` for Module Federation, or anything else that
-returns a route tree. The adapter does not care which; see
-[Module Federation](docs/module-federation.md).
+For a host and remote you can actually run, start with the
+[native ESM example](examples/native-import/README.md) — no bundler
+configuration — or the [file routing examples](examples/file-routing/README.md)
+for both generator modes. The full index is
+[below](#choose-a-guide-or-runnable-example).
+
+Two file-routing details worth knowing before you copy: the `.remote` in
+`orders.remote.tsx` is not a path segment only because that host sets
+`routeToken: /(?:route|remote)/`, and in virtual mode the path you pass to
+`createFileRoute` must match the generated route id — a mount under a pathless
+`shell.tsx` layout is declared `createFileRoute('/_shell/catalog')` even though
+its URL stays `/catalog`. Both are spelled out in the file-routing example.
 
 ## Know before you adopt
 

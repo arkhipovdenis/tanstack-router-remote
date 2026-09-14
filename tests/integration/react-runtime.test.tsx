@@ -302,9 +302,12 @@ function createRuntimeFixture(
     return <p data-testid="remote-nested-activity">Remote nested activity</p>
   }
 
-  function RemoteRootError({ error }: { error: Error }) {
+  function RemoteRootError({ error }: { error: unknown }) {
     return (
-      <p data-testid="remote-root-error">Remote root error:{error.message}</p>
+      <p data-testid="remote-root-error">
+        Remote root error:
+        {error instanceof Error ? error.message : String(error)}
+      </p>
     )
   }
 
