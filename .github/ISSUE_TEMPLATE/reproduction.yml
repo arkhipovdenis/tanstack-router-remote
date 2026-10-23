@@ -1,0 +1,96 @@
+name: Reproduction report
+description: A failure you can reproduce, with the version graph it happened on.
+labels: ['reproduction']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The adapter grafts onto TanStack Router internals, so a failure is
+        usually specific to one version graph and one loading path. The fields
+        below are the ones that make a report actionable; the version graph and
+        a reproduction are the two that cannot be guessed.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The observed failure, and what you expected instead.
+      placeholder: |
+        Opening /orders/42 directly renders the host 404 instead of the remote
+        detail route. Navigating from /orders works.
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Version graph
+      description: >
+        Output of `npm ls tanstack-router-remote @tanstack/react-router
+        @tanstack/router-core` (substitute your renderer), plus Node and the
+        package manager. Paste the whole thing rather than summarising it — a
+        split router version is itself a known failure mode.
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: renderer
+    attributes:
+      label: Renderer entry
+      options:
+        - tanstack-router-remote/react
+        - tanstack-router-remote/solid
+        - tanstack-router-remote/vue
+        - Cross-framework (host and remote differ)
+    validations:
+      required: true
+  - type: dropdown
+    id: transport
+    attributes:
+      label: How the remote route tree is loaded
+      description: Whatever your `loadRouteTree` does.
+      options:
+        - Module Federation
+        - Native ESM import()
+        - Import map
+        - Registry or custom client
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where it fails
+      description: >
+        Router loading paths differ between environments, so a failure that only
+        appears in one of these is a useful signal rather than a detail.
+      multiple: true
+      options:
+        - Dev server
+        - Production build
+        - SSR / hydration
+        - Tests
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: >
+        A repository, a diff against one of the examples, or numbered steps from
+        a clean install. An example-based diff is the fastest to act on.
+    validations:
+      required: true
+  - type: textarea
+    id: mount
+    attributes:
+      label: Mount setup
+      description: >
+        The `createRemoteRoute` call and the route path it is mounted at, if the
+        failure involves mounting, not-found handling or navigation.
+      render: tsx
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: >
+        Workaround you found, whether it worked on an earlier version, relevant
+        console or build output.

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Compatibility and version support
+    url: https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/compatibility.md
+    about: Which TanStack Router versions are verified, and what the peer ranges do and do not promise.
+  - name: Known limits and invariants
+    url: https://github.com/arkhipovdenis/tanstack-router-remote/blob/main/docs/limitations.md
+    about: Mount and ownership rules, navigation behaviour and the validated boundary — check before filing.

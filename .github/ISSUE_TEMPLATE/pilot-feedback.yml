@@ -1,0 +1,77 @@
+name: Pilot feedback
+description: Report how an integration attempt went, including where you got stuck.
+labels: ['pilot']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Install the package from the README alone, mount one remote, open a
+        detail URL directly, exercise back/forward across the mount, and
+        recover from a transport failure — then tell us how it went.
+
+        A report where you stopped early is more useful than one where
+        everything worked: the point is to find what the documentation fails to
+        explain. Share only what you are willing to make public.
+  - type: dropdown
+    id: renderer
+    attributes:
+      label: Renderer
+      options:
+        - React
+        - Solid
+        - Vue
+        - Cross-framework
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: How far did you get
+      options:
+        - Rendered a remote route
+        - Installed, but never rendered a remote route
+        - Stopped before installing
+    validations:
+      required: true
+  - type: input
+    id: time-to-first-remote
+    attributes:
+      label: Time to first rendered remote route
+      description: >
+        From opening the README to the first remote route on screen. A rough
+        figure is fine; note installation time separately if it dominated.
+      placeholder: 'about 40 minutes, of which 10 was installing'
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Where you got stuck
+      description: >
+        Each point where you had to stop, and what got you moving again — a doc
+        section, trial and error, or reading the source. Name the workaround
+        even if it felt obvious.
+    validations:
+      required: true
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Scenario results
+      description: >
+        Which of these worked: mounting one remote, opening a detail URL
+        directly, back/forward across the mount, recovering from a transport
+        failure. Note any that you did not try.
+    validations:
+      required: true
+  - type: textarea
+    id: docs-gaps
+    attributes:
+      label: What the documentation should have told you
+      description: The explanation you expected to find and did not.
+  - type: textarea
+    id: context
+    attributes:
+      label: Setup
+      description: >
+        Renderer versions, how you load the remote route tree (Module
+        Federation, native import, import map, custom), bundler, and whether
+        SSR was involved.
+      render: shell
