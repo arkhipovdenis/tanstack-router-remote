@@ -75,3 +75,33 @@ baseline check passes with 121 tests. Installations in CI and release workflows
 now enforce peer requirements. Earlier baseline/latest observations using
 Solid 1.9.10 remain historical evidence; they are not a separate verification
 of this new compiler/runtime combination against every upstream version.
+
+## Latest snapshot verified on 2026-10-23 — canary drift resolved
+
+The canary had been failing weekly since router-core 1.171.28 (issue #1). The
+adapter was not affected: the single failure was a test probe that located
+TanStack's dehydrate script by `class="$tsr"`. Core 1.171.26 emitted that class;
+by 1.171.39 the hydration-script emitter was rewritten to mark those scripts
+with a `data-tsr-stream-part` attribute instead, and to end them with a
+sibling-sweeping cleanup block rather than `;document.currentScript.remove()`.
+The payload itself (`$_TSR.router=`) is unchanged, so the probe now finds the
+script by that content and strips either cleanup form. No package source
+changed and no upper bound is needed.
+
+The full check passed against both the pinned catalog and the floating latest:
+122 tests, lint, formatting, types, package and example builds, on Node 24 /
+pnpm 11.9.0.
+
+| Package                       | Verified latest |
+| ----------------------------- | --------------- |
+| @tanstack/react-router        | 1.170.46        |
+| @tanstack/router-core         | 1.171.39        |
+| @tanstack/solid-router        | 1.170.43        |
+| @tanstack/vue-router          | 1.170.42        |
+| @tanstack/router-plugin       | 1.168.48        |
+| @tanstack/router-generator    | 1.167.46        |
+| @tanstack/virtual-file-routes | 1.162.0         |
+
+The catalog baseline was left at its pinned versions; the latest run used a
+temporary copy. A passing local canary is not a record of a remote scheduled
+run.

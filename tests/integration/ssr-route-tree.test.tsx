@@ -330,16 +330,29 @@ describe('SSR route-tree attachment', () => {
 
     document.documentElement.innerHTML = documentElement.innerHTML
     const appRoot = document.getElementById('root')!
-    const script = document.body.querySelector('script[class="$tsr"]')
-    expect(appRoot.querySelector('script[class="$tsr"]')).toBeNull()
+    // The dehydrate payload is located by its content, not by a marker: router
+    // 1.171.26 tagged these scripts `class="$tsr"`, while 1.171.39 replaced
+    // that with a `data-tsr-stream-part` attribute the final boundary script
+    // does not even carry. The `$_TSR.router=` assignment is the stable part.
+    const findRouterScript = (scope: ParentNode) =>
+      [...scope.querySelectorAll('script')].find((candidate) =>
+        candidate.textContent?.includes('$_TSR.router'),
+      )
+    const script = findRouterScript(document.body)
+    expect(findRouterScript(appRoot)).toBeUndefined()
     expect(script?.textContent).toContain('$_TSR.router')
     // jsdom does not execute scripts inserted through innerHTML. The response
     // carries TanStack's real dehydrate payload, so execute that exact script
-    // before calling the public client hydrate() API.
-    const serializedRouterScript = script!.textContent!.replace(
-      ';document.currentScript.remove()',
-      '',
-    )
+    // before calling the public client hydrate() API — minus the trailing
+    // self-cleanup, which has no `document.currentScript` to work with here.
+    // Both the old single-statement form and the newer sibling-sweeping block
+    // are stripped, so this survives either emitter.
+    const serializedRouterScript = script!
+      .textContent!.replace(
+        /\{let s=document\.currentScript,p;.*?s\.remove\(\)\}$/,
+        '',
+      )
+      .replace(/;document\.currentScript\.remove\(\)$/, '')
     window.eval(serializedRouterScript)
 
     const clientFixture = createClientFixture('/orders/42')
