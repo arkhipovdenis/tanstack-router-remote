@@ -111,3 +111,35 @@ physical and virtual generator modes.
 
 Keep future code near the boundary it serves. Add a shared module only when a
 real reuse case appears, and do not add subpath exports without a consumer need.
+
+## Published shape and sourcemaps
+
+`rslib` builds transpile-only with `bundle: false`, so `dist/` mirrors `src/`:
+one output file per source file: 35 JavaScript modules averaging 1.2 kB.
+Together with `sideEffects: false` and the exports map, that is what lets a
+consumer take one framework entry without the other two. Measured on 1.1.1 with esbuild, peers
+external:
+
+| Consumer import                                | Raw     | Gzip   |
+| ---------------------------------------------- | ------- | ------ |
+| One symbol from `tanstack-router-remote/react` | 983 B   | 538 B  |
+| The whole React entry plus the core root       | 11.7 kB | 3.9 kB |
+
+The tarball is a different number from the bundle cost, and npm's size notice
+reports the former. The 1.1.1 tarball is 53 kB packed and 237 kB unpacked across
+137 files: 135 kB of that is sourcemaps (29 `.js.map` plus 35 `.d.ts.map`),
+43 kB types, 42 kB JavaScript, 15 kB README. Nothing unintended ships — `files`
+is `dist`, `README.md`, `LICENSE`.
+
+Sourcemaps are published deliberately, with `sourcesContent` embedded. `src/` is
+not shipped, so the maps have to carry the sources to resolve at all, and they
+do: a thrown error under `node --enable-source-maps` reports
+`src/core/adapter.ts:181` rather than `dist/core/adapter.js:77`, and a consumer
+bundler propagates the original `.ts` sources into its own map. This matters
+more here than in an ordinary library, because the adapter grafts onto mutable
+TanStack internals: an upstream change surfaces as a failure inside this
+package's code in someone else's application, and issue #1 showed how
+unreadable such a failure is without the mapping. The maps never reach a
+consumer bundle and cost only tarball bytes, so they stay. Dropping
+`sourcesContent` alone would save 80 kB and remove half the benefit; it was
+considered and rejected.
